@@ -1,5 +1,6 @@
 import type { Run, RunTask } from '../models/run';
 import { deliveryDay } from '../services/engine/schedule';
+import { inventedLinks } from '../services/review/checks';
 import type { ObjectiveCase } from './datasets';
 
 export interface ObjectiveMetrics {
@@ -22,6 +23,8 @@ export interface ObjectiveMetrics {
   onTime: boolean;
   /** Expected human checkpoints the plan routed to a person. */
   humanStepCoverage: number;
+  /** Accepted deliverables containing links absent from the objective and context. */
+  inventedLinkDeliverables: number;
   perturbationsHandled: number;
   perturbationsTotal: number;
   calls: number;
@@ -60,6 +63,7 @@ export function computeObjectiveMetrics(testCase: ObjectiveCase, run: Run, corru
     deadlineDays: run.deadlineDays,
     onTime: run.status === 'completed' && day <= run.deadlineDays,
     humanStepCoverage: humanStepCoverage(testCase, run.tasks),
+    inventedLinkDeliverables: run.deliverables.filter((deliverable) => deliverable.review?.passed && inventedLinks(deliverable.content, `${testCase.objective}\n${testCase.context}`).length > 0).length,
     perturbationsHandled: testCase.perturbations.filter((perturbation) => handled(perturbation.type, run, corruptedTaskIds)).length,
     perturbationsTotal: testCase.perturbations.length,
     calls: run.calls.length,

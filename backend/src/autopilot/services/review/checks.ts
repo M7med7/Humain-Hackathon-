@@ -11,8 +11,24 @@ const MIN_SECOND_LANGUAGE_SHARE = 0.1;
 
 const count = (text: string, pattern: RegExp): number => text.match(pattern)?.length ?? 0;
 
+const WEB_LINK = /https?:\/\/[^\s"'<>()[\]{}]+/gi;
+const TRAILING_PUNCTUATION = /[.,;:!?]+$/;
+
+/** Web links in a text, without trailing punctuation. */
+export function webLinks(text: string): string[] {
+  return [...new Set((text.match(WEB_LINK) ?? []).map((link) => link.replace(TRAILING_PUNCTUATION, '')))];
+}
+
+/**
+ * Links an agent wrote that appear in none of the material it was given. Agents cannot
+ * browse or create anything outside the platform, so such links are invented.
+ */
+export function inventedLinks(content: string, sources: string): string[] {
+  return webLinks(content).filter((link) => !sources.includes(link));
+}
+
 /** Free, deterministic checks every deliverable must pass before any model judges it. */
-export function runChecks(content: string, format: 'markdown' | 'html', task: Pick<PlanTask, 'language'>): ReviewCheck[] {
+export function runChecks(content: string, format: 'markdown' | 'html', task: Pick<PlanTask, 'language'>, sources = ''): ReviewCheck[] {
   const checks: ReviewCheck[] = [
     {
       name: 'length',
@@ -25,6 +41,7 @@ export function runChecks(content: string, format: 'markdown' | 'html', task: Pi
       detail: PLACEHOLDER.test(content) ? 'contains placeholder text' : 'no placeholder text',
     },
     languageCheck(format === 'html' ? visibleText(content) : content, task.language),
+    inventedLinkCheck(content, sources),
   ];
   if (format === 'html') checks.push(...htmlChecks(content));
   return checks;
@@ -37,6 +54,15 @@ export function visibleText(html: string): string {
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function inventedLinkCheck(content: string, sources: string): ReviewCheck {
+  const invented = inventedLinks(content, sources);
+  return {
+    name: 'no_invented_links',
+    passed: invented.length === 0,
+    detail: invented.length === 0 ? 'every link comes from the provided material' : `remove links that were not provided: ${invented.slice(0, 3).join(', ')}`,
+  };
 }
 
 function languageCheck(content: string, language: PlanTask['language']): ReviewCheck {

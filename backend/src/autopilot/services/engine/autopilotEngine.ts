@@ -10,6 +10,7 @@ import type { PlannerService } from '../planner.service';
 import { repairHtml } from '../review/repair';
 import { feedbackFrom, type ReviewerService } from '../reviewer.service';
 import type { RouterService } from '../router.service';
+import type { WorkerInput } from '../prompts/worker.prompt';
 import type { WorkerService } from '../worker.service';
 import { EventQueue, type EngineEvent } from './eventQueue';
 import type { PeopleChannel } from './people';
@@ -264,8 +265,9 @@ export class AutopilotEngine {
       this.changed();
 
       let result;
+      let input: WorkerInput | undefined;
       try {
-        const input = { objective: objective.objective, context: objective.context, task, inputs: this.inputsFor(task), feedback, people: objective.people, sender: task.assignee ?? task.owner ?? this.sponsor() };
+        input = { objective: objective.objective, context: objective.context, task, inputs: this.inputsFor(task), feedback, people: objective.people, sender: task.assignee ?? task.owner ?? this.sponsor() };
         result = await this.services.worker.produce(role, input, attempt - task.attempts);
       } catch (error: unknown) {
         if (error instanceof LlmError && error.code === 'budget_exhausted') throw error;
@@ -283,7 +285,8 @@ export class AutopilotEngine {
 
       this.updateTask(task.id, { status: 'review' });
       this.changed();
-      const review = await this.services.reviewer.review(task, content, result.format, task.routing.executor === 'hybrid');
+      const sources = [input?.objective, input?.context, ...(input?.inputs.map((item) => item.content) ?? [])].join('\n');
+      const review = await this.services.reviewer.review(task, content, result.format, task.routing.executor === 'hybrid', sources, `${objective.objective}\n${objective.context}`);
       const deliverable: Deliverable = { id: randomUUID(), taskId: task.id, attempt, format: result.format, content, model: result.model, review };
       this.run = { ...this.run, deliverables: [...this.run.deliverables, deliverable] };
       this.updateTask(task.id, { deliverableId: deliverable.id, feedback: null });

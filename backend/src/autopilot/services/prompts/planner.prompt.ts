@@ -1,7 +1,7 @@
 import type { Objective, PlanTask } from '../../models/plan';
 import { CAPABILITY_PROFILE, DATA_RULE, asData } from './shared';
 
-export const PLANNER_PROMPT_VERSION = 'planner-v4';
+export const PLANNER_PROMPT_VERSION = 'planner-v5';
 
 export const PLANNER_SYSTEM = `You plan business projects that a team of AI agents will execute, with people stepping in only where they must.
 
@@ -12,7 +12,7 @@ Planning rules:
 - Plan all the way to the real-world outcome, not just the documents: include the steps that launch, publish, send, book, sign, pay or hand over, and the inputs only the client has (files, access, private facts, spending approval).
 - When a person must sign, pay, approve, attend, handle something physical, use an account agents cannot reach or supply private information, make that step its own task so agents can do everything around it.
 - Use ids t1, t2, t3... and list dependencies only on earlier ids. No cycles.
-- acceptanceCriteria: 1 to 3 specific, checkable statements about the deliverable.
+- acceptanceCriteria: 1 to 3 specific statements that can be checked by reading the deliverable itself, never outcomes in the outside world (for a person's task, describe what the person confirms).
 - estimatedDays: the effort a person would need, in working days.
 - priority: high for the critical path, medium for normal work, low for nice-to-have.
 - language: "ar", "en" or "both" for the deliverable. Customer-facing material in Saudi Arabia is usually "both".

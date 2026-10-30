@@ -1,0 +1,351 @@
+{
+  "split": "dev",
+  "label": "per-task.gemini-3.1-flash-lite.minimal",
+  "metrics": {
+    "cases": 40,
+    "accuracy": 0.95,
+    "missedHumanRate": 0,
+    "unnecessaryHumanRate": 0,
+    "reasonAccuracy": 0.9333333333333333,
+    "arabicAccuracy": 0.8333333333333334,
+    "calls": 40,
+    "inputTokens": 27633,
+    "outputTokens": 3187,
+    "costUsd": 0.012222199999999999,
+    "latencyMs": 98298,
+    "errors": [
+      {
+        "id": "dev-26",
+        "expected": "hybrid",
+        "got": "human"
+      },
+      {
+        "id": "dev-36",
+        "expected": "human",
+        "got": "hybrid"
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "taskId": "dev-01",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "researcher",
+      "rationale": "Agents can research and summarize publicly available marketing information."
+    },
+    {
+      "taskId": "dev-02",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can generate marketing copy in both languages based on project requirements."
+    },
+    {
+      "taskId": "dev-03",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "builder",
+      "rationale": "The agent can generate the HTML code for the landing page."
+    },
+    {
+      "taskId": "dev-04",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can draft the email sequence content independently."
+    },
+    {
+      "taskId": "dev-05",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can write social media schedules and post copy."
+    },
+    {
+      "taskId": "dev-06",
+      "executor": "human",
+      "reason": "authority",
+      "action": "approve",
+      "role": null,
+      "rationale": "Only humans possess the financial authority to approve budgets."
+    },
+    {
+      "taskId": "dev-07",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "builder",
+      "rationale": "The agent cannot access the external Meta Ads account to publish the ads."
+    },
+    {
+      "taskId": "dev-08",
+      "executor": "human",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": null,
+      "rationale": "Only the client has access to their internal brand assets."
+    },
+    {
+      "taskId": "dev-09",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can define KPIs and measurement plans based on project goals."
+    },
+    {
+      "taskId": "dev-10",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "This task requires physical movement to collect and transport items."
+    },
+    {
+      "taskId": "dev-11",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can draft the design brief and layout specifications for the printer."
+    },
+    {
+      "taskId": "dev-12",
+      "executor": "hybrid",
+      "reason": "authority",
+      "action": "approve",
+      "role": "researcher",
+      "rationale": "Agent identifies candidates, but human must approve and finalize the paid contract."
+    },
+    {
+      "taskId": "dev-13",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can accurately translate the text between English and Arabic."
+    },
+    {
+      "taskId": "dev-14",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can generate creative and engaging Arabic social media content."
+    },
+    {
+      "taskId": "dev-15",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "The agent can draft a standard 30-60-90 day plan based on the provided role description."
+    },
+    {
+      "taskId": "dev-16",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can draft the welcome email and schedule based on standard onboarding templates."
+    },
+    {
+      "taskId": "dev-17",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "builder",
+      "rationale": "Agents lack access to external HR and Google Workspace systems."
+    },
+    {
+      "taskId": "dev-18",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Handing over physical equipment requires a person to be present."
+    },
+    {
+      "taskId": "dev-19",
+      "executor": "human",
+      "reason": "authority",
+      "action": "approve",
+      "role": null,
+      "rationale": "Signing a legal employment contract requires human authority."
+    },
+    {
+      "taskId": "dev-20",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can draft a standard onboarding checklist based on best practices."
+    },
+    {
+      "taskId": "dev-21",
+      "executor": "human",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": null,
+      "rationale": "The start date and uniform size are specific details known only to the human manager."
+    },
+    {
+      "taskId": "dev-22",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can summarize provided documents into a guide."
+    },
+    {
+      "taskId": "dev-23",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can generate quizzes and answer keys using product catalog documents."
+    },
+    {
+      "taskId": "dev-24",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Agents cannot attend live meetings."
+    },
+    {
+      "taskId": "dev-25",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "AI agents can schedule and draft meeting agendas independently."
+    },
+    {
+      "taskId": "dev-26",
+      "executor": "human",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": null,
+      "rationale": "Only a manager knows team capacity and interpersonal dynamics for buddy selection."
+    },
+    {
+      "taskId": "dev-27",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can generate a list of common sales job FAQs in Arabic."
+    },
+    {
+      "taskId": "dev-28",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Setting up a physical desk and assigning parking requires physical presence and facility access."
+    },
+    {
+      "taskId": "dev-29",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can draft event agendas and run of show documents based on provided requirements."
+    },
+    {
+      "taskId": "dev-30",
+      "executor": "hybrid",
+      "reason": "authority",
+      "action": "approve",
+      "role": "researcher",
+      "rationale": "Agent finds venue options, but a person must authorize the booking and payment."
+    },
+    {
+      "taskId": "dev-31",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can draft the invitation in both languages."
+    },
+    {
+      "taskId": "dev-32",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Requires physical presence at the venue to inspect equipment."
+    },
+    {
+      "taskId": "dev-33",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "builder",
+      "rationale": "The agent can create a structured guest list and attendance tracker template."
+    },
+    {
+      "taskId": "dev-34",
+      "executor": "human",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": null,
+      "rationale": "The VIP list is internal information known only to the client."
+    },
+    {
+      "taskId": "dev-35",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "The agent can analyze and compare the provided catering quotes based on the specified criteria."
+    },
+    {
+      "taskId": "dev-36",
+      "executor": "hybrid",
+      "reason": "authority",
+      "action": "approve",
+      "role": "researcher",
+      "rationale": "Payment requires human authorization and access to financial accounts."
+    },
+    {
+      "taskId": "dev-37",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can synthesize timing and key messages into briefing notes."
+    },
+    {
+      "taskId": "dev-38",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "Agent drafts the email, but the CEO must send it from their own mailbox."
+    },
+    {
+      "taskId": "dev-39",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can draft the survey questions independently."
+    },
+    {
+      "taskId": "dev-40",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "The agent can draft the report template structure independently."
+    }
+  ]
+}

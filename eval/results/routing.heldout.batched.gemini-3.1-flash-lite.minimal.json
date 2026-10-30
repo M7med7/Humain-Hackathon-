@@ -1,0 +1,361 @@
+{
+  "split": "heldout",
+  "label": "batched.gemini-3.1-flash-lite.minimal",
+  "metrics": {
+    "cases": 40,
+    "accuracy": 0.9,
+    "missedHumanRate": 0.05555555555555555,
+    "unnecessaryHumanRate": 0,
+    "reasonAccuracy": 0.9285714285714286,
+    "arabicAccuracy": 0.9230769230769231,
+    "calls": 2,
+    "inputTokens": 2346,
+    "outputTokens": 2570,
+    "costUsd": 0.0044415,
+    "latencyMs": 10301,
+    "errors": [
+      {
+        "id": "ho-16",
+        "expected": "human",
+        "got": "hybrid"
+      },
+      {
+        "id": "ho-23",
+        "expected": "human",
+        "got": "ai"
+      },
+      {
+        "id": "ho-31",
+        "expected": "hybrid",
+        "got": "human"
+      },
+      {
+        "id": "ho-40",
+        "expected": "hybrid",
+        "got": "human"
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "taskId": "ho-01",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can draft professional RFPs based on standard requirements."
+    },
+    {
+      "taskId": "ho-02",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can design evaluation scorecards with weighted criteria."
+    },
+    {
+      "taskId": "ho-03",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can compare provided documents against defined criteria."
+    },
+    {
+      "taskId": "ho-04",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "Signing a purchase order requires legal authority."
+    },
+    {
+      "taskId": "ho-05",
+      "executor": "human",
+      "reason": "relationship",
+      "action": "perform",
+      "role": null,
+      "rationale": "Live negotiation calls require human interaction."
+    },
+    {
+      "taskId": "ho-06",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can prepare strategic briefs for negotiations."
+    },
+    {
+      "taskId": "ho-07",
+      "executor": "human",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": null,
+      "rationale": "Budget information is internal and requires human input."
+    },
+    {
+      "taskId": "ho-08",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "researcher",
+      "rationale": "Agent prepares data, human performs entry in external system."
+    },
+    {
+      "taskId": "ho-09",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can identify risks in legal documents."
+    },
+    {
+      "taskId": "ho-10",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can compare contract terms against policy documents."
+    },
+    {
+      "taskId": "ho-11",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can prepare administrative documents for signature."
+    },
+    {
+      "taskId": "ho-12",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "Signing a contract requires legal authority."
+    },
+    {
+      "taskId": "ho-13",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can summarize documents in Arabic."
+    },
+    {
+      "taskId": "ho-14",
+      "executor": "human",
+      "reason": "authority",
+      "action": "approve",
+      "role": null,
+      "rationale": "Legal counsel must approve redlines."
+    },
+    {
+      "taskId": "ho-15",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can draft suggested contract revisions."
+    },
+    {
+      "taskId": "ho-16",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "researcher",
+      "rationale": "Agent prepares file, human uploads to external system."
+    },
+    {
+      "taskId": "ho-17",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can write help-center content."
+    },
+    {
+      "taskId": "ho-18",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can create multilingual canned responses."
+    },
+    {
+      "taskId": "ho-19",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "builder",
+      "rationale": "Agent provides configuration plan, human applies in system."
+    },
+    {
+      "taskId": "ho-20",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can design support escalation matrices."
+    },
+    {
+      "taskId": "ho-21",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Live training sessions require physical presence."
+    },
+    {
+      "taskId": "ho-22",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can create training materials and scenarios."
+    },
+    {
+      "taskId": "ho-23",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Defining business hours is an analytical task."
+    },
+    {
+      "taskId": "ho-24",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Defining KPIs and templates is an analytical task."
+    },
+    {
+      "taskId": "ho-25",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Creating schedules and task lists is an analytical task."
+    },
+    {
+      "taskId": "ho-26",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Physical packing and labeling require human action."
+    },
+    {
+      "taskId": "ho-27",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Planning a seating chart based on a floor plan is an analytical task."
+    },
+    {
+      "taskId": "ho-28",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Physical inspection of the office is required."
+    },
+    {
+      "taskId": "ho-29",
+      "executor": "hybrid",
+      "reason": "authority",
+      "action": "approve",
+      "role": "researcher",
+      "rationale": "Agent researches options, but human must approve and book."
+    },
+    {
+      "taskId": "ho-30",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Drafting communication for employees is a writing task."
+    },
+    {
+      "taskId": "ho-31",
+      "executor": "human",
+      "reason": "access",
+      "action": "perform",
+      "role": null,
+      "rationale": "Updating government portals requires specific access."
+    },
+    {
+      "taskId": "ho-32",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Preparing an IT cutover plan is an analytical task."
+    },
+    {
+      "taskId": "ho-33",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "researcher",
+      "rationale": "Profiling companies from reports is a research task."
+    },
+    {
+      "taskId": "ho-34",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Drafting outreach emails is a writing task."
+    },
+    {
+      "taskId": "ho-35",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "Sending emails from a specific mailbox requires access."
+    },
+    {
+      "taskId": "ho-36",
+      "executor": "human",
+      "reason": "relationship",
+      "action": "perform",
+      "role": null,
+      "rationale": "Discovery calls require human interaction."
+    },
+    {
+      "taskId": "ho-37",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Preparing a company profile is a writing task."
+    },
+    {
+      "taskId": "ho-38",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Qualifying leads is an analytical task."
+    },
+    {
+      "taskId": "ho-39",
+      "executor": "human",
+      "reason": "authority",
+      "action": "approve",
+      "role": null,
+      "rationale": "Approving financial discounts requires authority."
+    },
+    {
+      "taskId": "ho-40",
+      "executor": "human",
+      "reason": "access",
+      "action": "perform",
+      "role": null,
+      "rationale": "Logging outcomes in a CRM requires access."
+    }
+  ]
+}

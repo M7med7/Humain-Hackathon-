@@ -14,6 +14,7 @@ export interface ReviewerOptions {
 export type Review = NonNullable<Deliverable['review']>;
 
 const JUDGE_INPUT_CHARS = 12_000;
+const PROVIDED_CHARS = 4_000;
 const JUDGE_OUTPUT_TOKENS = 400;
 const judgeSchema = z.object({
   passed: z.boolean(),
@@ -28,8 +29,9 @@ export class ReviewerService {
     private readonly options: ReviewerOptions,
   ) {}
 
-  async review(task: PlanTask, content: string, format: Deliverable['format'], personFinishes: boolean): Promise<Review> {
-    const checks = runChecks(content, format, task);
+  /** `sources` is everything the agent was given; links outside it count as invented. */
+  async review(task: PlanTask, content: string, format: Deliverable['format'], personFinishes: boolean, sources: string, provided: string): Promise<Review> {
+    const checks = runChecks(content, format, task, sources);
     const checksPassed = checks.every((check) => check.passed);
     if (this.options.tiered && !checksPassed) return { passed: false, checks, judge: null };
     if (this.options.tiered && task.priority === 'low') return { passed: true, checks, judge: null };
@@ -38,7 +40,7 @@ export class ReviewerService {
       purpose: 'reviewer',
       model: this.options.model,
       system: REVIEWER_SYSTEM,
-      prompt: buildReviewerPrompt(task, toJudgeText(content, format), personFinishes),
+      prompt: buildReviewerPrompt({ task, deliverableText: toJudgeText(content, format), isHtml: format === 'html', personFinishes, provided: provided.slice(0, PROVIDED_CHARS) }),
       schema: judgeSchema,
       temperature: 0,
       thinking: 'minimal',
@@ -57,6 +59,5 @@ export function feedbackFrom(review: Review): string {
 
 /** The judge reads text, not markup: styles and tags are stripped to save tokens. */
 function toJudgeText(content: string, format: Deliverable['format']): string {
-  const text = format === 'html' ? `[HTML page; markup removed for review, judge the content only]\n${visibleText(content)}` : content;
-  return text.slice(0, JUDGE_INPUT_CHARS);
+  return (format === 'html' ? visibleText(content) : content).slice(0, JUDGE_INPUT_CHARS);
 }

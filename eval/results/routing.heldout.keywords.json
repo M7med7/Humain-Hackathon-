@@ -1,0 +1,356 @@
+{
+  "split": "heldout",
+  "label": "keywords",
+  "metrics": {
+    "cases": 40,
+    "accuracy": 0.925,
+    "missedHumanRate": 0,
+    "unnecessaryHumanRate": 0.09090909090909091,
+    "reasonAccuracy": 0.47058823529411764,
+    "arabicAccuracy": 1,
+    "calls": 0,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "costUsd": 0,
+    "latencyMs": 0,
+    "errors": [
+      {
+        "id": "ho-10",
+        "expected": "ai",
+        "got": "human"
+      },
+      {
+        "id": "ho-11",
+        "expected": "ai",
+        "got": "human"
+      },
+      {
+        "id": "ho-40",
+        "expected": "hybrid",
+        "got": "human"
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "taskId": "ho-01",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-02",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-03",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-04",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-05",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-06",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-07",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-08",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-09",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-10",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-11",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-12",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-13",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-14",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-15",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-16",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-17",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-18",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-19",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-20",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-21",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-22",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-23",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-24",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-25",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-26",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-27",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-28",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-29",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-30",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-31",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-32",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-33",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-34",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-35",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-36",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-37",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-38",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "no keyword match"
+    },
+    {
+      "taskId": "ho-39",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    },
+    {
+      "taskId": "ho-40",
+      "executor": "human",
+      "reason": "authority",
+      "action": "perform",
+      "role": null,
+      "rationale": "keyword match"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import type { AgentRole } from '../../models/routing';
 import type { PlanTask } from '../../models/plan';
 import { DATA_RULE, asData } from './shared';
 
-export const WORKER_PROMPT_VERSION = 'worker-v2';
+export const WORKER_PROMPT_VERSION = 'worker-v3';
 
 const ROLE_BRIEFS: Record<AgentRole, string> = {
   researcher: 'You are the research agent. You gather and summarize the information a business team needs, stating assumptions clearly.',
@@ -10,6 +10,11 @@ const ROLE_BRIEFS: Record<AgentRole, string> = {
   analyst: 'You are the analysis agent. You build plans, schedules, comparisons, scorecards and metrics that people can act on immediately.',
   builder: 'You are the build agent. You produce complete single-file HTML pages.',
 };
+
+const HONESTY_RULES = `Honesty rules:
+- Your deliverable is a draft, plan or document. Never state that anything was built, deployed, sent, signed, paid, approved or tested.
+- Never invent links, URLs, accounts, IDs, prices, people or results. Use only facts you were given; mark anything else "(assumption)".
+- When something can only come from a person (a repository, a build, a signature, a confirmation), say plainly that the person provides it.`;
 
 const MARKDOWN_RULES = `Output rules:
 - Return only the deliverable, in Markdown, ready to use. No preamble, no closing remarks.
@@ -25,7 +30,7 @@ const HTML_RULES = `Output rules:
 - Never leave placeholders such as [insert] or lorem ipsum.`;
 
 export function workerSystem(role: AgentRole): string {
-  return `${ROLE_BRIEFS[role]}\n\n${role === 'builder' ? HTML_RULES : MARKDOWN_RULES}\n${DATA_RULE}`;
+  return `${ROLE_BRIEFS[role]}\n\n${role === 'builder' ? HTML_RULES : MARKDOWN_RULES}\n${HONESTY_RULES}\n${DATA_RULE}`;
 }
 
 export interface WorkerInput {

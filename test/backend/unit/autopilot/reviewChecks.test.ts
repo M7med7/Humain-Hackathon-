@@ -1,9 +1,28 @@
-import { runChecks } from '../../../../backend/src/autopilot/services/review/checks';
+import { inventedLinks, runChecks, webLinks } from '../../../../backend/src/autopilot/services/review/checks';
 
 const english = 'This campaign plan covers audience, channels, budget and timeline for launch week. '.repeat(6);
 const arabic = 'تغطي هذه الخطة الجمهور المستهدف والقنوات والميزانية والجدول الزمني لأسبوع الإطلاق. '.repeat(6);
 
 const failed = (checks: ReturnType<typeof runChecks>): string[] => checks.filter((check) => !check.passed).map((check) => check.name);
+
+describe('invented links', () => {
+  // The fabricated repository from a real run, written to satisfy a reviewer's request.
+  const fabricated = `${english}\nRepository: https://github.com/m-alharbi/prayer-app-mvp-ios.`;
+
+  it('extracts links without trailing punctuation', () => {
+    expect(webLinks('See https://example.com/a. And (https://example.com/b), done')).toEqual(['https://example.com/a', 'https://example.com/b']);
+  });
+
+  it('flags links that appear in none of the provided material', () => {
+    expect(inventedLinks(fabricated, 'Objective: launch the prayer app')).toEqual(['https://github.com/m-alharbi/prayer-app-mvp-ios']);
+    expect(failed(runChecks(fabricated, 'markdown', { language: 'en' }, 'Objective: launch the prayer app'))).toContain('no_invented_links');
+  });
+
+  it('allows links the client provided', () => {
+    const sources = 'Our store: https://qahwalab.example/shop';
+    expect(failed(runChecks(`${english}\nOrder at https://qahwalab.example/shop.`, 'markdown', { language: 'en' }, sources))).toEqual([]);
+  });
+});
 
 describe('runChecks', () => {
   it('passes a complete English document', () => {
