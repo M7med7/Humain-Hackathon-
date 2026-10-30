@@ -18,6 +18,8 @@ interface MirrorProgress {
   membersAdded: boolean;
   eventSeq: number;
   commented: Set<string>;
+  /** Wall-clock time each task was first seen done. */
+  completedAt: Map<string, string>;
 }
 
 /**
@@ -32,7 +34,9 @@ export class ZeroOneProjectMirror implements RunMirror {
 
   async sync(run: Run, owner: RunOwner, people: Objective['people']): Promise<void> {
     if (run.tasks.length === 0) return;
-    const state = this.progress.get(run.id) ?? { membersAdded: false, eventSeq: -1, commented: new Set<string>() };
+    const state = this.progress.get(run.id) ?? { membersAdded: false, eventSeq: -1, commented: new Set<string>(), completedAt: new Map<string, string>() };
+    const now = new Date().toISOString();
+    for (const task of run.tasks) if (task.status === 'done' && !state.completedAt.has(task.id)) state.completedAt.set(task.id, now);
     this.progress.set(run.id, state);
 
     await this.upsertProject(run, owner);
@@ -40,7 +44,7 @@ export class ZeroOneProjectMirror implements RunMirror {
       await this.addMembers(run.id, owner, people);
       state.membersAdded = true;
     }
-    await this.write('tasks', this.db.from('tasks').upsert(buildTaskRows(run, people), { onConflict: 'id' }));
+    await this.write('tasks', this.db.from('tasks').upsert(buildTaskRows(run, people, state.completedAt), { onConflict: 'id' }));
     await this.upsertDependencies(run);
     await this.appendActivity(run, state);
     await this.appendDeliverables(run, state);

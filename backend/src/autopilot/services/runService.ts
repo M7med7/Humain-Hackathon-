@@ -36,6 +36,7 @@ interface LiveRun {
   engine: AutopilotEngine;
   owner: RunOwner;
   people: Objective['people'];
+  simulateTeam: boolean;
   latest: Run | null;
   listeners: Set<Listener>;
   pendingSave: Run | null;
@@ -76,7 +77,7 @@ export class RunService {
       simulateTimeouts: false,
       onChange: (run) => this.onChange(id, run),
     });
-    this.live.set(id, { engine, owner, people: objective.people, latest: null, listeners: new Set(), pendingSave: null, saving: false });
+    this.live.set(id, { engine, owner, people: objective.people, simulateTeam, latest: null, listeners: new Set(), pendingSave: null, saving: false });
     logger.info('run started', { runId: id, spaceId: owner.spaceId });
     engine.start(objective, id).catch((error: unknown) => logger.error('run crashed', { runId: id, error: errorMessage(error) }));
     return id;
@@ -84,7 +85,7 @@ export class RunService {
 
   async get(id: string, spaceId: string): Promise<Run> {
     const entry = this.live.get(id);
-    if (entry && entry.owner.spaceId === spaceId) return entry.latest ?? entry.engine.snapshot();
+    if (entry && entry.owner.spaceId === spaceId) return entry.latest ?? { ...entry.engine.snapshot(), simulatedTeam: entry.simulateTeam };
     const stored = await this.deps.repository.get(id, spaceId);
     if (!stored) throw new RunServiceError(404, 'Run not found.');
     return stored;
@@ -112,9 +113,10 @@ export class RunService {
     return () => entry.listeners.delete(listener);
   }
 
-  private onChange(id: string, run: Run): void {
+  private onChange(id: string, snapshot: Run): void {
     const entry = this.live.get(id);
     if (!entry) return;
+    const run = { ...snapshot, simulatedTeam: entry.simulateTeam };
     entry.latest = run;
     for (const listener of entry.listeners) listener(run);
     entry.pendingSave = run;

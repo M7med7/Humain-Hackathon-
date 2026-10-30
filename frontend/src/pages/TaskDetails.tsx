@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type CSSProperties } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Calendar as CalendarIcon, ChevronDown, Sparkles, UserPlus, UserMinus, Users, CheckCircle2, Circle, Clock, Tag, LayoutGrid, List, Filter, AlertTriangle, BookmarkPlus, Download, Github, Link2, UploadCloud, CalendarPlus, MessageCircle, Timer, Share2, Copy, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { api, type Project, type Task, type ProjectMember, type User, type GitHubRepository, type CalendarConnection, type TaskCalendarEvent, type SlackIntegration, type TimeEntry, type TaskTimeSummary, type ProjectPermissions, type ProjectInvitation, type ProjectRole, type ProjectClientShare, type ClientShareSettings } from "../lib/api";
@@ -166,7 +166,9 @@ export function TaskDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  // Links from elsewhere (e.g. the calendar) can open a specific task with ?task=<id>.
+  const [searchParams] = useSearchParams();
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(searchParams.get("task"));
   const [showAddMember, setShowAddMember] = useState(false);
   const [memberActionId, setMemberActionId] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");

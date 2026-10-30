@@ -209,7 +209,7 @@ export function BoardCalendar() {
     const isDragging = draggingTaskId === item.task.id;
 
     return (
-      <Link to={`/task/${item.task.id}`}>
+      <Link to={`/task/${item.task.project_id}?task=${item.task.id}`}>
         <motion.div
           draggable
           onDragStart={(e) => { e.stopPropagation(); setDraggingTaskId(item.task.id); }}

@@ -113,4 +113,6 @@ export interface Run {
   report: { en: string; ar: string } | null;
   /** Set when the token budget stopped the run. */
   stopReason: string | null;
+  /** True when a simulated team answered routine requests, so simulated time ran ahead of real time. */
+  simulatedTeam?: boolean;
 }

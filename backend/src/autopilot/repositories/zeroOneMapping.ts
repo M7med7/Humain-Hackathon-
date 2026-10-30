@@ -64,7 +64,7 @@ export interface TaskRow {
 }
 
 /** ZeroOne task rows for a run: actual dates for work that happened, projected dates for the rest. */
-export function buildTaskRows(run: Run, people: Objective['people']): TaskRow[] {
+export function buildTaskRows(run: Run, people: Objective['people'], completedAt: ReadonlyMap<string, string> = new Map()): TaskRow[] {
   const userIdByName = new Map(people.filter((person) => person.userId).map((person) => [person.name, person.userId ?? null]));
   const now = run.events.at(-1)?.hour ?? 0;
   const projected = projectedWindows(run.tasks, now);
@@ -86,7 +86,8 @@ export function buildTaskRows(run: Run, people: Objective['people']): TaskRow[] 
       estimated_days: task.estimatedDays,
       assigned_to: assignee,
       completed_by: task.status === 'done' && task.routing.executor !== 'ai' ? assignee : null,
-      completed_at: task.status === 'done' && task.finishedAtHour !== null ? `${dateForHour(run.startedAt, task.finishedAtHour)}T12:00:00Z` : null,
+      // When it really finished; start/end dates are the plan's working-day schedule.
+      completed_at: task.status === 'done' ? (completedAt.get(task.id) ?? null) : null,
       start_date: startHour === null ? null : dateForHour(run.startedAt, startHour),
       end_date: endHour === null ? null : dateForHour(run.startedAt, endHour),
       acceptance_criteria: task.acceptanceCriteria,

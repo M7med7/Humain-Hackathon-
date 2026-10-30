@@ -92,7 +92,9 @@ export function buildDependencyAwareSchedule(
       if (task.start_date && task.end_date) {
         const start = new Date(task.start_date);
         const end = new Date(task.end_date);
-        const hasDependencyWarning = Boolean(latestPrereqEnd && startOfDay(start).getTime() <= startOfDay(latestPrereqEnd).getTime());
+        // Dates are whole days, so a task may start on the day its prerequisite finishes:
+        // short work (such as an agent task taking hours) hands off within the same day.
+        const hasDependencyWarning = Boolean(latestPrereqEnd && startOfDay(start).getTime() < startOfDay(latestPrereqEnd).getTime());
         result.set(task.id, {
           start,
           end,

@@ -49,7 +49,9 @@
     "noneWaiting": "Nothing waiting",
     "stoppedReason": "This run stopped: {{reason}}",
     "loading": "Loading run…",
-    "openProject": "Open the project in ZeroOne"
+    "openProject": "Open the project in ZeroOne",
+    "simulated": "Team replies simulated · time compressed",
+    "simulatedHint": "Your team's routine answers are simulated, so working days pass in seconds. Turn the simulation off to wait for real answers."
   },
   "needsYou": {
     "title": "Needs you",

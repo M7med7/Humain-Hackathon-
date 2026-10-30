@@ -83,10 +83,10 @@ describe('buildTaskRows', () => {
   it('assigns human steps to space members and leaves outside people unassigned', () => {
     const human = (id: string, assignee: string): RunTask =>
       task(id, { assignee, status: 'done', finishedAtHour: 12, routing: { taskId: id, executor: 'human', reason: 'authority', action: 'approve', role: null, rationale: 'spend' } });
-    const rows = buildTaskRows(run([human('t1', 'Sara'), human('t2', 'Omar')]), people);
+    const rows = buildTaskRows(run([human('t1', 'Sara'), human('t2', 'Omar')]), people, new Map([['t1', '2026-10-30T15:42:00.000Z']]));
     expect(rows[0]?.assigned_to).toBe('11111111-1111-4111-8111-111111111111');
     expect(rows[0]?.completed_by).toBe('11111111-1111-4111-8111-111111111111');
-    expect(rows[0]?.completed_at).toBe('2026-11-02T12:00:00Z');
+    expect(rows[0]?.completed_at).toBe('2026-10-30T15:42:00.000Z');
     expect(rows[1]?.assigned_to).toBeNull();
   });
 

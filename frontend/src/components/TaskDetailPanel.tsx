@@ -126,6 +126,17 @@ function displayUser(user?: { full_name: string | null; email: string } | null):
   return user?.full_name ?? user?.email ?? "Someone";
 }
 
+// Work posted by ZeroOne Autopilot has no user account behind it; name it instead of "Someone".
+const AUTOPILOT_AUTHOR = "Autopilot";
+
+function activityAuthor(item: { activity_type: string; users?: { full_name: string | null; email: string } | null }): string {
+  return item.activity_type === "autopilot" ? AUTOPILOT_AUTHOR : displayUser(item.users);
+}
+
+function commentAuthor(comment: { content: string; users?: { full_name: string | null; email: string } | null }): string {
+  return !comment.users && comment.content.startsWith("Autopilot ·") ? AUTOPILOT_AUTHOR : displayUser(comment.users);
+}
+
 function formatCompactDate(iso: string): string {
   return new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
@@ -372,7 +383,7 @@ export function TaskDetailPanel({
   const buildTaskAiContext = () => {
     const dueDate = task.end_date ?? (schedule ? formatDate(schedule.end) : "Not scheduled");
     const startDate = task.start_date ?? (schedule ? formatDate(schedule.start) : "Not scheduled");
-    const recentComments = comments.slice(-5).map((comment) => `${displayUser(comment.users)}: ${comment.content}`).join("\n") || "No human comments yet";
+    const recentComments = comments.slice(-5).map((comment) => `${commentAuthor(comment)}: ${comment.content}`).join("\n") || "No human comments yet";
     const recentActivity = activity.slice(0, 6).map((item) => `${formatCompactDate(item.created_at)} - ${item.summary}`).join("\n") || "No activity yet";
     const fileList = attachments.slice(0, 6).map((file) => `${file.file_name}${file.is_image ? " (image)" : ""}`).join(", ") || "No attached files";
     const githubLinkList = githubLinks.map((link) => [
@@ -1500,7 +1511,7 @@ export function TaskDetailPanel({
                   <div key={comment.id} className="rounded-xl border app-border app-surface-soft p-3">
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold app-text">{displayUser(comment.users)}</div>
+                        <div className="truncate text-sm font-semibold app-text">{commentAuthor(comment)}</div>
                         <div className="text-[10px] app-subtle">{formatCompactDate(comment.created_at)}{comment.edited_at ? " · edited" : ""}</div>
                       </div>
                       {isOwn && (
@@ -1564,7 +1575,7 @@ export function TaskDetailPanel({
                   <div key={item.id} className="flex gap-2 text-xs app-muted">
                     <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-purple-400/70" />
                     <div className="min-w-0">
-                      <span className="app-text">{displayUser(item.users)}</span> {item.summary}
+                      <span className="app-text">{activityAuthor(item)}</span> {item.summary}
                       <div className="text-[10px] app-subtle">{formatCompactDate(item.created_at)}</div>
                     </div>
                   </div>

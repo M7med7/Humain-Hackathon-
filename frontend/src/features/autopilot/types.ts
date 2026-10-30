@@ -95,6 +95,7 @@ export interface Run {
   calls: LlmCall[];
   report: { en: string; ar: string } | null;
   stopReason: string | null;
+  simulatedTeam?: boolean;
 }
 
 export interface RunSummary {
