@@ -1,0 +1,56 @@
+{
+  "split": "dev",
+  "version": 1,
+  "notes": "expectedHumanSteps: each entry is a group of keywords; a sound plan routes at least one task matching the group to a person. Perturbations are injected by the simulator; the agent is never told which one happened.",
+  "objectives": [
+    {
+      "id": "obj-dev-01",
+      "process": "campaign_launch",
+      "lang": "en",
+      "objective": "Launch the Ramadan campaign for our specialty coffee brand Qahwa Lab by November 20: a bilingual landing page, a launch email sequence and a two-week social plan.",
+      "deadlineDays": 10,
+      "people": [
+        { "name": "Sara Al-Qahtani", "role": "Marketing Director" },
+        { "name": "Omar Haddad", "role": "Brand Designer" }
+      ],
+      "context": "Qahwa Lab runs 6 cafes in Riyadh and sells beans online. Ramadan offer: 20% off the Ramadan Blend and free delivery after Iftar. Brand voice: warm, modern, proudly Saudi. Media budget: 40,000 SAR.",
+      "expectedHumanSteps": [["budget"], ["publish", "ads account", "ad account"], ["logo", "brand assets", "brand files"]],
+      "perturbations": [
+        { "type": "scope_change", "atProgress": 0.5, "message": "Client: we also need a 15-second Reel script for Instagram, same deadline." }
+      ]
+    },
+    {
+      "id": "obj-dev-02",
+      "process": "employee_onboarding",
+      "lang": "en",
+      "objective": "Onboard three new sales representatives who start on November 9 so they are selling by the end of their second week.",
+      "deadlineDays": 7,
+      "people": [
+        { "name": "Huda Al-Otaibi", "role": "HR Manager" },
+        { "name": "Khalid Al-Shehri", "role": "Sales Manager" },
+        { "name": "Nawaf Al-Dossary", "role": "IT Administrator" }
+      ],
+      "context": "The company sells B2B packaging. New hires need CRM access, product training and a buddy. HR policies are attached as a 12-page PDF.",
+      "expectedHumanSteps": [["contract", "sign"], ["laptop", "equipment", "badge"], ["account", "access"]],
+      "perturbations": [
+        { "type": "bad_output", "taskIndex": 1 }
+      ]
+    },
+    {
+      "id": "obj-dev-03",
+      "process": "event_planning",
+      "lang": "en",
+      "objective": "Organize a customer appreciation evening for 120 guests in Riyadh on December 3.",
+      "deadlineDays": 14,
+      "people": [
+        { "name": "Reem Al-Harbi", "role": "Events Lead" },
+        { "name": "Abdulaziz Al-Mutairi", "role": "Finance Manager" }
+      ],
+      "context": "Guests are key B2B customers. Budget 90,000 SAR including venue and catering. Three catering quotes are attached.",
+      "expectedHumanSteps": [["venue", "book"], ["deposit", "pay", "payment"], ["vip", "guest names"]],
+      "perturbations": [
+        { "type": "human_timeout", "humanTaskIndex": 0 }
+      ]
+    }
+  ]
+}

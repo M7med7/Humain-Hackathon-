@@ -1,0 +1,92 @@
+{
+  "split": "heldout",
+  "version": 1,
+  "notes": "Never used during development. Same format as objectives.dev.json; different business processes, more Arabic, and combined perturbations.",
+  "objectives": [
+    {
+      "id": "obj-ho-01",
+      "process": "procurement",
+      "lang": "en",
+      "objective": "Select and contract a new CRM vendor for our 40-person sales team within three weeks.",
+      "deadlineDays": 15,
+      "people": [
+        { "name": "Majed Al-Ghamdi", "role": "Procurement Manager" },
+        { "name": "Lina Bakr", "role": "Head of Sales" },
+        { "name": "Abdulaziz Al-Mutairi", "role": "Finance Manager" }
+      ],
+      "context": "Three vendor proposals are attached. Must support Arabic, WhatsApp integration and data hosting in Saudi Arabia. Budget ceiling: 180,000 SAR per year.",
+      "expectedHumanSteps": [["purchase order", "sign", "contract"], ["negotiat", "call"], ["budget"]],
+      "perturbations": [
+        { "type": "scope_change", "atProgress": 0.4, "message": "Client: the CRM must also integrate with our ERP. Please account for that." },
+        { "type": "bad_output", "taskIndex": 2 }
+      ]
+    },
+    {
+      "id": "obj-ho-02",
+      "process": "contract_review",
+      "lang": "en",
+      "objective": "Review the logistics agreement from Al-Noor Logistics against our procurement policy and get it ready for signature by Thursday.",
+      "deadlineDays": 4,
+      "people": [
+        { "name": "Faris Al-Zahrani", "role": "Legal Counsel" },
+        { "name": "Majed Al-Ghamdi", "role": "Procurement Manager" }
+      ],
+      "context": "Agreement excerpt: payment due 15 days after invoice; supplier liability capped at 10% of annual fees; auto-renews for 3 years unless cancelled 180 days before expiry; disputes under London courts. Policy excerpt: payment terms at least 45 days; liability cap at least 100% of annual fees; auto-renewal no longer than 1 year with 60 days notice; governing law Saudi Arabia.",
+      "expectedHumanSteps": [["approve", "redline"], ["sign"]],
+      "perturbations": [
+        { "type": "human_timeout", "humanTaskIndex": 0 }
+      ]
+    },
+    {
+      "id": "obj-ho-03",
+      "process": "support_rollout",
+      "lang": "ar",
+      "objective": "أطلق مركز دعم العملاء باللغتين العربية والإنجليزية قبل نهاية الشهر لمتجرنا الإلكتروني للعطور.",
+      "deadlineDays": 12,
+      "people": [
+        { "name": "نورة السبيعي", "role": "مديرة تجربة العملاء" },
+        { "name": "تركي العنزي", "role": "مسؤول الأنظمة" }
+      ],
+      "context": "المتجر يستقبل نحو 300 استفسار يومياً، أكثرها عن الشحن والاسترجاع وأصالة المنتجات. يستخدم الفريق منصة Zendesk.",
+      "expectedHumanSteps": [["zendesk", "إعداد", "configure"], ["ساعات", "hours"], ["تدريب", "train"]],
+      "perturbations": [
+        { "type": "bad_output", "taskIndex": 0 },
+        { "type": "scope_change", "atProgress": 0.6, "message": "العميل: نحتاج أيضاً ردوداً جاهزة لواتساب بنفس الموعد." }
+      ]
+    },
+    {
+      "id": "obj-ho-04",
+      "process": "office_relocation",
+      "lang": "en",
+      "objective": "Move our Jeddah office of 35 staff to the new building on Tahlia Street by December 15 with no more than one day of downtime.",
+      "deadlineDays": 20,
+      "people": [
+        { "name": "Yousef Al-Malki", "role": "Office Manager" },
+        { "name": "Tariq Al-Anazi", "role": "IT Lead" },
+        { "name": "Abdulaziz Al-Mutairi", "role": "Finance Manager" }
+      ],
+      "context": "The floor plan of the new office is attached. Servers and the network must move over one weekend. Moving budget: 60,000 SAR.",
+      "expectedHumanSteps": [["moving company", "mover", "book"], ["pack", "label"], ["inspect", "site", "network ready"]],
+      "perturbations": [
+        { "type": "human_timeout", "humanTaskIndex": 1 },
+        { "type": "scope_change", "atProgress": 0.5, "message": "Client: the archive room also moves, about 40 boxes of paper files." }
+      ]
+    },
+    {
+      "id": "obj-ho-05",
+      "process": "sales_outreach",
+      "lang": "ar",
+      "objective": "ابدأ حملة تواصل مع عشرين شركة لوجستية في المنطقة الشرقية لحجز عشرة اجتماعات تعريفية خلال أسبوعين.",
+      "deadlineDays": 10,
+      "people": [
+        { "name": "سلطان القحطاني", "role": "مدير المبيعات" },
+        { "name": "ريم الدوسري", "role": "مندوبة مبيعات" }
+      ],
+      "context": "نبيع نظام تتبع شحنات. تقرير السوق المرفق يضم قائمة بأربعين شركة لوجستية. الخصم الأقصى المسموح للعملاء الجدد 15٪ بموافقة المدير.",
+      "expectedHumanSteps": [["إرسال", "send"], ["اتصال", "اجتماع", "call", "meeting"], ["خصم", "discount"]],
+      "perturbations": [
+        { "type": "bad_output", "taskIndex": 1 }
+      ]
+    }
+  ]
+}
