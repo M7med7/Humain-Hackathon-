@@ -39,3 +39,19 @@ Onboarding's 25% first-pass rate traced to three causes, all fixed for run 3:
 | Writers did not know who signs | Emails ended with "[Your Name]" and failed the placeholder check | Workers get the project's people and a named sender (worker-v2); mail-merge fields like `{{first_name}}` are allowed for unknown recipients |
 | Hybrid tasks judged on the person's step | "Send welcome emails" rejected because hires had not confirmed receipt | The judge is told a person finishes the task and to judge only the agent's part (reviewer-v2) |
 | The page builder kept adding scripts and web fonts | Each rejection paid for a 16k-token regeneration | Scripts, handlers and external resources are removed in code before review, with no model call |
+
+## Engine run 3 (worker-v2, reviewer-v2, HTML repair; all three dev objectives)
+
+| Objective | Delivered | Agent share | First-pass* | Human checkpoints covered | Perturbation | Calls | Cost |
+|---|---|---|---|---|---|---|---|
+| Campaign launch | day 3/10 | 80% | 75% | 0% | scope change handled | 29 | $0.055 (was $0.120) |
+| Employee onboarding | day 3/7 (was 4) | 43% | 33% | 100% | bad output caught | 12 | $0.018 |
+| Customer event | day 6/14 | 78% | 71% | 33% | silent person reassigned | 23 | $0.028 |
+
+\* Computed before the metric fix below; it still counted the task the scenario corrupted on purpose.
+
+What this run taught us:
+
+- **Cost fell** on the campaign launch (−55%) once generated pages were repaired in code instead of regenerated.
+- **The first-pass metric was unfair to the system.** With few agent tasks, the deliberately corrupted one dominated the rate (onboarding could not exceed 67%). Corrupted tasks are now excluded from first-pass and scored only under perturbation handling.
+- **Single runs are noisy.** Human-checkpoint coverage on the identical campaign config moved 67% → 0%. The plan did route "Schedule emails and social posts" to a person, but the keyword metric only accepts "publish" or "ad account". Two consequences: final results use repeated trials (pass^k), and the keyword coverage metric is reported with this known false-negative limitation. Held-out keywords stay frozen.
