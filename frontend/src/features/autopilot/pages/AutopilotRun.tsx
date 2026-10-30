@@ -58,8 +58,8 @@ export function AutopilotRun() {
               </Link>
             )}
           </div>
-          <h1 className="ap-display text-[26px] sm:text-[34px] max-w-4xl" dir="auto">
-            {run.objective}
+          <h1 className="ap-display text-[26px] sm:text-[34px] max-w-4xl" dir="auto" title={run.objective}>
+            {run.title || run.objective}
           </h1>
           {run.summary && (
             <p className="text-[15px] text-(--ap-muted) max-w-3xl" dir="auto">

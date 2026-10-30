@@ -1,7 +1,7 @@
 import type { PlanTask } from '../../models/plan';
 import { DATA_RULE, asData } from './shared';
 
-export const REVIEWER_PROMPT_VERSION = 'reviewer-v5';
+export const REVIEWER_PROMPT_VERSION = 'reviewer-v6';
 
 export const REVIEWER_SYSTEM = `You review deliverables produced by AI agents before a business client sees them.
 Pass a deliverable only if it meets every acceptance criterion and is usable as delivered.
@@ -21,6 +21,8 @@ const HTML_NOTE =
 export interface ReviewInput {
   task: Pick<PlanTask, 'title' | 'acceptanceCriteria'>;
   deliverableText: string;
+  /** Set when the deliverable was longer than the text shown. */
+  fullLength: number | null;
   isHtml: boolean;
   personFinishes: boolean;
   /** The client's objective and background, so provided facts are not mistaken for invented ones. */
@@ -36,6 +38,7 @@ export function buildReviewerPrompt(input: ReviewInput): string {
     `Acceptance criteria:\n${criteria}`,
     ...(input.personFinishes ? [PERSON_FINISHES] : []),
     ...(input.isHtml ? [HTML_NOTE] : []),
+    ...(input.fullLength ? [`Only the first ${input.deliverableText.length} of ${input.fullLength} characters are shown. The rest exists: never fail the deliverable for ending early or for content that would be in the hidden part.`] : []),
     ...(input.otherTasks.length ? [`Other tasks in this plan deliver their own work; do not require it here: ${input.otherTasks.join('; ')}.`] : []),
     asData('client_material', input.provided),
     asData('deliverable', input.deliverableText),

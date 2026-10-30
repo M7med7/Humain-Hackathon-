@@ -16,7 +16,8 @@ export interface WorkResult {
   model: string;
 }
 
-const OUTPUT_TOKENS = { markdown: 3_000, bilingual: 5_000, html: 16_000 } as const;
+/** Room for long documents (a 40-entry catalogue runs past 4k tokens); only generated tokens are billed. */
+const OUTPUT_TOKENS = { markdown: 8_000, bilingual: 12_000, html: 16_000 } as const;
 /** Gemini counts thinking toward the output limit, so thinking harder needs more room. */
 const THINKING_HEADROOM: Record<ThinkingLevel, number> = { minimal: 0, low: 1_500, medium: 4_000, high: 8_000 };
 const CODE_FENCE = /^```[a-z]*\n([\s\S]*?)\n```$/i;

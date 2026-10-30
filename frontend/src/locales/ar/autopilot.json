@@ -67,6 +67,7 @@
   "timeline": {
     "title": "الجدول الزمني",
     "deadline": "الموعد النهائي",
+    "deadlineDay": "الموعد النهائي: اليوم {{day}}",
     "added": "مضافة",
     "planned": "الخطة الأصلية: {{count}} مهام",
     "now": "الآن {{count}}",
@@ -93,6 +94,8 @@
     "empty": "تظهر المخرجات هنا عند إنجاز الوكلاء لها.",
     "attempts_one": "قُبلت من المحاولة الأولى",
     "attempts_other": "قُبلت بعد {{count}} محاولات",
+    "acceptedBy_one": "قبلها {{name}} كما هي بعد محاولة واحدة",
+    "acceptedBy_other": "قبلها {{name}} كما هي بعد {{count}} محاولات",
     "checks": "اجتاز {{passed}} فحوصات",
     "aiReview": "مراجعة ذكية",
     "codeOnly": "فحوصات برمجية",

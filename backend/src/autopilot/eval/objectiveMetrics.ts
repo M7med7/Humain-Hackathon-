@@ -1,4 +1,4 @@
-import type { Run, RunTask } from '../models/run';
+import { isAccepted, type Run, type RunTask } from '../models/run';
 import { deliveryDay } from '../services/engine/schedule';
 import { inventedLinks } from '../services/review/checks';
 import type { ObjectiveCase } from './datasets';
@@ -63,7 +63,7 @@ export function computeObjectiveMetrics(testCase: ObjectiveCase, run: Run, corru
     deadlineDays: run.deadlineDays,
     onTime: run.status === 'completed' && day <= run.deadlineDays,
     humanStepCoverage: humanStepCoverage(testCase, run.tasks),
-    inventedLinkDeliverables: run.deliverables.filter((deliverable) => deliverable.review?.passed && inventedLinks(deliverable.content, `${testCase.objective}\n${testCase.context}`).length > 0).length,
+    inventedLinkDeliverables: run.deliverables.filter((deliverable) => isAccepted(deliverable) && inventedLinks(deliverable.content, `${testCase.objective}\n${testCase.context}`).length > 0).length,
     perturbationsHandled: testCase.perturbations.filter((perturbation) => handled(perturbation.type, run, corruptedTaskIds)).length,
     perturbationsTotal: testCase.perturbations.length,
     calls: run.calls.length,

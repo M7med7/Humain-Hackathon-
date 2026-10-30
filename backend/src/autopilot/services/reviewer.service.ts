@@ -24,7 +24,11 @@ export interface ReviewContext {
   otherTasks: readonly string[];
 }
 
-const JUDGE_INPUT_CHARS = 12_000;
+/**
+ * Longer than any deliverable a worker can produce, so the judge reads the whole thing.
+ * A cut-off copy made complete work look unfinished, and the agent was failed for it.
+ */
+const JUDGE_INPUT_CHARS = 60_000;
 const PROVIDED_CHARS = 4_000;
 const JUDGE_OUTPUT_TOKENS = 400;
 const judgeSchema = z.object({
@@ -52,7 +56,7 @@ export class ReviewerService {
       system: REVIEWER_SYSTEM,
       prompt: buildReviewerPrompt({
         task,
-        deliverableText: toJudgeText(content, format),
+        ...toJudgeText(content, format),
         isHtml: format === 'html',
         personFinishes: context.personFinishes,
         provided: context.provided.slice(0, PROVIDED_CHARS),
@@ -75,6 +79,7 @@ export function feedbackFrom(review: Review): string {
 }
 
 /** The judge reads text, not markup: styles and tags are stripped to save tokens. */
-function toJudgeText(content: string, format: Deliverable['format']): string {
-  return (format === 'html' ? visibleText(content) : content).slice(0, JUDGE_INPUT_CHARS);
+function toJudgeText(content: string, format: Deliverable['format']): { deliverableText: string; fullLength: number | null } {
+  const text = format === 'html' ? visibleText(content) : content;
+  return { deliverableText: text.slice(0, JUDGE_INPUT_CHARS), fullLength: text.length > JUDGE_INPUT_CHARS ? text.length : null };
 }

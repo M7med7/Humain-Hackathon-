@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { AlertTriangle, Check, ChevronDown, Sparkles, User } from "lucide-react";
 import type { AssignmentRecommendation } from "../lib/api";
@@ -10,6 +12,25 @@ interface AssigneeSelectorProps {
   memberNames: Map<string, string>; // userId → displayName
   isOverridden: boolean;
   onAssigneeChange: (taskId: string, userId: string) => void;
+}
+
+const MENU_WIDTH = 256;
+const MENU_HEIGHT = 250;
+const MENU_GAP = 6;
+const VIEWPORT_MARGIN = 8;
+
+/**
+ * The menu renders in a portal with fixed positioning, so cards that clip their
+ * content (rounded corners, height animations) cannot cut it off. It opens upwards
+ * when there is more room above the button than below it.
+ */
+function menuPosition(anchor: DOMRect): CSSProperties {
+  const left = Math.max(VIEWPORT_MARGIN, Math.min(anchor.left, window.innerWidth - MENU_WIDTH - VIEWPORT_MARGIN));
+  const spaceBelow = window.innerHeight - anchor.bottom;
+  if (spaceBelow < MENU_HEIGHT && anchor.top > spaceBelow) {
+    return { left, bottom: window.innerHeight - anchor.top + MENU_GAP };
+  }
+  return { left, top: anchor.bottom + MENU_GAP };
 }
 
 function confidenceLabel(confidence: number): string {
@@ -36,7 +57,10 @@ export function AssigneeSelector({
 }: AssigneeSelectorProps) {
   const [open, setOpen] = useState(false);
   const [showReason, setShowReason] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const currentName =
     memberNames.get(currentAssigneeId) ?? currentAssigneeId.slice(0, 8) ?? "Unassigned";
@@ -48,12 +72,27 @@ export function AssigneeSelector({
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (!containerRef.current?.contains(target) && !menuRef.current?.contains(target)) {
         setOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      if (buttonRef.current) setMenuStyle(menuPosition(buttonRef.current.getBoundingClientRect()));
+    };
+    place();
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
   }, [open]);
 
   const members = Array.from(memberNames.entries());
@@ -62,7 +101,10 @@ export function AssigneeSelector({
     <div ref={containerRef} className="relative" onClick={(e) => e.stopPropagation()}>
       {/* Current assignee chip */}
       <button
+        ref={buttonRef}
         type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className={`flex items-center gap-1.5 text-xs rounded-lg px-2 py-1 border transition-colors ${
           open
@@ -151,83 +193,92 @@ export function AssigneeSelector({
       )}
 
       {/* Dropdown */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 4, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.97 }}
-            transition={{ duration: 0.15 }}
-            className="absolute left-0 top-full mt-1.5 z-30 w-64 bg-[#0e0e14] border border-white/12 rounded-xl shadow-2xl overflow-hidden"
-          >
-            <div className="px-3 pt-2.5 pb-1 border-b border-white/6">
-              <p className="text-[11px] text-gray-500">Select assignee — ranked by fit</p>
-            </div>
+      {createPortal(
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              ref={menuRef}
+              role="listbox"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, y: 4, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+              style={{ ...menuStyle, width: MENU_WIDTH }}
+              className="fixed z-[60] bg-[#0e0e14] border border-white/12 rounded-xl shadow-2xl overflow-hidden"
+            >
+              <div className="px-3 pt-2.5 pb-1 border-b border-white/6">
+                <p className="text-[11px] text-gray-500">Select assignee — ranked by fit</p>
+              </div>
 
-            <div className="py-1 max-h-52 overflow-y-auto">
-              {members
-                .slice()
-                .sort(([aId], [bId]) => {
-                  // recommended first, then by confidence desc
-                  const aConf = recommendation?.userId === aId ? (recommendation?.confidence ?? 0) : -1;
-                  const bConf = recommendation?.userId === bId ? (recommendation?.confidence ?? 0) : -1;
-                  return bConf - aConf;
-                })
-                .map(([userId, name]) => {
-                  const rec = recommendation?.userId === userId ? recommendation : undefined;
-                  const isSelected = userId === currentAssigneeId;
+              <div className="py-1 max-h-52 overflow-y-auto">
+                {members
+                  .slice()
+                  .sort(([aId], [bId]) => {
+                    // recommended first, then by confidence desc
+                    const aConf = recommendation?.userId === aId ? (recommendation?.confidence ?? 0) : -1;
+                    const bConf = recommendation?.userId === bId ? (recommendation?.confidence ?? 0) : -1;
+                    return bConf - aConf;
+                  })
+                  .map(([userId, name]) => {
+                    const rec = recommendation?.userId === userId ? recommendation : undefined;
+                    const isSelected = userId === currentAssigneeId;
 
-                  return (
-                    <button
-                      key={userId}
-                      type="button"
-                      onClick={() => { onAssigneeChange(taskId, userId); setOpen(false); setShowReason(false); }}
-                      className={`w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors ${
-                        isSelected
-                          ? "bg-purple-900/20 text-white"
-                          : "text-gray-300 hover:app-surface-soft hover:text-white"
-                      }`}
-                    >
-                      <div className="shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center">
-                        {isSelected && <Check className="w-3.5 h-3.5 text-purple-400" />}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-sm font-medium truncate">{name}</span>
-                          {rec && (
-                            <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-medium ${confidenceColor(rec.confidence)}`}>
-                              {confidenceLabel(rec.confidence)} · {rec.confidence}%
-                            </span>
-                          )}
+                    return (
+                      <button
+                        key={userId}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => { onAssigneeChange(taskId, userId); setOpen(false); setShowReason(false); }}
+                        className={`w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors ${
+                          isSelected
+                            ? "bg-purple-900/20 text-white"
+                            : "text-gray-300 hover:app-surface-soft hover:text-white"
+                        }`}
+                      >
+                        <div className="shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center">
+                          {isSelected && <Check className="w-3.5 h-3.5 text-purple-400" />}
                         </div>
 
-                        {rec && (
-                          <p className="text-[11px] text-gray-500 mt-0.5 leading-snug line-clamp-2">
-                            {rec.reason}
-                          </p>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-sm font-medium truncate">{name}</span>
+                            {rec && (
+                              <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-medium ${confidenceColor(rec.confidence)}`}>
+                                {confidenceLabel(rec.confidence)} · {rec.confidence}%
+                              </span>
+                            )}
+                          </div>
 
-                        {rec && rec.skillGaps.length > 0 && (
-                          <p className="text-[10px] text-amber-500/60 mt-0.5">
-                            Gaps: {rec.skillGaps.slice(0, 2).join(", ")}
-                            {rec.skillGaps.length > 2 ? " …" : ""}
-                          </p>
-                        )}
+                          {rec && (
+                            <p className="text-[11px] text-gray-500 mt-0.5 leading-snug line-clamp-2">
+                              {rec.reason}
+                            </p>
+                          )}
 
-                        {rec?.trainingSuggestion && (
-                          <p className="text-[10px] text-amber-400/60 mt-0.5 line-clamp-1">
-                            {rec.trainingSuggestion}
-                          </p>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                          {rec && rec.skillGaps.length > 0 && (
+                            <p className="text-[10px] text-amber-500/60 mt-0.5">
+                              Gaps: {rec.skillGaps.slice(0, 2).join(", ")}
+                              {rec.skillGaps.length > 2 ? " …" : ""}
+                            </p>
+                          )}
+
+                          {rec?.trainingSuggestion && (
+                            <p className="text-[10px] text-amber-400/60 mt-0.5 line-clamp-1">
+                              {rec.trainingSuggestion}
+                            </p>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   );
 }

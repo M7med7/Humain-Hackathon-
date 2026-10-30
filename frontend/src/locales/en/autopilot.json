@@ -67,6 +67,7 @@
   "timeline": {
     "title": "Timeline",
     "deadline": "Deadline",
+    "deadlineDay": "Deadline: day {{day}}",
     "added": "Added",
     "planned": "Original plan: {{count}} tasks",
     "now": "now {{count}}",
@@ -93,6 +94,8 @@
     "empty": "Deliverables appear here as agents finish them.",
     "attempts_one": "Accepted first time",
     "attempts_other": "Accepted after {{count}} attempts",
+    "acceptedBy_one": "Accepted as is by {{name}} after {{count}} attempt",
+    "acceptedBy_other": "Accepted as is by {{name}} after {{count}} attempts",
     "checks": "{{passed}} checks passed",
     "aiReview": "AI review",
     "codeOnly": "Code checks",

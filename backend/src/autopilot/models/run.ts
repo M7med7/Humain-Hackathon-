@@ -41,6 +41,13 @@ export interface Deliverable {
     /** Present when the LLM judge ran. */
     judge: { passed: boolean; feedback: string } | null;
   } | null;
+  /** Person who accepted it as is after agents used up their attempts without passing review. */
+  acceptedBy?: string;
+}
+
+/** Work counts as delivered once it passes review or a person accepts it as is. */
+export function isAccepted(deliverable: Deliverable): boolean {
+  return deliverable.review?.passed === true || Boolean(deliverable.acceptedBy);
 }
 
 export type HumanRequestKind = 'approve' | 'provide' | 'perform';

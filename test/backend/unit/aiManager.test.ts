@@ -1,4 +1,4 @@
-import { calculateScheduleLimits, generateSchedule } from '../../../backend/src/services/aiManager';
+import { calculateScheduleLimits, generateSchedule, summariseRefinement } from '../../../backend/src/services/aiManager';
 
 jest.mock('../../../backend/src/lib/supabase', () => ({
   supabase: { from: jest.fn() },
@@ -186,5 +186,13 @@ describe('generateSchedule', () => {
     delete process.env.GEMINI_API_KEY;
     await expect(generateSchedule(baseRequest)).rejects.toThrow('GEMINI_API_KEY');
     process.env.GEMINI_API_KEY = key;
+  });
+});
+
+describe('summariseRefinement', () => {
+  it('counts dependency changes, so a fix that only reorders work is not reported as no change', () => {
+    const after = { ...mockSchedule, dependencies: [...mockSchedule.dependencies, { task_id: 'uuid-4', depends_on_task_id: 'uuid-3', dependency_type: 'Finish-to-Start' }] };
+    expect(summariseRefinement(mockSchedule, after, 'Deploy after testing')).toBe('Applied "Deploy after testing" — added 1 dependency.');
+    expect(summariseRefinement(mockSchedule, mockSchedule, 'Deploy after testing')).toContain('made no changes');
   });
 });

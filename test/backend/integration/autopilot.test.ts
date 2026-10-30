@@ -57,9 +57,9 @@ function stubServices(): EngineServices {
   } as unknown as EngineServices;
 }
 
-function buildApp(): express.Express {
+function buildApp(services: () => EngineServices = stubServices): express.Express {
   const factory = (cfg: AutopilotConfig, deps: EngineDeps): AutopilotEngine =>
-    new AutopilotEngine(stubServices(), { optimizations: cfg.optimizations, maxConcurrentWorkers: 1, people: deps.people, simulateTimeouts: false, ...(deps.onChange && { onChange: deps.onChange }) });
+    new AutopilotEngine(services(), { optimizations: cfg.optimizations, maxConcurrentWorkers: 1, people: deps.people, simulateTimeouts: false, ...(deps.onChange && { onChange: deps.onChange }) });
   const service = new RunService(config, { repository: new MemoryRunRepository(), mirror: noMirror, createEngine: factory, verifyMembers: async () => undefined });
   const app = express();
   app.use(express.json());
@@ -135,6 +135,23 @@ describe('Autopilot API', () => {
     const finished = await waitFor(app, created.body.id, (run) => run.status === 'completed');
     expect(finished.tasks.map((task) => task.status)).toEqual(['done', 'failed', 'cancelled']);
     expect(finished.events.some((event) => event.type === 'declined')).toBe(true);
+  });
+
+  it('keeps work a person accepts as is after agents miss the criteria', async () => {
+    const rejecting = (): EngineServices => ({ ...stubServices(), reviewer: { review: async () => ({ passed: false, checks: [], judge: { passed: false, feedback: 'Missing a section' } }) } }) as unknown as EngineServices;
+    const app = buildApp(rejecting);
+    const created = await request(app).post('/api/autopilot/runs').send(validBody);
+    const waiting = await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
+    const review = waiting.requests.find((item) => item.status === 'open' && item.title.startsWith('Review needed'));
+    expect(review?.options).toContain('Accept as is');
+
+    await request(app).post(`/api/autopilot/runs/${created.body.id}/requests/${review?.id}/answer`).send({ response: 'Accept as is' });
+    const accepted = await waitFor(app, created.body.id, (run) => run.tasks.find((task) => task.id === 't1')?.status === 'done');
+    const t1 = accepted.tasks.find((task) => task.id === 't1');
+    const delivered = accepted.deliverables.find((deliverable) => deliverable.id === t1?.deliverableId);
+    expect(delivered?.attempt).toBe(3);
+    expect(delivered?.acceptedBy).toBeTruthy();
+    expect(accepted.deliverables.filter((deliverable) => deliverable.acceptedBy)).toHaveLength(1);
   });
 
   it('never shows a run to another space', async () => {

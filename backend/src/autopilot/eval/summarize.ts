@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
-import type { Run } from '../models/run';
+import { isAccepted, type Run } from '../models/run';
 import { inventedLinks } from '../services/review/checks';
 import { loadObjectiveCases } from './datasets';
 import type { ObjectiveMetrics } from './objectiveMetrics';
@@ -63,7 +63,7 @@ function inventedLinkCount(results: ObjectiveResult[]): { deliverables: number; 
   for (const result of results) {
     const testCase = cases.get(result.case);
     const provided = `${testCase?.objective ?? ''}\n${testCase?.context ?? ''}`;
-    for (const deliverable of result.run.deliverables.filter((item) => item.review?.passed)) {
+    for (const deliverable of result.run.deliverables.filter(isAccepted)) {
       deliverables += 1;
       if (inventedLinks(deliverable.content, provided).length > 0) withLinks += 1;
     }

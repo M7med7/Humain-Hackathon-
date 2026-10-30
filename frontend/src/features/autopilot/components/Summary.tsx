@@ -39,7 +39,7 @@ export function EfficiencyCard({ run }: { run: Run }) {
     { label: t('efficiency.calls'), value: String(usage.calls) },
     { label: t('efficiency.tokens'), value: compact(usage.tokens) },
     { label: t('efficiency.lite'), value: `${Math.round(usage.liteShare * 100)}%` },
-    { label: t('efficiency.perTask'), value: money(delivered === 0 ? 0 : usage.costUsd / delivered) },
+    { label: t('efficiency.perTask'), value: delivered === 0 ? '—' : money(usage.costUsd / delivered) },
   ];
   return (
     <section aria-labelledby="ap-efficiency" className="ap-card p-5">

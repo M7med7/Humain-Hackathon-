@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import type { OptimizationFlags } from '../../config';
 import type { Objective, PlanTask } from '../../models/plan';
 import type { RoutingDecision } from '../../models/routing';
-import type { Deliverable, EventActor, HumanRequest, HumanRequestKind, Run, RunEvent, RunTask } from '../../models/run';
+import { isAccepted, type Deliverable, type EventActor, type HumanRequest, type HumanRequestKind, type Run, type RunEvent, type RunTask } from '../../models/run';
 import type { LeadService } from '../lead.service';
 import type { LlmSession } from '../llm/llmSession';
 import { LlmError } from '../llm/types';
@@ -198,8 +198,16 @@ export class AutopilotEngine {
       this.queue.push(this.hour, { type: 'ready', taskId: task.id });
       return;
     }
+    if (response === ACCEPT_AS_IS) this.acceptLatestDeliverable(task, by);
     const takeOverHours = response === TAKE_OVER ? task.estimatedDays * HOURS_PER_DAY : 0;
     this.queue.push(this.hour + takeOverHours, { type: 'complete', taskId: task.id });
+  }
+
+  /** The person's acceptance makes the last attempt the delivered version, used by later tasks and shown to the client. */
+  private acceptLatestDeliverable(task: RunTask, by: string): void {
+    const id = task.deliverableId;
+    if (!id) return;
+    this.run = { ...this.run, deliverables: this.run.deliverables.map((item) => (item.id === id ? { ...item, acceptedBy: by } : item)) };
   }
 
   /** A declined step fails, and everything that depended on it is cancelled rather than run anyway. */
@@ -321,7 +329,7 @@ export class AutopilotEngine {
 
   private inputsFor(task: RunTask): Array<{ title: string; content: string }> {
     const latest = new Map<string, Deliverable>();
-    for (const deliverable of this.run.deliverables) if (deliverable.review?.passed) latest.set(deliverable.taskId, deliverable);
+    for (const deliverable of this.run.deliverables) if (isAccepted(deliverable)) latest.set(deliverable.taskId, deliverable);
     const scoped = this.options.optimizations.scopedContext;
     const sources = scoped ? task.dependsOn : [...latest.keys()].filter((id) => id !== task.id);
     const inputs = sources.flatMap((id) => {

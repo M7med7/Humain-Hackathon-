@@ -5,10 +5,12 @@ import remarkGfm from 'remark-gfm';
 import { Code2, FileText, X } from 'lucide-react';
 import type { Deliverable, Run } from '../types';
 
-/** Latest accepted deliverable per task, in plan order. */
+const isAccepted = (deliverable: Deliverable): boolean => deliverable.review?.passed === true || Boolean(deliverable.acceptedBy);
+
+/** Latest accepted deliverable per task (passed review or accepted by a person), in plan order. */
 function accepted(run: Run): Array<{ deliverable: Deliverable; title: string }> {
   return run.tasks.flatMap((task) => {
-    const deliverable = [...run.deliverables].reverse().find((item) => item.taskId === task.id && item.review?.passed);
+    const deliverable = [...run.deliverables].reverse().find((item) => item.taskId === task.id && isAccepted(item));
     return deliverable ? [{ deliverable, title: task.title }] : [];
   });
 }
@@ -42,8 +44,14 @@ export function Deliverables({ run }: { run: Run }) {
                     {item.title}
                   </p>
                   <p className="text-[12px] text-(--ap-muted) mt-1">
-                    {t('deliverables.attempts', { count: item.deliverable.attempt })} · {t('deliverables.checks', { passed: checks.filter((check) => check.passed).length })} ·{' '}
-                    {item.deliverable.review?.judge ? t('deliverables.aiReview') : t('deliverables.codeOnly')}
+                    {item.deliverable.acceptedBy ? (
+                      t('deliverables.acceptedBy', { name: item.deliverable.acceptedBy, count: item.deliverable.attempt })
+                    ) : (
+                      <>
+                        {t('deliverables.attempts', { count: item.deliverable.attempt })} · {t('deliverables.checks', { passed: checks.filter((check) => check.passed).length })} ·{' '}
+                        {item.deliverable.review?.judge ? t('deliverables.aiReview') : t('deliverables.codeOnly')}
+                      </>
+                    )}
                   </p>
                 </button>
               </li>

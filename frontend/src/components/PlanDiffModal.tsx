@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import {
   AlertTriangle,
   Check,
+  Link2,
   Minus,
   Plus,
   RefreshCw,
@@ -54,8 +55,9 @@ export function PlanDiffModal({
   onApply,
   onCancel,
 }: PlanDiffModalProps) {
-  const { added, removed, modified } = diff;
-  const totalChanges = added.length + removed.length + modified.length;
+  const { added, removed, modified, dependenciesAdded, dependenciesRemoved } = diff;
+  const linkChanges = dependenciesAdded.length + dependenciesRemoved.length;
+  const totalChanges = added.length + removed.length + modified.length + linkChanges;
 
   // Tasks from modified/removed that the user has manually edited
   const conflictingIds = new Set([
@@ -114,8 +116,16 @@ export function PlanDiffModal({
               <span className="text-red-300 font-medium">{removed.length} removed</span>
             </div>
           )}
+          {linkChanges > 0 && (
+            <div className="flex items-center gap-1.5 text-sm">
+              <Link2 className="w-3.5 h-3.5 text-sky-400" />
+              <span className="text-sky-300 font-medium">
+                {linkChanges} dependenc{linkChanges !== 1 ? 'ies' : 'y'}
+              </span>
+            </div>
+          )}
           {totalChanges === 0 && (
-            <span className="text-sm text-gray-500">No task changes detected</span>
+            <span className="text-sm text-gray-500">No changes detected</span>
           )}
         </div>
 
@@ -151,6 +161,22 @@ export function PlanDiffModal({
               kind="removed"
               title={task.title}
               detail={`${task.estimated_days}d`}
+            />
+          ))}
+          {dependenciesAdded.map((link) => (
+            <DiffRow
+              key={`+${link.task}>${link.dependsOn}`}
+              kind="added"
+              title={link.task}
+              detail={`now waits for "${link.dependsOn}"`}
+            />
+          ))}
+          {dependenciesRemoved.map((link) => (
+            <DiffRow
+              key={`-${link.task}>${link.dependsOn}`}
+              kind="removed"
+              title={link.task}
+              detail={`no longer waits for "${link.dependsOn}"`}
             />
           ))}
         </div>

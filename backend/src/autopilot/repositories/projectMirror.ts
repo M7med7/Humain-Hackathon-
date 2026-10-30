@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Objective } from '../models/plan';
-import type { Run } from '../models/run';
+import { isAccepted, type Run } from '../models/run';
 import type { RunOwner } from './runRepository';
 import { buildTaskRows, taskRowId } from './zeroOneMapping';
 
@@ -103,13 +103,14 @@ export class ZeroOneProjectMirror implements RunMirror {
 
   /** Accepted deliverables are posted on their task, so people see the work where they already look. */
   private async appendDeliverables(run: Run, state: MirrorProgress): Promise<void> {
-    const accepted = run.deliverables.filter((deliverable) => deliverable.review?.passed && !state.commented.has(deliverable.id));
+    const accepted = run.deliverables.filter((deliverable) => isAccepted(deliverable) && !state.commented.has(deliverable.id));
     if (accepted.length === 0) return;
     const rows = accepted.map((deliverable) => {
       const task = run.tasks.find((item) => item.id === deliverable.taskId);
       const role = task?.routing.role ?? 'writer';
       const body = deliverable.format === 'html' ? 'A single-page HTML deliverable. Open the Autopilot run to preview it safely.' : excerpt(deliverable.content);
-      return { task_id: taskRowId(run.id, deliverable.taskId), user_id: null, content: `Autopilot · ${role} agent delivered this (attempt ${deliverable.attempt}, passed review).\n\n${body}` };
+      const verdict = deliverable.acceptedBy ? `accepted as is by ${deliverable.acceptedBy}` : 'passed review';
+      return { task_id: taskRowId(run.id, deliverable.taskId), user_id: null, content: `Autopilot · ${role} agent delivered this (attempt ${deliverable.attempt}, ${verdict}).\n\n${body}` };
     });
     await this.write('comments', this.db.from('task_comments').insert(rows));
     for (const deliverable of accepted) state.commented.add(deliverable.id);

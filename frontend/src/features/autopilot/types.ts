@@ -43,6 +43,8 @@ export interface Deliverable {
   content: string;
   model: string;
   review: { passed: boolean; checks: ReviewCheck[]; judge: { passed: boolean; feedback: string } | null } | null;
+  /** Person who accepted it as is after agents used up their attempts. */
+  acceptedBy?: string;
 }
 
 export interface HumanRequest {

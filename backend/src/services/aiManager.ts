@@ -369,7 +369,7 @@ export interface RefinementOutput {
   refinementSummary: string;
 }
 
-function summariseRefinement(
+export function summariseRefinement(
   before: GeneratedSchedule,
   after: GeneratedSchedule,
   userMessage: string,
@@ -385,12 +385,20 @@ function summariseRefinement(
     return prev && JSON.stringify(t) !== JSON.stringify(prev);
   }).length;
 
+  const linkKey = (d: GeneratedSchedule['dependencies'][number]) => `${d.task_id}>${d.depends_on_task_id}`;
+  const beforeLinks = new Set(before.dependencies.map(linkKey));
+  const afterLinks  = new Set(after.dependencies.map(linkKey));
+  const linksAdded   = [...afterLinks].filter((key) => !beforeLinks.has(key)).length;
+  const linksRemoved = [...beforeLinks].filter((key) => !afterLinks.has(key)).length;
+
   const parts: string[] = [];
   if (added > 0)    parts.push(`added ${added} task${added !== 1 ? 's' : ''}`);
   if (modified > 0) parts.push(`updated ${modified} task${modified !== 1 ? 's' : ''}`);
   if (removed > 0)  parts.push(`removed ${removed} task${removed !== 1 ? 's' : ''}`);
+  if (linksAdded > 0)   parts.push(`added ${linksAdded} dependenc${linksAdded !== 1 ? 'ies' : 'y'}`);
+  if (linksRemoved > 0) parts.push(`removed ${linksRemoved} dependenc${linksRemoved !== 1 ? 'ies' : 'y'}`);
 
-  if (parts.length === 0) return `Applied: "${userMessage}" — no tasks changed.`;
+  if (parts.length === 0) return `"${userMessage}" — the AI made no changes. Try rephrasing the request.`;
   return `Applied "${userMessage}" — ${parts.join(', ')}.`;
 }
 
@@ -458,7 +466,7 @@ export async function generateRefinedSchedule(
     `\n- For NEW tasks you add, generate a fresh UUID v4.` +
     `\n- For tasks you REMOVE, simply omit them from the output.` +
     `\n- Keep acceptance_criteria and definition_of_done specific and testable. Improve vague criteria when the request asks for clearer task quality.` +
-    `\n- For tasks you REMOVE, simply omit them from the output.` +
+    `\n- Task order lives in the top-level dependencies[] array: { task_id, depends_on_task_id } means task_id starts only after depends_on_task_id finishes. When the request is about order or dependencies, change dependencies[] using existing task IDs.` +
     `\n- Return the COMPLETE plan (all tasks, including unchanged ones) — not just the diff.` +
     `\n- If the user mentions a person by name, look up their user_id in the team member list above.`;
 

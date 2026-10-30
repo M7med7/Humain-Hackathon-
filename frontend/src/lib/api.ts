@@ -76,11 +76,19 @@ export interface ConversationMessage {
   scheduleSnapshot?: GeneratedSchedule;
 }
 
+/** One "task waits for another" link, with titles resolved for display. */
+export interface DependencyLink {
+  task: string;
+  dependsOn: string;
+}
+
 export interface TaskDiff {
   added: GeneratedTask[];
   removed: GeneratedTask[];
   modified: Array<{ before: GeneratedTask; after: GeneratedTask }>;
   unchanged: GeneratedTask[];
+  dependenciesAdded: DependencyLink[];
+  dependenciesRemoved: DependencyLink[];
 }
 
 export interface RefinementResult extends PlanPreviewResult {
@@ -106,7 +114,15 @@ export function computeTaskDiff(before: GeneratedSchedule, after: GeneratedSched
     }
   }
 
-  return { added, removed, modified, unchanged };
+  const linkKey = (dep: GeneratedSchedule['dependencies'][number]) => `${dep.task_id}>${dep.depends_on_task_id}`;
+  const beforeLinks = new Set(before.dependencies.map(linkKey));
+  const afterLinks = new Set(after.dependencies.map(linkKey));
+  const titleOf = (id: string) => afterById.get(id)?.title ?? beforeById.get(id)?.title ?? id;
+  const toLink = (dep: GeneratedSchedule['dependencies'][number]): DependencyLink => ({ task: titleOf(dep.task_id), dependsOn: titleOf(dep.depends_on_task_id) });
+  const dependenciesAdded = after.dependencies.filter((dep) => !beforeLinks.has(linkKey(dep))).map(toLink);
+  const dependenciesRemoved = before.dependencies.filter((dep) => !afterLinks.has(linkKey(dep))).map(toLink);
+
+  return { added, removed, modified, unchanged, dependenciesAdded, dependenciesRemoved };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

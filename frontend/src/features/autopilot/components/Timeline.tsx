@@ -1,10 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { currentHour, HOURS_PER_DAY, startHours } from '../format';
+import { currentHour, HOURS_PER_DAY, startHours, timelineScale } from '../format';
 import type { Executor, Run, RunTask } from '../types';
 
 const EXECUTOR_COLOR: Record<Executor, string> = { ai: 'var(--ap-ai)', hybrid: 'var(--ap-hybrid)', human: 'var(--ap-human)' };
 const ACTIVE = new Set<RunTask['status']>(['working', 'review', 'needs_person']);
 const MIN_BAR_PERCENT = 1.2;
+/** Past this share of the axis, labels sit before their mark so they stay inside the card. */
+const END_LABEL_PERCENT = 85;
+const END_ALIGNED = '-translate-x-full rtl:translate-x-full pe-1';
 
 /** Tasks on a working-day axis: who does each one, when it ran, and where the deadline is. */
 export function Timeline({ run }: { run: Run }) {
@@ -12,9 +15,9 @@ export function Timeline({ run }: { run: Run }) {
   const now = currentHour(run);
   const starts = startHours(run);
   const lastFinish = Math.max(now, ...run.tasks.map((task) => task.finishedAtHour ?? 0));
-  const days = Math.max(run.deadlineDays, Math.ceil(lastFinish / HOURS_PER_DAY));
-  const span = days * HOURS_PER_DAY;
-  const at = (hour: number): number => Math.min(100, (hour / span) * 100);
+  const scale = timelineScale(lastFinish, run.deadlineDays, t('run.day'));
+  const at = (hour: number): number => Math.min(100, (hour / scale.spanHours) * 100);
+  const deadlineAt = at(run.deadlineDays * HOURS_PER_DAY);
   const planned = run.tasks.filter((task) => task.origin === 'plan').length;
 
   return (
@@ -29,13 +32,14 @@ export function Timeline({ run }: { run: Run }) {
         </p>
       </header>
 
-      <div className="flex gap-4 text-[12px] text-(--ap-muted) mb-3" aria-hidden>
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-(--ap-muted) mb-3">
         {(['ai', 'hybrid', 'human'] as const).map((executor) => (
           <span key={executor} className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: EXECUTOR_COLOR[executor] }} />
             {t(`timeline.legend${executor === 'ai' ? 'Ai' : executor === 'hybrid' ? 'Hybrid' : 'Human'}`)}
           </span>
         ))}
+        {!scale.deadlineInView && <span className="ms-auto text-(--ap-bad) font-medium">{t('timeline.deadlineDay', { day: run.deadlineDays })}</span>}
       </div>
 
       <ol className="space-y-1.5">
@@ -69,16 +73,20 @@ export function Timeline({ run }: { run: Run }) {
 
       <div className="grid grid-cols-[minmax(0,15rem)_1fr] gap-3 mt-2">
         <span />
-        <div className="relative h-5 text-[11px] text-(--ap-muted)">
-          {Array.from({ length: days }, (_, index) => (
-            <span key={index} className="absolute top-0" style={{ insetInlineStart: `${at(index * HOURS_PER_DAY)}%` }}>
-              {index + 1}
+        <div className="relative h-5 text-[11px] text-(--ap-muted) whitespace-nowrap" aria-hidden>
+          {scale.ticks.map((tick) => (
+            <span key={tick.hour} className={`absolute top-0 ${at(tick.hour) > END_LABEL_PERCENT ? END_ALIGNED : ''}`} style={{ insetInlineStart: `${at(tick.hour)}%` }}>
+              {tick.label}
             </span>
           ))}
-          <span className="absolute -top-[calc(100%+0.25rem)] h-[200%] border-s-2 border-dashed border-(--ap-bad)" style={{ insetInlineStart: `${at(run.deadlineDays * HOURS_PER_DAY)}%` }} />
-          <span className="absolute top-0 text-(--ap-bad) font-medium ps-1" style={{ insetInlineStart: `${at(run.deadlineDays * HOURS_PER_DAY)}%` }}>
-            {t('timeline.deadline')}
-          </span>
+          {scale.deadlineInView && (
+            <>
+              <span className="absolute -top-[calc(100%+0.25rem)] h-[200%] border-s-2 border-dashed border-(--ap-bad)" style={{ insetInlineStart: `${deadlineAt}%` }} />
+              <span className={`absolute top-0 bg-(--ap-surface) text-(--ap-bad) font-medium ${deadlineAt > END_LABEL_PERCENT ? END_ALIGNED : 'ps-1'}`} style={{ insetInlineStart: `${deadlineAt}%` }}>
+                {t('timeline.deadline')}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </section>
