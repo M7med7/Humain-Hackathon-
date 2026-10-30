@@ -34,6 +34,7 @@ export interface LlmTransport {
 export type LlmErrorCode =
   | 'timeout'
   | 'rate_limited'
+  | 'quota_exhausted'
   | 'overloaded'
   | 'truncated'
   | 'invalid_output'
@@ -51,8 +52,14 @@ export class LlmError extends Error {
     this.name = 'LlmError';
   }
 
+  /** Worth retrying the same model after a pause. */
   get retryable(): boolean {
     return this.code === 'timeout' || this.code === 'rate_limited' || this.code === 'overloaded';
+  }
+
+  /** Worth trying a different model: transient failures, and quotas that will not reset soon. */
+  get tryAnotherModel(): boolean {
+    return this.retryable || this.code === 'quota_exhausted';
   }
 }
 

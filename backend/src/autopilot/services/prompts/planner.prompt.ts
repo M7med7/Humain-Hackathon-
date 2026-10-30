@@ -1,7 +1,7 @@
 import type { Objective, PlanTask } from '../../models/plan';
 import { CAPABILITY_PROFILE, DATA_RULE, asData } from './shared';
 
-export const PLANNER_PROMPT_VERSION = 'planner-v3';
+export const PLANNER_PROMPT_VERSION = 'planner-v4';
 
 export const PLANNER_SYSTEM = `You plan business projects that a team of AI agents will execute, with people stepping in only where they must.
 
@@ -17,6 +17,7 @@ Planning rules:
 - priority: high for the critical path, medium for normal work, low for nice-to-have.
 - language: "ar", "en" or "both" for the deliverable. Customer-facing material in Saudi Arabia is usually "both".
 - owner: the listed person best placed for any human step, using their exact name, or null.
+- title: a short project name of at most 6 words.
 - The whole plan must fit before the deadline.
 ${DATA_RULE}`;
 

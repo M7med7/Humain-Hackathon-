@@ -14,15 +14,15 @@ interface GeminiResponse {
     candidatesTokenCount?: number;
     thoughtsTokenCount?: number;
   };
-  error?: { code?: number; message?: string };
+  error?: { code?: number; message?: string; details?: Array<{ violations?: Array<{ quotaId?: string }> }> };
 }
 
 export interface GeminiTransportOptions {
   apiKey: string;
   timeoutMs: number;
   maxRetries: number;
-  /** Tried once the requested model keeps failing with a retryable error. */
-  fallbackModel: string;
+  /** Models to try, in order, once a model keeps failing or its quota is spent. */
+  fallbacksFor: (model: string) => string[];
   cache?: ResponseCache;
   /** Injected so tests do not touch the network. */
   fetchImpl?: typeof fetch;
@@ -48,7 +48,7 @@ export class GeminiTransport implements LlmTransport {
       throw new LlmError('replay_miss', `No recorded response for ${request.purpose}`);
     }
 
-    const models = request.model === this.options.fallbackModel ? [request.model] : [request.model, this.options.fallbackModel];
+    const models = [request.model, ...this.options.fallbacksFor(request.model).filter((model) => model !== request.model)];
     let lastError: LlmError | null = null;
     for (const model of models) {
       try {
@@ -56,7 +56,7 @@ export class GeminiTransport implements LlmTransport {
         this.options.cache?.set(request, completion);
         return completion;
       } catch (error: unknown) {
-        if (!(error instanceof LlmError) || !error.retryable) throw error;
+        if (!(error instanceof LlmError) || !error.tryAnotherModel) throw error;
         lastError = error;
       }
     }
@@ -96,7 +96,7 @@ export class GeminiTransport implements LlmTransport {
     }
 
     const body = (await response.json().catch(() => ({}))) as GeminiResponse;
-    if (!response.ok) throw httpError(response.status, request.model, body.error?.message);
+    if (!response.ok) throw httpError(response.status, request.model, body.error);
     return parseCompletion(body, request.model, Date.now() - started);
   }
 }
@@ -114,8 +114,11 @@ function toRequestBody(request: LlmRequest): object {
   };
 }
 
-function httpError(status: number, model: string, message = ''): LlmError {
-  const detail = `${model} returned ${status}: ${message.slice(0, 160)}`;
+function httpError(status: number, model: string, error: GeminiResponse['error']): LlmError {
+  const detail = `${model} returned ${status}: ${(error?.message ?? '').slice(0, 160)}`;
+  // A daily quota will not reset within a retry window, so go straight to the next model.
+  const daily = error?.details?.some((item) => item.violations?.some((violation) => violation.quotaId?.includes('PerDay')));
+  if (status === 429 && daily) return new LlmError('quota_exhausted', detail);
   if (status === 429) return new LlmError('rate_limited', detail);
   if (status === 500 || status === 503 || status === 504) return new LlmError('overloaded', detail);
   return new LlmError('http', detail);

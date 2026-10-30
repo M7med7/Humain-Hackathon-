@@ -22,7 +22,11 @@
     "starting": "Starting…",
     "recent": "Recent runs",
     "empty": "No runs yet. Your first objective takes about two minutes.",
-    "example": "Try an example"
+    "example": "Try an example",
+    "member": "Team member",
+    "outside": "Outside person",
+    "addOutside": "Add outside person",
+    "peopleHint": "Team members get their tasks in ZeroOne. Add outside people (a supplier, a client contact) by name."
   },
   "status": {
     "planning": "Planning",
@@ -43,7 +47,8 @@
     "tasksOf": "{{done}} of {{total}} tasks",
     "noneWaiting": "Nothing waiting",
     "stoppedReason": "This run stopped: {{reason}}",
-    "loading": "Loading run…"
+    "loading": "Loading run…",
+    "openProject": "Open the project in ZeroOne"
   },
   "needsYou": {
     "title": "Needs you",

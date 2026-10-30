@@ -23,25 +23,39 @@ function remainingHours(task: RunTask): number {
   return task.estimatedDays * HOURS_PER_DAY;
 }
 
+export interface TaskWindow {
+  start: number;
+  finish: number;
+}
+
+/**
+ * Earliest start and finish hour of every remaining task, following dependencies from
+ * now. Finished tasks get a zero-length window at now.
+ */
+export function projectedWindows(tasks: readonly RunTask[], now: number): Map<string, TaskWindow> {
+  const byId = new Map(tasks.map((task) => [task.id, task]));
+  const windows = new Map<string, TaskWindow>();
+  const windowOf = (task: RunTask): TaskWindow => {
+    const known = windows.get(task.id);
+    if (known) return known;
+    const start = Math.max(now, ...task.dependsOn.map((id) => {
+      const dependency = byId.get(id);
+      return dependency ? windowOf(dependency).finish : now;
+    }));
+    const window = isTerminal(task) ? { start: now, finish: now } : { start, finish: start + remainingHours(task) };
+    windows.set(task.id, window);
+    return window;
+  };
+  tasks.forEach(windowOf);
+  return windows;
+}
+
 /**
  * Earliest hour every remaining task can finish, following dependencies from now.
  * Pure code, no model: this is what decides whether a deadline is at risk.
  */
 export function projectedFinishHour(tasks: readonly RunTask[], now: number): number {
-  const byId = new Map(tasks.map((task) => [task.id, task]));
-  const memo = new Map<string, number>();
-  const finishOf = (task: RunTask): number => {
-    const known = memo.get(task.id);
-    if (known !== undefined) return known;
-    const start = Math.max(now, ...task.dependsOn.map((id) => {
-      const dependency = byId.get(id);
-      return dependency ? finishOf(dependency) : now;
-    }));
-    const finish = isTerminal(task) ? now : start + remainingHours(task);
-    memo.set(task.id, finish);
-    return finish;
-  };
-  return Math.max(now, ...tasks.map(finishOf));
+  return Math.max(now, ...[...projectedWindows(tasks, now).values()].map((window) => window.finish));
 }
 
 /** Working day on which the last task finished (day 1 is the first day). */

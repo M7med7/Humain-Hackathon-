@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { mkdirSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
-import { loadConfig } from '../config';
+import { fallbackChain, loadConfig } from '../config';
 import type { RoutingDecision } from '../models/routing';
 import { GeminiTransport } from '../services/llm/geminiTransport';
 import { LlmSession } from '../services/llm/llmSession';
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
       apiKey: config.geminiApiKey,
       timeoutMs: config.llmTimeoutMs,
       maxRetries: config.llmMaxRetries,
-      fallbackModel: config.models.fallback,
+      fallbacksFor: fallbackChain(config.models),
       cache,
     });
     session = new LlmSession(transport, config.runTokenBudget);

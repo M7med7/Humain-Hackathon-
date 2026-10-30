@@ -1,33 +1,41 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, Sparkles, X } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { api } from '../../../lib/api';
+import { useSpaces } from '../../../contexts/SpaceContext';
 import { autopilotApi } from '../api';
+import { PeopleField } from '../components/PeopleField';
 import { StatusPill } from '../components/StatusPill';
-import type { NewRun, RunSummary } from '../types';
+import type { NewRun, Person, RunSummary } from '../types';
 import '../autopilot.css';
 
 const MIN_OBJECTIVE = 10;
-const MAX_PEOPLE = 8;
 
 const EXAMPLE: NewRun = {
   objective:
     'Launch the Ramadan campaign for our specialty coffee brand Qahwa Lab by November 20: a bilingual landing page, a launch email sequence and a two-week social plan.',
   deadlineDays: 10,
-  people: [
-    { name: 'Sara Al-Qahtani', role: 'Marketing Director' },
-    { name: 'Omar Haddad', role: 'Brand Designer' },
-  ],
+  people: [],
   context:
     'Qahwa Lab runs 6 cafes in Riyadh and sells beans online. Ramadan offer: 20% off the Ramadan Blend and free delivery after Iftar. Brand voice: warm, modern, proudly Saudi. Media budget: 40,000 SAR.',
   lang: 'en',
   simulateTeam: true,
 };
 
-const EMPTY: NewRun = { objective: '', deadlineDays: 10, people: [{ name: '', role: '' }], context: '', lang: 'en', simulateTeam: true };
+const EXAMPLE_OUTSIDE_PEOPLE: Person[] = [
+  { name: 'Sara Al-Qahtani', role: 'Marketing Director', userId: null },
+  { name: 'Omar Haddad', role: 'Brand Designer', userId: null },
+];
+
+const EMPTY: NewRun = { objective: '', deadlineDays: 10, people: [], context: '', lang: 'en', simulateTeam: true };
 
 function isValid(form: NewRun): boolean {
-  return form.objective.trim().length >= MIN_OBJECTIVE && form.people.every((person) => person.name.trim().length >= 2 && person.role.trim().length >= 2);
+  return (
+    form.objective.trim().length >= MIN_OBJECTIVE &&
+    form.people.length > 0 &&
+    form.people.every((person) => person.name.trim().length >= 2 && person.role.trim().length >= 2)
+  );
 }
 
 export function AutopilotHome() {
@@ -37,14 +45,27 @@ export function AutopilotHome() {
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [members, setMembers] = useState<Person[]>([]);
+  const { activeSpace } = useSpaces();
 
   useEffect(() => {
     autopilotApi.listRuns().then(setRuns).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)));
   }, []);
 
+  // Space members are the default people: their human tasks land on them in ZeroOne.
+  useEffect(() => {
+    if (!activeSpace) return;
+    api.spaces
+      .members(activeSpace.id)
+      .then(({ members: rows }) => {
+        const team = rows.map((member) => ({ name: member.full_name || member.email, role: member.job_title || member.role, userId: member.id }));
+        setMembers(team);
+        setForm((current) => (current.people.length === 0 ? { ...current, people: team } : current));
+      })
+      .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)));
+  }, [activeSpace]);
+
   const update = <K extends keyof NewRun>(key: K, value: NewRun[K]): void => setForm((current) => ({ ...current, [key]: value }));
-  const updatePerson = (index: number, key: 'name' | 'role', value: string): void =>
-    update('people', form.people.map((person, i) => (i === index ? { ...person, [key]: value } : person)));
 
   const submit = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
@@ -75,7 +96,7 @@ export function AutopilotHome() {
               <label htmlFor="ap-objective" className="text-[17px] font-semibold">
                 {t('home.objective')}
               </label>
-              <button type="button" onClick={() => setForm(EXAMPLE)} className="flex items-center gap-1 text-[13px] text-(--ap-link)">
+              <button type="button" onClick={() => setForm({ ...EXAMPLE, people: [...members, ...EXAMPLE_OUTSIDE_PEOPLE] })} className="flex items-center gap-1 text-[13px] text-(--ap-link)">
                 <Sparkles className="w-4 h-4" aria-hidden /> {t('home.example')}
               </button>
             </div>
@@ -110,27 +131,7 @@ export function AutopilotHome() {
               </div>
             </div>
 
-            <fieldset>
-              <legend className="text-[14px] font-semibold">{t('home.people')}</legend>
-              <div className="space-y-2 mt-2">
-                {form.people.map((person, index) => (
-                  <div key={index} className="flex gap-2">
-                    <input className="ap-field" placeholder={t('home.name')} aria-label={t('home.name')} maxLength={60} value={person.name} onChange={(event) => updatePerson(index, 'name', event.target.value)} />
-                    <input className="ap-field" placeholder={t('home.role')} aria-label={t('home.role')} maxLength={60} value={person.role} onChange={(event) => updatePerson(index, 'role', event.target.value)} />
-                    {form.people.length > 1 && (
-                      <button type="button" aria-label={t('home.remove')} className="p-2 text-(--ap-muted)" onClick={() => update('people', form.people.filter((_, i) => i !== index))}>
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {form.people.length < MAX_PEOPLE && (
-                <button type="button" className="flex items-center gap-1 mt-2 text-[13px] text-(--ap-link)" onClick={() => update('people', [...form.people, { name: '', role: '' }])}>
-                  <Plus className="w-4 h-4" aria-hidden /> {t('home.addPerson')}
-                </button>
-              )}
-            </fieldset>
+            <PeopleField people={form.people} onChange={(people) => update('people', people)} />
           </div>
 
           <details>

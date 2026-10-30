@@ -1,5 +1,7 @@
 import type { Express } from 'express';
+import { assertUsersInSpace } from '../lib/spaces';
 import { supabase } from '../lib/supabase';
+import { ZeroOneProjectMirror } from './repositories/projectMirror';
 import { loadConfig } from './config';
 import { AutopilotController } from './controllers/autopilot.controller';
 import { createEngine } from './index';
@@ -21,7 +23,12 @@ export function mountAutopilot(app: Express): void {
     if (process.env.NODE_ENV === 'test') return;
     throw error;
   }
-  const service = new RunService(config, new SupabaseRunRepository(supabase), createEngine);
+  const service = new RunService(config, {
+    repository: new SupabaseRunRepository(supabase),
+    mirror: new ZeroOneProjectMirror(supabase),
+    createEngine,
+    verifyMembers: assertUsersInSpace,
+  });
   app.use('/api/autopilot', autopilotRoutes(new AutopilotController(service)));
   logger.info('autopilot mounted', { fast: config.models.fast, standard: config.models.standard });
 }

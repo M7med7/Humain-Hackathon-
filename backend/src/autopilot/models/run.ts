@@ -96,6 +96,10 @@ export type RunStatus = 'planning' | 'running' | 'waiting_on_people' | 'complete
 
 export interface Run {
   id: string;
+  /** ISO time the run started; anchors simulated working days to calendar dates. */
+  startedAt: string;
+  /** Short project name from the plan. */
+  title: string;
   objective: string;
   deadlineDays: number;
   lang: 'en' | 'ar';

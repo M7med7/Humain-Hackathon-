@@ -6,6 +6,7 @@ import type { EngineDeps } from '../../../backend/src/autopilot/index';
 import type { Plan, PlanTask } from '../../../backend/src/autopilot/models/plan';
 import type { RoutingDecision } from '../../../backend/src/autopilot/models/routing';
 import type { Run } from '../../../backend/src/autopilot/models/run';
+import { noMirror } from '../../../backend/src/autopilot/repositories/projectMirror';
 import { MemoryRunRepository } from '../../../backend/src/autopilot/repositories/runRepository';
 import { autopilotRoutes } from '../../../backend/src/autopilot/routes/autopilot.routes';
 import { AutopilotEngine, type EngineServices } from '../../../backend/src/autopilot/services/engine/autopilotEngine';
@@ -14,7 +15,7 @@ import { RunService } from '../../../backend/src/autopilot/services/runService';
 
 const config: AutopilotConfig = {
   geminiApiKey: 'test-key-not-used-0000000',
-  models: { fast: 'fast', standard: 'standard', fallback: 'fallback' },
+  models: { fast: 'fast', standard: 'standard', standardFallback: 'standard-2', fallback: 'fallback' },
   optimizations: { eventDrivenSupervision: true, batchedRouting: true, modelCascade: true, scopedContext: true, tieredReview: true },
   runTokenBudget: 100_000,
   maxConcurrentWorkers: 2,
@@ -37,6 +38,7 @@ const planTask = (id: string, title: string, dependsOn: string[] = []): PlanTask
 /** Stub services: the engine, service, controller and routes are real; only model calls are replaced. */
 function stubServices(): EngineServices {
   const plan: Plan = {
+    title: 'Spring launch',
     summary: 'Launch plan',
     tasks: [planTask('t1', 'Write the launch email'), planTask('t2', 'Approve the budget', ['t1']), planTask('t3', 'Prepare the ad schedule', ['t2'])],
   };
@@ -58,13 +60,14 @@ function stubServices(): EngineServices {
 function buildApp(): express.Express {
   const factory = (cfg: AutopilotConfig, deps: EngineDeps): AutopilotEngine =>
     new AutopilotEngine(stubServices(), { optimizations: cfg.optimizations, maxConcurrentWorkers: 1, people: deps.people, simulateTimeouts: false, ...(deps.onChange && { onChange: deps.onChange }) });
-  const service = new RunService(config, new MemoryRunRepository(), factory);
+  const service = new RunService(config, { repository: new MemoryRunRepository(), mirror: noMirror, createEngine: factory, verifyMembers: async () => undefined });
   const app = express();
   app.use(express.json());
   // Stands in for requireAuth + requireSpace, which are tested separately.
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.locals.userId = '11111111-1111-4111-8111-111111111111';
     res.locals.spaceId = String(req.headers['x-test-space'] ?? '22222222-2222-4222-8222-222222222222');
+    res.locals.spaceRole = String(req.headers['x-test-role'] ?? 'Admin');
     next();
   });
   app.use('/api/autopilot', autopilotRoutes(new AutopilotController(service)));
@@ -92,6 +95,11 @@ describe('Autopilot API', () => {
     const response = await request(buildApp()).post('/api/autopilot/runs').send({ objective: 'short', deadlineDays: 0, people: [] });
     expect(response.status).toBe(400);
     expect(response.body.details.length).toBeGreaterThan(0);
+  });
+
+  it('lets only roles that can create projects start a run', async () => {
+    const response = await request(buildApp()).post('/api/autopilot/runs').set('x-test-role', 'Member').send(validBody);
+    expect(response.status).toBe(403);
   });
 
   it('rejects malformed ids', async () => {

@@ -86,7 +86,7 @@ export class AutopilotEngine {
 
   async start(objective: Objective, runId: string = randomUUID()): Promise<Run> {
     this.objective = objective;
-    this.run = { ...emptyRun(), id: runId, objective: objective.objective, deadlineDays: objective.deadlineDays, lang: objective.lang };
+    this.run = { ...emptyRun(), id: runId, startedAt: new Date().toISOString(), objective: objective.objective, deadlineDays: objective.deadlineDays, lang: objective.lang };
     this.emit('client', 'observed', 'objective', `New objective: ${objective.objective}`);
     this.emit('planner', 'acted', 'planning', 'Drafting the plan: tasks, dependencies and acceptance criteria');
     this.changed();
@@ -96,7 +96,7 @@ export class AutopilotEngine {
       this.emit('router', 'acted', 'routing', 'Deciding which tasks agents can do and which need a person');
       this.changed();
       const decisions = await this.services.router.route(plan.tasks);
-      this.run = { ...this.run, summary: plan.summary, status: 'running', tasks: this.toRunTasks(plan.tasks, decisions, 'plan') };
+      this.run = { ...this.run, title: plan.title, summary: plan.summary, status: 'running', tasks: this.toRunTasks(plan.tasks, decisions, 'plan') };
       this.announceRouting(this.run.tasks);
       this.queueReady();
       await this.drain();
@@ -474,7 +474,7 @@ function instructionFor(task: RunTask): string {
 }
 
 function emptyRun(): Run {
-  return { id: '', objective: '', deadlineDays: 0, lang: 'en', summary: '', status: 'planning', tasks: [], requests: [], deliverables: [], events: [], calls: [], report: null, stopReason: null };
+  return { id: '', startedAt: '', title: '', objective: '', deadlineDays: 0, lang: 'en', summary: '', status: 'planning', tasks: [], requests: [], deliverables: [], events: [], calls: [], report: null, stopReason: null };
 }
 
 /** Runs jobs with at most `limit` in flight, so a run stays under provider rate limits. */

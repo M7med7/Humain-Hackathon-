@@ -31,7 +31,7 @@ export class PlannerService {
       maxOutputTokens: PLAN_OUTPUT_TOKENS,
     });
     const people = new Set(objective.people.map((person) => person.name));
-    return { summary: plan.summary, tasks: sanitizeTasks(plan.tasks.slice(0, this.options.maxTasks), new Set(), people) };
+    return { title: plan.title, summary: plan.summary, tasks: sanitizeTasks(plan.tasks.slice(0, this.options.maxTasks), new Set(), people) };
   }
 
   async extend(existing: readonly PlanTask[], message: string, people: Objective['people']): Promise<PlanTask[]> {

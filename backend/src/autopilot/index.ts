@@ -1,4 +1,4 @@
-import type { AutopilotConfig } from './config';
+import { fallbackChain, type AutopilotConfig } from './config';
 import type { Run } from './models/run';
 import { AutopilotEngine, type ScenarioHooks } from './services/engine/autopilotEngine';
 import type { PeopleChannel } from './services/engine/people';
@@ -27,7 +27,7 @@ export function createEngine(config: AutopilotConfig, deps: EngineDeps): Autopil
     apiKey: config.geminiApiKey,
     timeoutMs: config.llmTimeoutMs,
     maxRetries: config.llmMaxRetries,
-    fallbackModel: config.models.fallback,
+    fallbacksFor: fallbackChain(config.models),
     ...(deps.cache && { cache: deps.cache }),
   });
   const llm = new LlmSession(transport, config.runTokenBudget);

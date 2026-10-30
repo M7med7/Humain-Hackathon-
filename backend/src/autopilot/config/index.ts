@@ -6,7 +6,9 @@ export interface ModelTiers {
   fast: string;
   /** Planning, writing deliverables, re-planning. */
   standard: string;
-  /** Used when a tier is overloaded or keeps failing. */
+  /** Tried first when the standard model is overloaded or out of quota. */
+  standardFallback: string;
+  /** Last resort for any tier. */
   fallback: string;
 }
 
@@ -45,6 +47,7 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string().min(20, 'GEMINI_API_KEY is missing or malformed'),
   AUTOPILOT_MODEL_FAST: z.string().default('gemini-3.5-flash-lite'),
   AUTOPILOT_MODEL_STANDARD: z.string().default('gemini-3.6-flash'),
+  AUTOPILOT_MODEL_STANDARD_FALLBACK: z.string().default('gemini-3.5-flash'),
   AUTOPILOT_MODEL_FALLBACK: z.string().default('gemini-3.1-flash-lite'),
   AUTOPILOT_EVENT_DRIVEN: flag,
   AUTOPILOT_BATCHED_ROUTING: flag,
@@ -56,6 +59,11 @@ const envSchema = z.object({
   AUTOPILOT_LLM_TIMEOUT_MS: z.coerce.number().int().min(5_000).default(60_000),
   AUTOPILOT_LLM_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(3),
 });
+
+/** Fallback order per model: standard work tries another standard model before the cheap one. */
+export function fallbackChain(models: ModelTiers): (model: string) => string[] {
+  return (model) => (model === models.standard ? [models.standardFallback, models.fallback] : [models.fallback]);
+}
 
 /**
  * Reads and validates Autopilot settings. Throws with every problem listed, so a
@@ -70,7 +78,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AutopilotConfi
   const e = parsed.data;
   return {
     geminiApiKey: e.GEMINI_API_KEY,
-    models: { fast: e.AUTOPILOT_MODEL_FAST, standard: e.AUTOPILOT_MODEL_STANDARD, fallback: e.AUTOPILOT_MODEL_FALLBACK },
+    models: { fast: e.AUTOPILOT_MODEL_FAST, standard: e.AUTOPILOT_MODEL_STANDARD, standardFallback: e.AUTOPILOT_MODEL_STANDARD_FALLBACK, fallback: e.AUTOPILOT_MODEL_FALLBACK },
     optimizations: {
       eventDrivenSupervision: e.AUTOPILOT_EVENT_DRIVEN,
       batchedRouting: e.AUTOPILOT_BATCHED_ROUTING,

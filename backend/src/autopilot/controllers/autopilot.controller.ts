@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
+import { canCreateProjects, type SpaceRole } from '../../lib/spaces';
 import type { Run } from '../models/run';
 import { RunServiceError, type RunService } from '../services/runService';
 import { errorMessage, logger } from '../utils/logger';
@@ -8,7 +9,7 @@ const createRunSchema = z.object({
   objective: z.string().trim().min(10).max(1_000),
   deadlineDays: z.number().int().min(1).max(90),
   people: z
-    .array(z.object({ name: z.string().trim().min(2).max(60), role: z.string().trim().min(2).max(60) }))
+    .array(z.object({ name: z.string().trim().min(2).max(60), role: z.string().trim().min(2).max(60), userId: z.uuid().nullable().default(null) }))
     .min(1)
     .max(8),
   context: z.string().trim().max(4_000).default(''),
@@ -48,7 +49,12 @@ function fail(res: Response, error: unknown): void {
 export class AutopilotController {
   constructor(private readonly runs: RunService) {}
 
-  create = (req: Request, res: Response): void => {
+  create = async (req: Request, res: Response): Promise<void> => {
+    // A run creates a ZeroOne project, so it needs the same role as creating one by hand.
+    if (!canCreateProjects(res.locals.spaceRole as SpaceRole | undefined)) {
+      res.status(403).json({ error: 'Only admins and developers can start Autopilot runs.' });
+      return;
+    }
     const parsed = createRunSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'Invalid objective.', details: parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`) });
@@ -56,7 +62,7 @@ export class AutopilotController {
     }
     try {
       const { simulateTeam, ...objective } = parsed.data;
-      const id = this.runs.start(objective, caller(res), simulateTeam);
+      const id = await this.runs.start(objective, caller(res), simulateTeam);
       res.status(202).json({ id });
     } catch (error: unknown) {
       fail(res, error);

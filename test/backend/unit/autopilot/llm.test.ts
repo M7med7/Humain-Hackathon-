@@ -71,7 +71,7 @@ describe('GeminiTransport', () => {
       models.push(String(url).split('/models/')[1]?.split(':')[0] ?? '');
       return responses[Math.min(index++, responses.length - 1)] as Response;
     }) as typeof fetch;
-    return { transport: new GeminiTransport({ apiKey: 'test-key', timeoutMs: 1_000, maxRetries, fallbackModel: 'fallback-model', fetchImpl, sleep: noSleep }), models };
+    return { transport: new GeminiTransport({ apiKey: 'test-key', timeoutMs: 1_000, maxRetries, fallbacksFor: () => ['fallback-model'], fetchImpl, sleep: noSleep }), models };
   }
 
   it('returns text and token usage', async () => {
@@ -91,6 +91,13 @@ describe('GeminiTransport', () => {
     const { transport: client, models } = transport([status(429), status(429), status(429), ok('from fallback')], 2);
     await expect(client.complete(request)).resolves.toMatchObject({ text: 'from fallback', model: 'fallback-model' });
     expect(models.at(-1)).toBe('fallback-model');
+  });
+
+  it('skips straight to the fallback when the daily quota is spent', async () => {
+    const quota = new Response(JSON.stringify({ error: { code: 429, message: 'quota', details: [{ violations: [{ quotaId: 'GenerateRequestsPerDayPerProjectPerModel-FreeTier' }] }] } }), { status: 429 });
+    const { transport: client, models } = transport([quota, ok('from fallback')], 3);
+    await expect(client.complete(request)).resolves.toMatchObject({ model: 'fallback-model' });
+    expect(models).toEqual([request.model, 'fallback-model']);
   });
 
   it('does not retry client errors', async () => {

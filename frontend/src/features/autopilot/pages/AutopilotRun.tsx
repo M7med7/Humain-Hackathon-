@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft } from 'lucide-react';
+import { ArrowUpRight, ChevronLeft } from 'lucide-react';
 import { autopilotApi } from '../api';
 import { ActivityPanel } from '../components/ActivityPanel';
 import { Deliverables } from '../components/Deliverables';
@@ -45,7 +45,14 @@ export function AutopilotRun() {
         </Link>
 
         <header className="space-y-3">
-          <StatusPill status={run.status} />
+          <div className="flex flex-wrap items-center gap-3">
+            <StatusPill status={run.status} />
+            {run.tasks.length > 0 && (
+              <Link to={`/project/${run.id}/health`} className="inline-flex items-center gap-1 text-[14px] text-(--ap-link)">
+                {t('run.openProject')} <ArrowUpRight className="w-4 h-4 rtl:-scale-x-100" aria-hidden />
+              </Link>
+            )}
+          </div>
           <h1 className="ap-display text-[26px] sm:text-[34px] max-w-4xl" dir="auto">
             {run.objective}
           </h1>

@@ -81,6 +81,8 @@ export interface LlmCall {
 
 export interface Run {
   id: string;
+  startedAt: string;
+  title: string;
   objective: string;
   deadlineDays: number;
   lang: 'en' | 'ar';
@@ -102,10 +104,17 @@ export interface RunSummary {
   createdAt: string;
 }
 
+export interface Person {
+  name: string;
+  role: string;
+  /** Set for members of the space; their human tasks are assigned to them in ZeroOne. */
+  userId: string | null;
+}
+
 export interface NewRun {
   objective: string;
   deadlineDays: number;
-  people: Array<{ name: string; role: string }>;
+  people: Person[];
   context: string;
   lang: 'en' | 'ar';
   simulateTeam: boolean;

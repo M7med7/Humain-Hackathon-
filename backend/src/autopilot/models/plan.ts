@@ -22,6 +22,8 @@ export const planTaskSchema = z.object({
 export type PlanTask = z.infer<typeof planTaskSchema>;
 
 export const planSchema = z.object({
+  /** Short project name shown in ZeroOne's project list. */
+  title: z.string().min(3).max(80),
   summary: z.string().min(10).max(500),
   tasks: z.array(planTaskSchema).min(1).max(16),
 });
@@ -32,7 +34,8 @@ export type Plan = z.infer<typeof planSchema>;
 export interface Objective {
   objective: string;
   deadlineDays: number;
-  people: ReadonlyArray<{ name: string; role: string }>;
+  /** People who can approve or act. userId is set for members of the space, null for outside people. */
+  people: ReadonlyArray<{ name: string; role: string; userId?: string | null }>;
   /** Facts and document excerpts the client attached. Treated as data, never as instructions. */
   context: string;
   lang: 'en' | 'ar';

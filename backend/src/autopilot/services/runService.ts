@@ -3,12 +3,23 @@ import type { AutopilotConfig } from '../config';
 import type { EngineDeps } from '../index';
 import type { Objective } from '../models/plan';
 import type { Run } from '../models/run';
+import type { RunMirror } from '../repositories/projectMirror';
 import type { RunOwner, RunRepository, RunSummary } from '../repositories/runRepository';
 import { errorMessage, logger } from '../utils/logger';
 import type { AutopilotEngine } from './engine/autopilotEngine';
 import { DemoTeam, manualPeople } from './engine/people';
 
 export type EngineFactory = (config: AutopilotConfig, deps: EngineDeps) => AutopilotEngine;
+
+/** Rejects user ids that are not members of the space. */
+export type MemberCheck = (userIds: string[], spaceId: string) => Promise<void>;
+
+export interface RunServiceDeps {
+  repository: RunRepository;
+  mirror: RunMirror;
+  createEngine: EngineFactory;
+  verifyMembers: MemberCheck;
+}
 
 export class RunServiceError extends Error {
   constructor(
@@ -24,6 +35,7 @@ type Listener = (run: Run) => void;
 interface LiveRun {
   engine: AutopilotEngine;
   owner: RunOwner;
+  people: Objective['people'];
   latest: Run | null;
   listeners: Set<Listener>;
   pendingSave: Run | null;
@@ -44,22 +56,27 @@ export class RunService {
 
   constructor(
     private readonly config: AutopilotConfig,
-    private readonly repository: RunRepository,
-    private readonly createEngine: EngineFactory,
+    private readonly deps: RunServiceDeps,
   ) {}
 
-  start(objective: Objective, owner: RunOwner, simulateTeam: boolean): string {
+  async start(objective: Objective, owner: RunOwner, simulateTeam: boolean): Promise<string> {
+    const memberIds = objective.people.flatMap((person) => (person.userId ? [person.userId] : []));
+    try {
+      await this.deps.verifyMembers(memberIds, owner.spaceId);
+    } catch {
+      throw new RunServiceError(400, 'Everyone picked from the team must be a member of this space.');
+    }
     const active = [...this.live.values()].filter((entry) => entry.owner.spaceId === owner.spaceId && entry.latest && ACTIVE.has(entry.latest.status));
     if (active.length >= MAX_ACTIVE_RUNS_PER_SPACE) {
       throw new RunServiceError(429, 'This space already has runs in progress. Wait for one to finish.');
     }
     const id = randomUUID();
-    const engine = this.createEngine(this.config, {
+    const engine = this.deps.createEngine(this.config, {
       people: simulateTeam ? new DemoTeam() : manualPeople,
       simulateTimeouts: false,
       onChange: (run) => this.onChange(id, run),
     });
-    this.live.set(id, { engine, owner, latest: null, listeners: new Set(), pendingSave: null, saving: false });
+    this.live.set(id, { engine, owner, people: objective.people, latest: null, listeners: new Set(), pendingSave: null, saving: false });
     logger.info('run started', { runId: id, spaceId: owner.spaceId });
     engine.start(objective, id).catch((error: unknown) => logger.error('run crashed', { runId: id, error: errorMessage(error) }));
     return id;
@@ -68,13 +85,13 @@ export class RunService {
   async get(id: string, spaceId: string): Promise<Run> {
     const entry = this.live.get(id);
     if (entry && entry.owner.spaceId === spaceId) return entry.latest ?? entry.engine.snapshot();
-    const stored = await this.repository.get(id, spaceId);
+    const stored = await this.deps.repository.get(id, spaceId);
     if (!stored) throw new RunServiceError(404, 'Run not found.');
     return stored;
   }
 
   list(spaceId: string): Promise<RunSummary[]> {
-    return this.repository.list(spaceId, LIST_LIMIT);
+    return this.deps.repository.list(spaceId, LIST_LIMIT);
   }
 
   async answer(id: string, spaceId: string, requestId: string, response: string, by: string): Promise<Run> {
@@ -104,7 +121,7 @@ export class RunService {
     void this.persist(id, entry);
   }
 
-  /** At most one save in flight per run; the newest snapshot always wins. */
+  /** At most one save (run snapshot, then the ZeroOne project) in flight per run; the newest snapshot always wins. */
   private async persist(id: string, entry: LiveRun): Promise<void> {
     if (entry.saving) return;
     entry.saving = true;
@@ -112,9 +129,10 @@ export class RunService {
       const run = entry.pendingSave;
       entry.pendingSave = null;
       try {
-        await this.repository.save(run, entry.owner);
+        await this.deps.repository.save(run, entry.owner);
+        await this.deps.mirror.sync(run, entry.owner, entry.people);
       } catch (error: unknown) {
-        logger.error('run save failed', { runId: id, error: errorMessage(error) });
+        logger.error('run save or project sync failed', { runId: id, error: errorMessage(error) });
       }
       if (FINISHED.has(run.status) && !entry.pendingSave) this.live.delete(id);
     }
