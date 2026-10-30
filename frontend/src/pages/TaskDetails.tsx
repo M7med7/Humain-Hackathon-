@@ -12,6 +12,9 @@ import { riskStyle, scoreProjectHealth } from "../lib/riskScoring";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
+/** Text the Autopilot mirror writes into the descriptions of projects it creates. */
+const AUTOPILOT_MARKER = "Run by ZeroOne Autopilot.";
+
 function formatDate(iso: string, locale: string): string {
   return new Date(iso).toLocaleDateString(locale, { month: "long", day: "numeric", year: "numeric" });
 }
@@ -928,6 +931,12 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
             <div className="flex flex-wrap items-center gap-4">
               <span className={`px-5 py-2 rounded-full text-base font-semibold ${project.status === "Completed" ? "bg-linear-to-r from-green-600 to-emerald-600 text-white shadow-xl shadow-green-500/50" : "bg-linear-to-r from-purple-600 to-purple-900 text-white shadow-xl shadow-purple-500/50"}`}>{t(`detail.projectStatus.${project.status}`, { defaultValue: project.status })}</span>
               <span className="px-5 py-2 rounded-full text-base font-semibold bg-linear-to-r from-gray-600 to-gray-700 text-white shadow-xl shadow-gray-500/30">{t("detail.complete", { progress })}</span>
+              {/* Projects created by Autopilot use the run id and say so in their description. */}
+              {project.description?.includes(AUTOPILOT_MARKER) && (
+                <Link to={`/autopilot/${project.id}`} className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                  <Sparkles className="h-4 w-4 text-purple-300" /> {t("detail.autopilotRun")}
+                </Link>
+              )}
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-3">
@@ -1034,512 +1043,6 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
                 {weeklyReport}
               </div>
             )}
-          </div>
-        )}
-
-        {canViewCapacity && <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Timer className="h-5 w-5 text-purple-300" />
-              <div>
-                <h3 className="text-xl font-semibold">{t("detail.accuracy.title")}</h3>
-                <p className="mt-1 text-sm text-gray-500">{t("detail.accuracy.subtitle")}</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => exportTimesheet("csv")} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-gray-300 hover:border-purple-500/40">CSV</button>
-              <button onClick={() => exportTimesheet("xlsx")} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-gray-300 hover:border-purple-500/40">Excel</button>
-            </div>
-          </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-xl border border-white/10 app-surface-soft p-3">
-              <div className="text-xs text-gray-500">{t("detail.accuracy.actual")}</div>
-              <div className="mt-1 text-xl font-semibold text-white">{formatMinutes(timeTotals?.actual_minutes ?? 0)}</div>
-            </div>
-            <div className="rounded-xl border border-white/10 app-surface-soft p-3">
-              <div className="text-xs text-gray-500">{t("detail.accuracy.estimate")}</div>
-              <div className="mt-1 text-xl font-semibold text-white">{formatMinutes(timeTotals?.estimated_minutes ?? tasks.reduce((sum, task) => sum + Number(task.estimated_days || 0) * 8 * 60, 0))}</div>
-            </div>
-            <div className="rounded-xl border border-white/10 app-surface-soft p-3">
-              <div className="text-xs text-gray-500">{t("detail.accuracy.accuracy")}</div>
-              <div className="mt-1 text-xl font-semibold text-white">{timeTotals?.estimate_accuracy === null || timeTotals?.estimate_accuracy === undefined ? "-" : `${timeTotals.estimate_accuracy}%`}</div>
-            </div>
-          </div>
-          {timeError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{timeError}</p>}
-          <div className="mt-4 max-h-52 overflow-y-auto rounded-xl border border-white/10">
-            {timeTasks.length === 0 ? (
-              <p className="p-4 text-center text-sm text-gray-600">{t("detail.accuracy.noTime")}</p>
-            ) : timeTasks.slice(0, 8).map((task) => (
-              <button key={task.id} onClick={() => setSelectedTaskId(task.id)} className="grid w-full grid-cols-[1fr_auto_auto] gap-3 border-b border-white/5 px-3 py-2 text-left text-xs last:border-b-0 hover:bg-white/5">
-                <span className="truncate text-gray-200">{task.title}</span>
-                <span className="text-gray-500">{formatMinutes(task.actual_minutes)}</span>
-                <span className="text-gray-500">{task.estimate_accuracy === null ? "-" : `${task.estimate_accuracy}%`}</span>
-              </button>
-            ))}
-          </div>
-          <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t("detail.accuracy.timesheet")}</div>
-            {weeklyTimesheet.length === 0 ? (
-              <p className="text-sm text-gray-600">{t("detail.accuracy.noEntries")}</p>
-            ) : (
-              <div className="space-y-2">
-                {weeklyTimesheet.map(([week, minutes]) => (
-                  <div key={week} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">{t("detail.accuracy.weekOf", { date: week })}</span>
-                    <span className="font-semibold text-white">{formatMinutes(minutes)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>}
-
-        <div className="min-w-0 bg-linear-to-br from-white/7 to-white/2 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 sm:p-8">
-          <h3 className="text-2xl mb-4 font-semibold">{t("detail.description")}</h3>
-          <p className="text-gray-300 text-lg leading-relaxed">{project.description}</p>
-        </div>
-
-        {canManageProject && (
-          <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <Share2 className="h-5 w-5 text-purple-300" />
-                <div>
-                  <h3 className="text-xl font-semibold">Client Portal</h3>
-                  <p className="mt-1 text-sm text-gray-500">Share clean progress without internal workload, private notes, or team capacity.</p>
-                </div>
-              </div>
-              {activeClientShare ? (
-                <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">Active link</span>
-              ) : (
-                <span className="rounded-full border border-white/10 app-surface-soft px-3 py-1 text-xs text-gray-500">Not shared</span>
-              )}
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              {[
-                ["show_milestones", "Milestones"],
-                ["show_tasks", "Tasks"],
-                ["show_current_tasks", "Current tasks"],
-                ["show_upcoming_tasks", "Upcoming tasks"],
-                ["show_completed_tasks", "Completed tasks"],
-                ["show_internal_risks", "Shared risk note"],
-                ["allow_client_comments", "Client comments"],
-              ].map(([key, label]) => (
-                <label key={key} className="flex items-center justify-between rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
-                  {label}
-                  <input
-                    type="checkbox"
-                    checked={Boolean(clientShareSettings[key as keyof ClientShareSettings])}
-                    onChange={(e) => updateClientSetting(key as keyof ClientShareSettings, e.target.checked as ClientShareSettings[keyof ClientShareSettings])}
-                    className="h-4 w-4 accent-purple-500"
-                  />
-                </label>
-              ))}
-            </div>
-
-            <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto]">
-              <input
-                value={clientShareSettings.brand_label}
-                onChange={(e) => updateClientSetting("brand_label", e.target.value)}
-                placeholder="Client-facing label, e.g. Weekly Project Status"
-                className="rounded-xl border border-white/10 app-input px-3 py-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50"
-              />
-              <button
-                onClick={createOrUpdateClientShare}
-                disabled={clientShareLoading}
-                className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
-              >
-                {clientShareLoading ? "Saving..." : activeClientShare ? "Update view" : "Create link"}
-              </button>
-            </div>
-
-            {activeClientShare && (
-              <div className="mt-3 flex flex-col gap-2 rounded-xl border border-white/10 app-surface-soft p-3 md:flex-row md:items-center">
-                <div className="min-w-0 flex-1 truncate text-xs text-gray-400">{clientShareUrl}</div>
-                <button onClick={copyClientShare} className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-200 hover:border-purple-500/40">
-                  <Copy className="h-3.5 w-3.5" /> Copy
-                </button>
-                <button onClick={revokeClientShare} disabled={clientShareLoading} className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-200 hover:bg-red-900/20 disabled:opacity-40">
-                  <EyeOff className="h-3.5 w-3.5" /> Revoke
-                </button>
-              </div>
-            )}
-
-            <p className="mt-3 text-xs text-gray-500">Internal comments, capacity, time tracking, private AI chat, and internal risk details stay hidden by default.</p>
-            {clientShareError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{clientShareError}</p>}
-          </div>
-        )}
-
-        <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Github className="h-5 w-5 text-purple-300" />
-              <div>
-                <h3 className="text-xl font-semibold">GitHub</h3>
-                <p className="mt-1 text-sm text-gray-500">{t("detail.integrations.githubHelp")}</p>
-              </div>
-            </div>
-            {githubRepo && (
-              <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">{t("detail.integrations.connected")}</span>
-            )}
-          </div>
-
-          {githubRepo ? (
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft p-3">
-                <div className="min-w-0">
-                  <a href={githubRepo.repo_url} target="_blank" rel="noreferrer" className="truncate text-sm font-semibold text-white hover:text-purple-200">
-                    {githubRepo.owner}/{githubRepo.repo}
-                  </a>
-                  <div className="mt-1 text-xs text-gray-500">Default branch: {githubRepo.default_branch ?? "unknown"}</div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={importGithubIssues}
-                    disabled={githubLoading || !canEditTasks}
-                    className="inline-flex items-center gap-2 rounded-lg border border-purple-500/35 bg-purple-900/20 px-3 py-2 text-xs font-semibold text-purple-100 hover:bg-purple-900/35 disabled:opacity-40"
-                  >
-                    <UploadCloud className="h-3.5 w-3.5" /> Import issues
-                  </button>
-                  <button
-                    onClick={disconnectGithubRepo}
-                    disabled={githubLoading || !canManageIntegrations}
-                    className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-400 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-200 disabled:opacity-40"
-                  >
-                    Disconnect
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3 md:flex-row">
-              <div className="relative min-w-0 flex-1">
-                <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-                <input
-                  value={githubRepoInput}
-                  onChange={(e) => setGithubRepoInput(e.target.value)}
-                  disabled={!canManageIntegrations}
-                  placeholder="owner/repo or https://github.com/owner/repo"
-                  className="w-full rounded-xl border border-white/10 app-input py-3 pl-10 pr-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
-                />
-              </div>
-              <button
-                onClick={connectGithubRepo}
-                disabled={githubLoading || !githubRepoInput.trim() || !canManageIntegrations}
-                className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
-              >
-                {githubLoading ? t("detail.integrations.connecting") : t("detail.integrations.connectRepo")}
-              </button>
-            </div>
-          )}
-          {!canManageIntegrations && <p className="mt-3 text-xs text-gray-500">{t("detail.integrations.adminOnly")}</p>}
-          {githubError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{githubError}</p>}
-        </div>
-
-        <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <CalendarPlus className="h-5 w-5 text-purple-300" />
-              <div>
-                <h3 className="text-xl font-semibold">{t("detail.integrations.calendar")}</h3>
-                <p className="mt-1 text-sm text-gray-500">{t("detail.integrations.calendarHelp")}</p>
-              </div>
-            </div>
-            {calendarConnection && (
-              <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">{t("detail.integrations.googleConnected")}</span>
-            )}
-          </div>
-
-          {calendarConnection ? (
-            <div className="space-y-4">
-              <div className="rounded-xl border border-white/10 app-surface-soft p-3">
-                <div className="text-sm font-semibold text-white">{calendarConnection.calendar_name ?? "Google Calendar"}</div>
-                <div className="mt-1 text-xs text-gray-500">
-                  Timezone: {calendarConnection.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone}
-                </div>
-              </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
-                  Sync enabled
-                  <input
-                    type="checkbox"
-                    checked={calendarConnection.sync_enabled}
-                    onChange={(e) => updateCalendarSettings({ sync_enabled: e.target.checked })}
-                    disabled={!canManageIntegrations}
-                    className="h-4 w-4 accent-purple-500"
-                  />
-                </label>
-                <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
-                  Work blocks by default
-                  <input
-                    type="checkbox"
-                    checked={calendarConnection.create_work_blocks}
-                    onChange={(e) => updateCalendarSettings({ create_work_blocks: e.target.checked })}
-                    disabled={!canManageIntegrations}
-                    className="h-4 w-4 accent-purple-500"
-                  />
-                </label>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => updateCalendarSettings({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone })}
-                  disabled={calendarLoading || !canManageIntegrations}
-                  className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-300 hover:border-purple-500/40 hover:bg-purple-900/20 disabled:opacity-40"
-                >
-                  Use my timezone
-                </button>
-                <button
-                  onClick={disconnectCalendar}
-                  disabled={calendarLoading || !canManageIntegrations}
-                  className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-400 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-200 disabled:opacity-40"
-                >
-                  Disconnect
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <button
-                onClick={connectGoogleCalendar}
-                disabled={calendarLoading || !currentUserId || !canManageIntegrations}
-                className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
-              >
-                {calendarLoading ? t("detail.integrations.connecting") : t("detail.integrations.connectCalendar")}
-              </button>
-              <p className="text-xs text-gray-500">{t("detail.integrations.calendarNote")}</p>
-            </div>
-          )}
-          {!canManageIntegrations && <p className="mt-3 text-xs text-gray-500">{t("detail.integrations.calendarAdminOnly")}</p>}
-          {calendarError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{calendarError}</p>}
-        </div>
-
-        <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <MessageCircle className="h-5 w-5 text-purple-300" />
-              <div>
-                <h3 className="text-xl font-semibold">{t("detail.integrations.slack")}</h3>
-                <p className="mt-1 text-sm text-gray-500">{t("detail.integrations.slackHelp")}</p>
-              </div>
-            </div>
-            {slackIntegration && (
-              <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">{t("detail.integrations.connected")}</span>
-            )}
-          </div>
-
-          {slackIntegration ? (
-            <div className="space-y-4">
-              <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-                <input
-                  value={slackChannelInput}
-                  onChange={(e) => setSlackChannelInput(e.target.value)}
-                  onBlur={() => updateSlackSettings({ channel_name: slackChannelInput.trim() })}
-                  disabled={!canManageIntegrations}
-                  placeholder="#project-channel"
-                  className="rounded-xl border border-white/10 app-input px-3 py-2 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
-                />
-                <button
-                  onClick={sendSlackSummary}
-                  disabled={slackLoading || !canManageIntegrations}
-                  className="rounded-xl border border-purple-500/35 bg-purple-900/20 px-3 py-2 text-xs font-semibold text-purple-100 hover:bg-purple-900/35 disabled:opacity-40"
-                >
-                  Send summary
-                </button>
-              </div>
-              <div className="grid gap-2 md:grid-cols-2">
-                {[
-                  ["assignment_notifications", "Assignments"],
-                  ["overdue_alerts", "Overdue alerts"],
-                  ["project_risk_alerts", "Risk alerts"],
-                  ["mention_notifications", "Mentions"],
-                  ["summary_notifications", "Summaries"],
-                ].map(([key, label]) => (
-                  <label key={key} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
-                    {label}
-                    <input
-                      type="checkbox"
-                      checked={Boolean(slackIntegration[key as keyof SlackIntegration])}
-                      onChange={(e) => updateSlackSettings({ [key]: e.target.checked } as Partial<SlackIntegration>)}
-                      disabled={!canManageIntegrations}
-                      className="h-4 w-4 accent-purple-500"
-                    />
-                  </label>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <select
-                  value={slackIntegration.summary_frequency}
-                  onChange={(e) => updateSlackSettings({ summary_frequency: e.target.value as SlackIntegration["summary_frequency"] })}
-                  disabled={!canManageIntegrations}
-                  className="rounded-lg border border-white/10 app-input px-3 py-2 text-xs text-gray-300 outline-none focus:border-purple-500/50"
-                >
-                  <option value="weekly">Weekly summary</option>
-                  <option value="daily">Daily summary</option>
-                  <option value="off">No scheduled summary</option>
-                </select>
-                <button
-                  onClick={disconnectSlack}
-                  disabled={slackLoading || !canManageIntegrations}
-                  className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-400 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-200 disabled:opacity-40"
-                >
-                  Disconnect
-                </button>
-              </div>
-              {slackIntegration.last_error && <p className="rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{slackIntegration.last_error}</p>}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <input
-                value={slackWebhookInput}
-                onChange={(e) => setSlackWebhookInput(e.target.value)}
-                disabled={!canManageIntegrations}
-                placeholder="Slack incoming webhook URL"
-                className="w-full rounded-xl border border-white/10 app-input px-3 py-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
-              />
-              <input
-                value={slackChannelInput}
-                onChange={(e) => setSlackChannelInput(e.target.value)}
-                disabled={!canManageIntegrations}
-                placeholder="Channel name (optional)"
-                className="w-full rounded-xl border border-white/10 app-input px-3 py-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
-              />
-              <button
-                onClick={connectSlack}
-                disabled={slackLoading || !slackWebhookInput.trim() || !canManageIntegrations}
-                className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
-              >
-                {slackLoading ? t("detail.integrations.connecting") : t("detail.integrations.connectSlack")}
-              </button>
-              <p className="text-xs text-gray-500">{t("detail.integrations.teamsNote")}</p>
-            </div>
-          )}
-          {!canManageIntegrations && <p className="mt-3 text-xs text-gray-500">{t("detail.integrations.slackAdminOnly")}</p>}
-          {slackError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{slackError}</p>}
-        </div>
-
-        {/* Team Members */}
-        <div className="min-w-0 bg-linear-to-br from-white/7 to-white/2 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 sm:p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3"><Users className="w-5 h-5 text-purple-400" /><h3 className="text-2xl font-semibold">{t("detail.team.title", { count: members.length })}</h3></div>
-            {canManageMembers && (
-              <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} onClick={() => setShowAddMember((v) => !v)} className="flex items-center gap-2 rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-2 text-sm font-semibold text-white hover:border-purple-400/70 hover:bg-purple-800/40 transition-all">
-                <UserPlus className="h-4 w-4" /> {t("detail.team.inviteMember")}
-              </motion.button>
-            )}
-          </div>
-
-          <AnimatePresence>
-            {showAddMember && canManageMembers && (
-              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="mb-5 rounded-xl border border-purple-500/30 bg-black/50 p-4">
-                <div className="mb-3 grid gap-2 md:grid-cols-[1fr_auto_auto]">
-                  <input
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder={t("detail.team.invitePlaceholder")}
-                    className="rounded-lg border border-white/10 app-input px-3 py-2 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50"
-                  />
-                  <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as ProjectRole)} className="rounded-lg border border-white/10 app-input px-3 py-2 text-sm text-gray-200 outline-none focus:border-purple-500/50">
-                    <option value="Admin">{t("detail.roles.Admin")}</option><option value="Member">{t("detail.roles.Member")}</option><option value="Guest">{t("detail.roles.Guest")}</option><option value="Owner">{t("detail.roles.Owner")}</option>
-                  </select>
-                  <button
-                    onClick={handleInviteMember}
-                    disabled={memberActionId === "invite" || !inviteEmail.trim()}
-                    className="rounded-lg border border-purple-500/40 bg-purple-900/30 px-3 py-2 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
-                  >
-                    {memberActionId === "invite" ? t("detail.team.inviting") : t("detail.team.invite")}
-                  </button>
-                </div>
-                {memberError && <p className="mb-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{memberError}</p>}
-                {availableToAdd.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-2">{t("detail.team.noUsers")}</p>
-                ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {availableToAdd.map((user) => (
-                      <button key={user.id} onClick={() => handleAddMember(user.id)} disabled={memberActionId === user.id} className="flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/3 px-3 py-2.5 text-left hover:border-purple-500/40 hover:bg-purple-900/20 transition-all disabled:opacity-50">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-purple-600 to-purple-800 text-xs font-bold text-white">{getInitials(user.full_name, user.email)}</div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm text-white">{user.full_name ?? user.email}</div>
-                          <div className="truncate text-xs text-gray-500">{user.email}</div>
-                        </div>
-                        {memberActionId === user.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-400 border-t-transparent" /> : <UserPlus className="h-4 w-4 text-purple-400" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {invitations.length > 0 && (
-                  <div className="mt-3 border-t border-white/10 pt-3">
-                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t("detail.team.pending")}</div>
-                    <div className="space-y-1">
-                      {invitations.map((invite) => (
-                        <div key={invite.id} className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-xs text-gray-400">
-                          <span>{invite.email}</span>
-                          <span>{invite.role}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-          {!canManageMembers && <p className="mb-4 text-xs text-gray-500">{t("detail.team.adminOnly")}</p>}
-
-          {members.length === 0 ? (
-            <p className="text-sm text-gray-600 italic">{t("detail.team.empty")}</p>
-          ) : (
-            <div className="space-y-3">
-              {members.map((member, i) => (
-                <motion.div key={member.user_id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/3 p-3 group">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br ${GRADIENTS[i % GRADIENTS.length]} text-sm font-bold text-white`}>{getInitials(member.full_name, member.email)}</div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-white">{member.full_name ?? member.email}</div>
-                    {canManageMembers ? (
-                      <select
-                        value={member.role}
-                        onChange={(e) => handleChangeMemberRole(member.user_id, e.target.value as ProjectRole)}
-                        disabled={memberActionId === member.user_id}
-                        onClick={(e) => e.stopPropagation()}
-                        className="mt-1 rounded-md border border-white/10 app-input px-2 py-1 text-xs text-gray-300 outline-none focus:border-purple-500/50 disabled:opacity-40"
-                      >
-                        <option value="Owner">{t("detail.roles.Owner")}</option><option value="Admin">{t("detail.roles.Admin")}</option><option value="Member">{t("detail.roles.Member")}</option><option value="Guest">{t("detail.roles.Guest")}</option>
-                      </select>
-                    ) : (
-                      <div className="truncate text-xs text-gray-500">{t(`detail.roles.${member.role}`)}</div>
-                    )}
-                  </div>
-                  {canManageMembers && (
-                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleRemoveMember(member.user_id)} disabled={memberActionId === member.user_id} className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-gray-600 opacity-0 group-hover:opacity-100 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-400 transition-all disabled:opacity-30" aria-label={`Remove ${member.full_name ?? member.email}`}>
-                      {memberActionId === member.user_id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-red-400 border-t-transparent" /> : <UserMinus className="h-3.5 w-3.5" />}
-                    </motion.button>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {blockedTasks.length > 0 && (
-          <div className="min-w-0 rounded-2xl border border-red-500/30 bg-red-950/20 p-5">
-            <div className="mb-4 flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-300" />
-              <h3 className="text-xl font-semibold text-red-100">{t("detail.blockedWork")}</h3>
-              <span className="rounded-full border border-red-500/30 bg-red-900/30 px-2 py-0.5 text-xs text-red-200">{blockedTasks.length}</span>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {blockedTasks.map((task) => (
-                <button
-                  key={task.id}
-                  onClick={() => setSelectedTaskId(task.id)}
-                  className="rounded-xl border border-red-500/20 app-surface-soft p-3 text-left transition-colors hover:border-red-400/50"
-                >
-                  <div className="truncate text-sm font-semibold text-white">{task.title}</div>
-                  <div className="mt-2 text-xs text-red-200">
-                    {t("detail.blockedBy", { tasks: (task.blocked_by ?? []).filter((item) => item.status !== "Done").map((item) => item.title).join(", ") })}
-                  </div>
-                </button>
-              ))}
-            </div>
           </div>
         )}
 
@@ -1824,6 +1327,522 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
             </div>
           )}
         </div>
+
+        {/* Team Members */}
+        <div className="min-w-0 bg-linear-to-br from-white/7 to-white/2 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 sm:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3"><Users className="w-5 h-5 text-purple-400" /><h3 className="text-2xl font-semibold">{t("detail.team.title", { count: members.length })}</h3></div>
+            {canManageMembers && (
+              <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }} onClick={() => setShowAddMember((v) => !v)} className="flex items-center gap-2 rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-2 text-sm font-semibold text-white hover:border-purple-400/70 hover:bg-purple-800/40 transition-all">
+                <UserPlus className="h-4 w-4" /> {t("detail.team.inviteMember")}
+              </motion.button>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {showAddMember && canManageMembers && (
+              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="mb-5 rounded-xl border border-purple-500/30 bg-black/50 p-4">
+                <div className="mb-3 grid gap-2 md:grid-cols-[1fr_auto_auto]">
+                  <input
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder={t("detail.team.invitePlaceholder")}
+                    className="rounded-lg border border-white/10 app-input px-3 py-2 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50"
+                  />
+                  <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as ProjectRole)} className="rounded-lg border border-white/10 app-input px-3 py-2 text-sm text-gray-200 outline-none focus:border-purple-500/50">
+                    <option value="Admin">{t("detail.roles.Admin")}</option><option value="Member">{t("detail.roles.Member")}</option><option value="Guest">{t("detail.roles.Guest")}</option><option value="Owner">{t("detail.roles.Owner")}</option>
+                  </select>
+                  <button
+                    onClick={handleInviteMember}
+                    disabled={memberActionId === "invite" || !inviteEmail.trim()}
+                    className="rounded-lg border border-purple-500/40 bg-purple-900/30 px-3 py-2 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
+                  >
+                    {memberActionId === "invite" ? t("detail.team.inviting") : t("detail.team.invite")}
+                  </button>
+                </div>
+                {memberError && <p className="mb-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{memberError}</p>}
+                {availableToAdd.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-2">{t("detail.team.noUsers")}</p>
+                ) : (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {availableToAdd.map((user) => (
+                      <button key={user.id} onClick={() => handleAddMember(user.id)} disabled={memberActionId === user.id} className="flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/3 px-3 py-2.5 text-left hover:border-purple-500/40 hover:bg-purple-900/20 transition-all disabled:opacity-50">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-purple-600 to-purple-800 text-xs font-bold text-white">{getInitials(user.full_name, user.email)}</div>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm text-white">{user.full_name ?? user.email}</div>
+                          <div className="truncate text-xs text-gray-500">{user.email}</div>
+                        </div>
+                        {memberActionId === user.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-400 border-t-transparent" /> : <UserPlus className="h-4 w-4 text-purple-400" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {invitations.length > 0 && (
+                  <div className="mt-3 border-t border-white/10 pt-3">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t("detail.team.pending")}</div>
+                    <div className="space-y-1">
+                      {invitations.map((invite) => (
+                        <div key={invite.id} className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-xs text-gray-400">
+                          <span>{invite.email}</span>
+                          <span>{invite.role}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {!canManageMembers && <p className="mb-4 text-xs text-gray-500">{t("detail.team.adminOnly")}</p>}
+
+          {members.length === 0 ? (
+            <p className="text-sm text-gray-600 italic">{t("detail.team.empty")}</p>
+          ) : (
+            <div className="space-y-3">
+              {members.map((member, i) => (
+                <motion.div key={member.user_id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/3 p-3 group">
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br ${GRADIENTS[i % GRADIENTS.length]} text-sm font-bold text-white`}>{getInitials(member.full_name, member.email)}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-white">{member.full_name ?? member.email}</div>
+                    {canManageMembers ? (
+                      <select
+                        value={member.role}
+                        onChange={(e) => handleChangeMemberRole(member.user_id, e.target.value as ProjectRole)}
+                        disabled={memberActionId === member.user_id}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-1 rounded-md border border-white/10 app-input px-2 py-1 text-xs text-gray-300 outline-none focus:border-purple-500/50 disabled:opacity-40"
+                      >
+                        <option value="Owner">{t("detail.roles.Owner")}</option><option value="Admin">{t("detail.roles.Admin")}</option><option value="Member">{t("detail.roles.Member")}</option><option value="Guest">{t("detail.roles.Guest")}</option>
+                      </select>
+                    ) : (
+                      <div className="truncate text-xs text-gray-500">{t(`detail.roles.${member.role}`)}</div>
+                    )}
+                  </div>
+                  {canManageMembers && (
+                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => handleRemoveMember(member.user_id)} disabled={memberActionId === member.user_id} className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-gray-600 opacity-0 group-hover:opacity-100 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-400 transition-all disabled:opacity-30" aria-label={`Remove ${member.full_name ?? member.email}`}>
+                      {memberActionId === member.user_id ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-red-400 border-t-transparent" /> : <UserMinus className="h-3.5 w-3.5" />}
+                    </motion.button>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {blockedTasks.length > 0 && (
+          <div className="min-w-0 rounded-2xl border border-red-500/30 bg-red-950/20 p-5">
+            <div className="mb-4 flex items-center gap-3">
+              <AlertTriangle className="h-5 w-5 text-red-300" />
+              <h3 className="text-xl font-semibold text-red-100">{t("detail.blockedWork")}</h3>
+              <span className="rounded-full border border-red-500/30 bg-red-900/30 px-2 py-0.5 text-xs text-red-200">{blockedTasks.length}</span>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {blockedTasks.map((task) => (
+                <button
+                  key={task.id}
+                  onClick={() => setSelectedTaskId(task.id)}
+                  className="rounded-xl border border-red-500/20 app-surface-soft p-3 text-left transition-colors hover:border-red-400/50"
+                >
+                  <div className="truncate text-sm font-semibold text-white">{task.title}</div>
+                  <div className="mt-2 text-xs text-red-200">
+                    {t("detail.blockedBy", { tasks: (task.blocked_by ?? []).filter((item) => item.status !== "Done").map((item) => item.title).join(", ") })}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Project details, tracking and integrations: secondary, so collapsed by default */}
+        <details className="group min-w-0 rounded-2xl border border-white/10 bg-white/[0.02]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-semibold app-text">
+            <span>{t("detail.settingsSection")}</span>
+            <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="space-y-6 px-4 pb-4">
+            <div className="min-w-0 bg-linear-to-br from-white/7 to-white/2 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 sm:p-8">
+              <h3 className="text-2xl mb-4 font-semibold">{t("detail.description")}</h3>
+              <p className="text-gray-300 text-lg leading-relaxed">{project.description}</p>
+            </div>
+
+            {canViewCapacity && <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Timer className="h-5 w-5 text-purple-300" />
+                  <div>
+                    <h3 className="text-xl font-semibold">{t("detail.accuracy.title")}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{t("detail.accuracy.subtitle")}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => exportTimesheet("csv")} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-gray-300 hover:border-purple-500/40">CSV</button>
+                  <button onClick={() => exportTimesheet("xlsx")} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-gray-300 hover:border-purple-500/40">Excel</button>
+                </div>
+              </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl border border-white/10 app-surface-soft p-3">
+                  <div className="text-xs text-gray-500">{t("detail.accuracy.actual")}</div>
+                  <div className="mt-1 text-xl font-semibold text-white">{formatMinutes(timeTotals?.actual_minutes ?? 0)}</div>
+                </div>
+                <div className="rounded-xl border border-white/10 app-surface-soft p-3">
+                  <div className="text-xs text-gray-500">{t("detail.accuracy.estimate")}</div>
+                  <div className="mt-1 text-xl font-semibold text-white">{formatMinutes(timeTotals?.estimated_minutes ?? tasks.reduce((sum, task) => sum + Number(task.estimated_days || 0) * 8 * 60, 0))}</div>
+                </div>
+                <div className="rounded-xl border border-white/10 app-surface-soft p-3">
+                  <div className="text-xs text-gray-500">{t("detail.accuracy.accuracy")}</div>
+                  <div className="mt-1 text-xl font-semibold text-white">{timeTotals?.estimate_accuracy === null || timeTotals?.estimate_accuracy === undefined ? "-" : `${timeTotals.estimate_accuracy}%`}</div>
+                </div>
+              </div>
+              {timeError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{timeError}</p>}
+              <div className="mt-4 max-h-52 overflow-y-auto rounded-xl border border-white/10">
+                {timeTasks.length === 0 ? (
+                  <p className="p-4 text-center text-sm text-gray-600">{t("detail.accuracy.noTime")}</p>
+                ) : timeTasks.slice(0, 8).map((task) => (
+                  <button key={task.id} onClick={() => setSelectedTaskId(task.id)} className="grid w-full grid-cols-[1fr_auto_auto] gap-3 border-b border-white/5 px-3 py-2 text-left text-xs last:border-b-0 hover:bg-white/5">
+                    <span className="truncate text-gray-200">{task.title}</span>
+                    <span className="text-gray-500">{formatMinutes(task.actual_minutes)}</span>
+                    <span className="text-gray-500">{task.estimate_accuracy === null ? "-" : `${task.estimate_accuracy}%`}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t("detail.accuracy.timesheet")}</div>
+                {weeklyTimesheet.length === 0 ? (
+                  <p className="text-sm text-gray-600">{t("detail.accuracy.noEntries")}</p>
+                ) : (
+                  <div className="space-y-2">
+                    {weeklyTimesheet.map(([week, minutes]) => (
+                      <div key={week} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">{t("detail.accuracy.weekOf", { date: week })}</span>
+                        <span className="font-semibold text-white">{formatMinutes(minutes)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>}
+
+            {canManageProject && (
+              <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Share2 className="h-5 w-5 text-purple-300" />
+                    <div>
+                      <h3 className="text-xl font-semibold">Client Portal</h3>
+                      <p className="mt-1 text-sm text-gray-500">Share clean progress without internal workload, private notes, or team capacity.</p>
+                    </div>
+                  </div>
+                  {activeClientShare ? (
+                    <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">Active link</span>
+                  ) : (
+                    <span className="rounded-full border border-white/10 app-surface-soft px-3 py-1 text-xs text-gray-500">Not shared</span>
+                  )}
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  {[
+                    ["show_milestones", "Milestones"],
+                    ["show_tasks", "Tasks"],
+                    ["show_current_tasks", "Current tasks"],
+                    ["show_upcoming_tasks", "Upcoming tasks"],
+                    ["show_completed_tasks", "Completed tasks"],
+                    ["show_internal_risks", "Shared risk note"],
+                    ["allow_client_comments", "Client comments"],
+                  ].map(([key, label]) => (
+                    <label key={key} className="flex items-center justify-between rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
+                      {label}
+                      <input
+                        type="checkbox"
+                        checked={Boolean(clientShareSettings[key as keyof ClientShareSettings])}
+                        onChange={(e) => updateClientSetting(key as keyof ClientShareSettings, e.target.checked as ClientShareSettings[keyof ClientShareSettings])}
+                        className="h-4 w-4 accent-purple-500"
+                      />
+                    </label>
+                  ))}
+                </div>
+
+                <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto]">
+                  <input
+                    value={clientShareSettings.brand_label}
+                    onChange={(e) => updateClientSetting("brand_label", e.target.value)}
+                    placeholder="Client-facing label, e.g. Weekly Project Status"
+                    className="rounded-xl border border-white/10 app-input px-3 py-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50"
+                  />
+                  <button
+                    onClick={createOrUpdateClientShare}
+                    disabled={clientShareLoading}
+                    className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
+                  >
+                    {clientShareLoading ? "Saving..." : activeClientShare ? "Update view" : "Create link"}
+                  </button>
+                </div>
+
+                {activeClientShare && (
+                  <div className="mt-3 flex flex-col gap-2 rounded-xl border border-white/10 app-surface-soft p-3 md:flex-row md:items-center">
+                    <div className="min-w-0 flex-1 truncate text-xs text-gray-400">{clientShareUrl}</div>
+                    <button onClick={copyClientShare} className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-200 hover:border-purple-500/40">
+                      <Copy className="h-3.5 w-3.5" /> Copy
+                    </button>
+                    <button onClick={revokeClientShare} disabled={clientShareLoading} className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-200 hover:bg-red-900/20 disabled:opacity-40">
+                      <EyeOff className="h-3.5 w-3.5" /> Revoke
+                    </button>
+                  </div>
+                )}
+
+                <p className="mt-3 text-xs text-gray-500">Internal comments, capacity, time tracking, private AI chat, and internal risk details stay hidden by default.</p>
+                {clientShareError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{clientShareError}</p>}
+              </div>
+            )}
+
+            <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Github className="h-5 w-5 text-purple-300" />
+                  <div>
+                    <h3 className="text-xl font-semibold">GitHub</h3>
+                    <p className="mt-1 text-sm text-gray-500">{t("detail.integrations.githubHelp")}</p>
+                  </div>
+                </div>
+                {githubRepo && (
+                  <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">{t("detail.integrations.connected")}</span>
+                )}
+              </div>
+
+              {githubRepo ? (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft p-3">
+                    <div className="min-w-0">
+                      <a href={githubRepo.repo_url} target="_blank" rel="noreferrer" className="truncate text-sm font-semibold text-white hover:text-purple-200">
+                        {githubRepo.owner}/{githubRepo.repo}
+                      </a>
+                      <div className="mt-1 text-xs text-gray-500">Default branch: {githubRepo.default_branch ?? "unknown"}</div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={importGithubIssues}
+                        disabled={githubLoading || !canEditTasks}
+                        className="inline-flex items-center gap-2 rounded-lg border border-purple-500/35 bg-purple-900/20 px-3 py-2 text-xs font-semibold text-purple-100 hover:bg-purple-900/35 disabled:opacity-40"
+                      >
+                        <UploadCloud className="h-3.5 w-3.5" /> Import issues
+                      </button>
+                      <button
+                        onClick={disconnectGithubRepo}
+                        disabled={githubLoading || !canManageIntegrations}
+                        className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-400 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-200 disabled:opacity-40"
+                      >
+                        Disconnect
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 md:flex-row">
+                  <div className="relative min-w-0 flex-1">
+                    <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                    <input
+                      value={githubRepoInput}
+                      onChange={(e) => setGithubRepoInput(e.target.value)}
+                      disabled={!canManageIntegrations}
+                      placeholder="owner/repo or https://github.com/owner/repo"
+                      className="w-full rounded-xl border border-white/10 app-input py-3 pl-10 pr-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
+                    />
+                  </div>
+                  <button
+                    onClick={connectGithubRepo}
+                    disabled={githubLoading || !githubRepoInput.trim() || !canManageIntegrations}
+                    className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
+                  >
+                    {githubLoading ? t("detail.integrations.connecting") : t("detail.integrations.connectRepo")}
+                  </button>
+                </div>
+              )}
+              {!canManageIntegrations && <p className="mt-3 text-xs text-gray-500">{t("detail.integrations.adminOnly")}</p>}
+              {githubError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{githubError}</p>}
+            </div>
+
+            <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <CalendarPlus className="h-5 w-5 text-purple-300" />
+                  <div>
+                    <h3 className="text-xl font-semibold">{t("detail.integrations.calendar")}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{t("detail.integrations.calendarHelp")}</p>
+                  </div>
+                </div>
+                {calendarConnection && (
+                  <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">{t("detail.integrations.googleConnected")}</span>
+                )}
+              </div>
+
+              {calendarConnection ? (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-white/10 app-surface-soft p-3">
+                    <div className="text-sm font-semibold text-white">{calendarConnection.calendar_name ?? "Google Calendar"}</div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      Timezone: {calendarConnection.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    </div>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
+                      Sync enabled
+                      <input
+                        type="checkbox"
+                        checked={calendarConnection.sync_enabled}
+                        onChange={(e) => updateCalendarSettings({ sync_enabled: e.target.checked })}
+                        disabled={!canManageIntegrations}
+                        className="h-4 w-4 accent-purple-500"
+                      />
+                    </label>
+                    <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
+                      Work blocks by default
+                      <input
+                        type="checkbox"
+                        checked={calendarConnection.create_work_blocks}
+                        onChange={(e) => updateCalendarSettings({ create_work_blocks: e.target.checked })}
+                        disabled={!canManageIntegrations}
+                        className="h-4 w-4 accent-purple-500"
+                      />
+                    </label>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => updateCalendarSettings({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone })}
+                      disabled={calendarLoading || !canManageIntegrations}
+                      className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-300 hover:border-purple-500/40 hover:bg-purple-900/20 disabled:opacity-40"
+                    >
+                      Use my timezone
+                    </button>
+                    <button
+                      onClick={disconnectCalendar}
+                      disabled={calendarLoading || !canManageIntegrations}
+                      className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-400 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-200 disabled:opacity-40"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <button
+                    onClick={connectGoogleCalendar}
+                    disabled={calendarLoading || !currentUserId || !canManageIntegrations}
+                    className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
+                  >
+                    {calendarLoading ? t("detail.integrations.connecting") : t("detail.integrations.connectCalendar")}
+                  </button>
+                  <p className="text-xs text-gray-500">{t("detail.integrations.calendarNote")}</p>
+                </div>
+              )}
+              {!canManageIntegrations && <p className="mt-3 text-xs text-gray-500">{t("detail.integrations.calendarAdminOnly")}</p>}
+              {calendarError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{calendarError}</p>}
+            </div>
+
+            <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="h-5 w-5 text-purple-300" />
+                  <div>
+                    <h3 className="text-xl font-semibold">{t("detail.integrations.slack")}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{t("detail.integrations.slackHelp")}</p>
+                  </div>
+                </div>
+                {slackIntegration && (
+                  <span className="rounded-full border border-green-500/30 bg-green-900/20 px-3 py-1 text-xs font-semibold text-green-300">{t("detail.integrations.connected")}</span>
+                )}
+              </div>
+
+              {slackIntegration ? (
+                <div className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+                    <input
+                      value={slackChannelInput}
+                      onChange={(e) => setSlackChannelInput(e.target.value)}
+                      onBlur={() => updateSlackSettings({ channel_name: slackChannelInput.trim() })}
+                      disabled={!canManageIntegrations}
+                      placeholder="#project-channel"
+                      className="rounded-xl border border-white/10 app-input px-3 py-2 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
+                    />
+                    <button
+                      onClick={sendSlackSummary}
+                      disabled={slackLoading || !canManageIntegrations}
+                      className="rounded-xl border border-purple-500/35 bg-purple-900/20 px-3 py-2 text-xs font-semibold text-purple-100 hover:bg-purple-900/35 disabled:opacity-40"
+                    >
+                      Send summary
+                    </button>
+                  </div>
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {[
+                      ["assignment_notifications", "Assignments"],
+                      ["overdue_alerts", "Overdue alerts"],
+                      ["project_risk_alerts", "Risk alerts"],
+                      ["mention_notifications", "Mentions"],
+                      ["summary_notifications", "Summaries"],
+                    ].map(([key, label]) => (
+                      <label key={key} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 app-surface-soft px-3 py-2 text-sm text-gray-300">
+                        {label}
+                        <input
+                          type="checkbox"
+                          checked={Boolean(slackIntegration[key as keyof SlackIntegration])}
+                          onChange={(e) => updateSlackSettings({ [key]: e.target.checked } as Partial<SlackIntegration>)}
+                          disabled={!canManageIntegrations}
+                          className="h-4 w-4 accent-purple-500"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={slackIntegration.summary_frequency}
+                      onChange={(e) => updateSlackSettings({ summary_frequency: e.target.value as SlackIntegration["summary_frequency"] })}
+                      disabled={!canManageIntegrations}
+                      className="rounded-lg border border-white/10 app-input px-3 py-2 text-xs text-gray-300 outline-none focus:border-purple-500/50"
+                    >
+                      <option value="weekly">Weekly summary</option>
+                      <option value="daily">Daily summary</option>
+                      <option value="off">No scheduled summary</option>
+                    </select>
+                    <button
+                      onClick={disconnectSlack}
+                      disabled={slackLoading || !canManageIntegrations}
+                      className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-gray-400 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-200 disabled:opacity-40"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                  {slackIntegration.last_error && <p className="rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{slackIntegration.last_error}</p>}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <input
+                    value={slackWebhookInput}
+                    onChange={(e) => setSlackWebhookInput(e.target.value)}
+                    disabled={!canManageIntegrations}
+                    placeholder="Slack incoming webhook URL"
+                    className="w-full rounded-xl border border-white/10 app-input px-3 py-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
+                  />
+                  <input
+                    value={slackChannelInput}
+                    onChange={(e) => setSlackChannelInput(e.target.value)}
+                    disabled={!canManageIntegrations}
+                    placeholder="Channel name (optional)"
+                    className="w-full rounded-xl border border-white/10 app-input px-3 py-3 text-sm text-white outline-none placeholder-gray-600 focus:border-purple-500/50 disabled:opacity-40"
+                  />
+                  <button
+                    onClick={connectSlack}
+                    disabled={slackLoading || !slackWebhookInput.trim() || !canManageIntegrations}
+                    className="rounded-xl border border-purple-500/40 bg-purple-900/30 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-800/40 disabled:opacity-40"
+                  >
+                    {slackLoading ? t("detail.integrations.connecting") : t("detail.integrations.connectSlack")}
+                  </button>
+                  <p className="text-xs text-gray-500">{t("detail.integrations.teamsNote")}</p>
+                </div>
+              )}
+              {!canManageIntegrations && <p className="mt-3 text-xs text-gray-500">{t("detail.integrations.slackAdminOnly")}</p>}
+              {slackError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{slackError}</p>}
+            </div>
+
+          </div>
+        </details>
       </div>
 
       {/* Right Panel — Task Detail or AI Assistant */}
