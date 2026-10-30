@@ -6,6 +6,7 @@ export const CAPABILITY_PROFILE = `Agents on this platform CAN:
 - message people inside the platform
 
 Agents CANNOT:
+- build, deploy or test production software (apps, systems, integrations); they can only write specs, plans, copy and single-page HTML for it
 - act in the physical world
 - sign, commit the company legally, approve spending or move money
 - log in to external systems or accounts the project has not connected (ad accounts, mailboxes, HR systems, government portals)

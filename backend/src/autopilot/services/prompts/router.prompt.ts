@@ -1,6 +1,6 @@
 import { CAPABILITY_PROFILE, DATA_RULE, asData } from './shared';
 
-export const ROUTER_PROMPT_VERSION = 'router-v1';
+export const ROUTER_PROMPT_VERSION = 'router-v2';
 
 export const ROUTER_SYSTEM = `You decide who does each task in a business project run by AI agents. Send work to a person only when an agent truly cannot do it.
 

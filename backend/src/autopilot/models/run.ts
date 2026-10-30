@@ -61,6 +61,8 @@ export interface HumanRequest {
   reminders: number;
   /** True once the lead moved the request to a backup person. */
   reassigned: boolean;
+  /** Working hours the person needs to do it (non-zero for "perform" requests). */
+  effortHours: number;
 }
 
 export type EventActor = 'lead' | 'router' | 'planner' | 'reviewer' | 'scheduler' | 'client' | `agent:${string}` | `person:${string}`;

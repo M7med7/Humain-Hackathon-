@@ -88,9 +88,13 @@ export class AutopilotEngine {
     this.objective = objective;
     this.run = { ...emptyRun(), id: runId, objective: objective.objective, deadlineDays: objective.deadlineDays, lang: objective.lang };
     this.emit('client', 'observed', 'objective', `New objective: ${objective.objective}`);
+    this.emit('planner', 'acted', 'planning', 'Drafting the plan: tasks, dependencies and acceptance criteria');
+    this.changed();
     try {
       const plan = await this.services.planner.plan(objective);
       this.emit('planner', 'decided', 'planned', `Planned ${plan.tasks.length} tasks within ${objective.deadlineDays} working days`);
+      this.emit('router', 'acted', 'routing', 'Deciding which tasks agents can do and which need a person');
+      this.changed();
       const decisions = await this.services.router.route(plan.tasks);
       this.run = { ...this.run, summary: plan.summary, status: 'running', tasks: this.toRunTasks(plan.tasks, decisions, 'plan') };
       this.announceRouting(this.run.tasks);
@@ -257,6 +261,7 @@ export class AutopilotEngine {
       const role = task.routing.role ?? 'writer';
       this.updateTask(task.id, { status: 'working', attempts: attempt });
       this.emit(`agent:${role}`, 'acted', 'working', `${attempt === task.attempts + 1 ? 'Started' : `Retry ${attempt - task.attempts}:`} "${task.title}"`, task.id);
+      this.changed();
 
       let result;
       try {
@@ -277,6 +282,7 @@ export class AutopilotEngine {
       }
 
       this.updateTask(task.id, { status: 'review' });
+      this.changed();
       const review = await this.services.reviewer.review(task, content, result.format, task.routing.executor === 'hybrid');
       const deliverable: Deliverable = { id: randomUUID(), taskId: task.id, attempt, format: result.format, content, model: result.model, review };
       this.run = { ...this.run, deliverables: [...this.run.deliverables, deliverable] };
@@ -323,7 +329,9 @@ export class AutopilotEngine {
   // ── People ──────────────────────────────────────────────────────────────────
 
   private openRequest(kind: HumanRequestKind, assignee: string, title: string, prompt: string, options: string[], taskId: string | null, atHour = this.hour): void {
-    const request: HumanRequest = { id: randomUUID(), taskId, kind, assignee, title, prompt, options, openedAtHour: atHour, status: 'open', response: null, reminders: 0, reassigned: false };
+    const task = taskId ? this.task(taskId) : undefined;
+    const effortHours = kind === 'perform' && task?.routing.executor === 'human' ? task.estimatedDays * HOURS_PER_DAY : 0;
+    const request: HumanRequest = { id: randomUUID(), taskId, kind, assignee, title, prompt, options, openedAtHour: atHour, status: 'open', response: null, reminders: 0, reassigned: false, effortHours };
     this.run = { ...this.run, requests: [...this.run.requests, request] };
     this.emit('lead', 'acted', 'asked_person', `Asked ${assignee} to ${kind}: "${title}"`, taskId);
     this.deliver(request, atHour);
@@ -333,7 +341,8 @@ export class AutopilotEngine {
     const index = request.reassigned ? -1 : this.openedRequests++;
     const answer = this.options.people.deliver(request, index);
     if (answer) this.queue.push(atHour + answer.afterHours, { type: 'answer', requestId: request.id, response: answer.response, by: request.assignee });
-    if (this.options.simulateTimeouts) this.queue.push(atHour + RESPONSE_TIMEOUT_HOURS, { type: 'timeout', requestId: request.id });
+    // Silence is measured after the time the work itself needs, so a long task is not mistaken for no answer.
+    if (this.options.simulateTimeouts) this.queue.push(atHour + request.effortHours + RESPONSE_TIMEOUT_HOURS, { type: 'timeout', requestId: request.id });
   }
 
   private applyClientDecision(request: HumanRequest, response: string): void {

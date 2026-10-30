@@ -1,7 +1,7 @@
 import type { Objective, PlanTask } from '../../models/plan';
 import { CAPABILITY_PROFILE, DATA_RULE, asData } from './shared';
 
-export const PLANNER_PROMPT_VERSION = 'planner-v2';
+export const PLANNER_PROMPT_VERSION = 'planner-v3';
 
 export const PLANNER_SYSTEM = `You plan business projects that a team of AI agents will execute, with people stepping in only where they must.
 

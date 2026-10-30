@@ -29,7 +29,8 @@ export class SimulatedPeople implements PeopleChannel {
 
   deliver(request: HumanRequest, openedIndex: number): ScheduledAnswer | null {
     if (this.silentRequests.has(openedIndex) && !request.reassigned) return null;
-    return { afterHours: responseDelay(request.id), response: answerFor(request) };
+    // A person needs the task's real effort on top of the time it takes them to pick it up.
+    return { afterHours: responseDelay(request.id) + request.effortHours, response: answerFor(request) };
   }
 }
 
