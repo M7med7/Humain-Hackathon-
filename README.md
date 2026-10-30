@@ -81,7 +81,7 @@ Express 5 API
 
 ### 1. Create the database
 
-Create a Supabase project, open its SQL editor, and run [`schema.sql`](./schema.sql), then [`migrations/add_spaces.sql`](./migrations/add_spaces.sql). Together they create the application tables, relationships, update triggers, and the trigger that copies new Supabase Auth users into `public.users`.
+Create a Supabase project, open its SQL editor, and run [`schema.sql`](./schema.sql), then [`migrations/fill_schema_gaps.sql`](./migrations/fill_schema_gaps.sql), then [`migrations/add_spaces.sql`](./migrations/add_spaces.sql). Together they create the application tables, relationships, update triggers, and the trigger that copies new Supabase Auth users into `public.users`.
 
 `add_spaces.sql` adds spaces (each organization's isolated workspace, with Admin, Developer, Member and Guest roles) and locks down row-level security. Each space has a name, an optional description and a **space key**: a unique, permanent code such as `ZEROONE` (2–10 capital letters or digits, starting with a letter) reserved for API and MCP integrations. Existing data moves into a `ZeroOne` space with the key `ZEROONE`. With row-level security on, browsers can only manage their own `public.users` row, and all other data goes through the backend, which checks the signed-in user and their space on every request.
 
