@@ -64,6 +64,20 @@ describe('requireAuth', () => {
     expect(res.locals.userId).toBe('user-1');
   });
 
+  it('lets a judge read but rejects every change as view only', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'judge-1', is_anonymous: true } }, error: null });
+    const read = await run(makeReq());
+    expect(read.next).toHaveBeenCalled();
+    expect(read.res.locals.isGuest).toBe(true);
+
+    for (const method of ['POST', 'PATCH', 'PUT', 'DELETE']) {
+      const write = await run(makeReq({ method, path: '/projects' }));
+      expect(write.res.statusCode).toBe(403);
+      expect(write.res.body).toMatchObject({ code: 'view_only' });
+      expect(write.next).not.toHaveBeenCalled();
+    }
+  });
+
   it('lets public client share links through without a token', async () => {
     const { next } = await run(makeReq({ token: null, path: '/client/share/abc123' }));
     expect(next).toHaveBeenCalled();

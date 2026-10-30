@@ -33,21 +33,32 @@ const CALLER_FIELDS = ['actor_id', 'user_id', 'created_by'] as const;
 
 const TOKEN_CACHE_TTL_MS = 60_000;
 const TOKEN_CACHE_MAX = 500;
-const tokenCache = new Map<string, { userId: string; expiresAt: number }>();
+const tokenCache = new Map<string, { caller: Caller; expiresAt: number }>();
+
+// Judges sign in as anonymous Supabase users and may only read.
+const READ_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+export const VIEW_ONLY_MESSAGE = 'Judge access is view only. Create an account to make changes.';
+
+interface Caller {
+  userId: string;
+  /** Anonymous session started with "Enter as a judge". */
+  isGuest: boolean;
+}
 
 const matches = (rules: RouteRule[], req: Request) =>
   rules.find((rule) => rule.method === req.method && rule.pattern.test(req.path));
 
-async function resolveUserId(token: string): Promise<string | null> {
+async function resolveCaller(token: string): Promise<Caller | null> {
   const cached = tokenCache.get(token);
-  if (cached && cached.expiresAt > Date.now()) return cached.userId;
+  if (cached && cached.expiresAt > Date.now()) return cached.caller;
 
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data?.user) return null;
 
+  const caller = { userId: data.user.id, isGuest: data.user.is_anonymous === true };
   if (tokenCache.size >= TOKEN_CACHE_MAX) tokenCache.clear();
-  tokenCache.set(token, { userId: data.user.id, expiresAt: Date.now() + TOKEN_CACHE_TTL_MS });
-  return data.user.id;
+  tokenCache.set(token, { caller, expiresAt: Date.now() + TOKEN_CACHE_TTL_MS });
+  return caller;
 }
 
 function bindCallerFields(req: Request, userId: string) {
@@ -80,8 +91,10 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   if (!token) return res.status(401).json({ error: 'Authentication required.' });
 
   try {
-    const userId = await resolveUserId(token);
-    if (!userId) return res.status(401).json({ error: 'Your session has expired. Please sign in again.' });
+    const caller = await resolveCaller(token);
+    if (!caller) return res.status(401).json({ error: 'Your session has expired. Please sign in again.' });
+    const { userId, isGuest } = caller;
+    if (isGuest && !READ_METHODS.has(req.method)) return res.status(403).json({ error: VIEW_ONLY_MESSAGE, code: 'view_only' });
 
     const selfOnly = matches(SELF_ONLY_ROUTES, req);
     if (selfOnly) {
@@ -91,6 +104,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     bindCallerFields(req, userId);
     res.locals.userId = userId;
+    res.locals.isGuest = isGuest;
     next();
   } catch (error) {
     console.error('[auth] token verification failed', error);

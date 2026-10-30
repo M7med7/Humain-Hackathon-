@@ -1,20 +1,37 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Eye, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/Logo';
 import { AuthControls } from '../components/AuthControls';
+import { JudgeDialog } from '../components/JudgeDialog';
 
 export function LoginPage() {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, signInAsJudge } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [judgeOpen, setJudgeOpen] = useState(false);
+  const [judgeLoading, setJudgeLoading] = useState(false);
+
+  const enterAsJudge = async () => {
+    setError(null);
+    setJudgeLoading(true);
+    try {
+      await signInAsJudge();
+      navigate('/');
+    } catch {
+      setJudgeOpen(false);
+      setError(t('judge.unavailable'));
+    } finally {
+      setJudgeLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: { preventDefault(): void }) => {
     e.preventDefault();
@@ -103,6 +120,20 @@ export function LoginPage() {
           </motion.button>
         </form>
 
+        <div className="my-6 flex items-center gap-3 text-xs text-gray-600">
+          <span className="h-px flex-1 bg-white/10" />
+          {t('judge.or')}
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
+        <button
+          type="button"
+          onClick={() => setJudgeOpen(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/6 py-3 font-semibold text-gray-200 transition-colors hover:bg-white/10"
+        >
+          <Eye className="h-4 w-4" aria-hidden />
+          {t('judge.enter')}
+        </button>
+
         <p className="mt-8 text-center text-sm text-gray-500">
           {t('login.noAccount')}{' '}
           <Link to="/signup" className="font-semibold text-purple-400 hover:text-purple-300">
@@ -110,6 +141,7 @@ export function LoginPage() {
           </Link>
         </p>
       </motion.div>
+      {judgeOpen && <JudgeDialog loading={judgeLoading} onContinue={() => void enterAsJudge()} onClose={() => setJudgeOpen(false)} />}
     </div>
   );
 }

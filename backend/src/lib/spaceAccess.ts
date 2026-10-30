@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { assertInSpace, assertUsersInSpace, canCreateProjects, getSpaceRole, httpError, type HttpError } from './spaces';
+import { assertInSpace, assertUsersInSpace, canCreateProjects, getSpaceRole, httpError, judgeRole, type HttpError } from './spaces';
 
 type RouteRule = { method: string; pattern: RegExp };
 
@@ -84,7 +84,7 @@ export async function requireSpace(req: Request, res: Response, next: NextFuncti
   if (!UUID_RE.test(spaceId)) return res.status(400).json({ error: 'Choose a space first.' });
 
   try {
-    const role = await getSpaceRole(spaceId, userId);
+    const role = res.locals.isGuest ? judgeRole(spaceId) : await getSpaceRole(spaceId, userId);
     if (!role) return res.status(403).json({ error: 'You are not a member of this space.' });
     if (matches(PROJECT_CREATION_ROUTES, req) && !canCreateProjects(role)) {
       throw httpError(403, 'Only admins and developers can create projects.');

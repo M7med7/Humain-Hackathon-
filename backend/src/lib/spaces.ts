@@ -17,6 +17,19 @@ export function isSpaceRole(value: unknown): value is SpaceRole {
 }
 
 // Admins and developers build projects; members (finance, HR, ...) and guests follow along.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The space judges can view without an account; judge access is off when it is not set. */
+export function judgeSpaceId(): string | null {
+  const id = process.env.JUDGE_SPACE_ID?.trim() ?? '';
+  return UUID_RE.test(id) ? id : null;
+}
+
+/** Judges are read-only guests of the judge space and members of no other. */
+export function judgeRole(spaceId: string): SpaceRole | null {
+  return spaceId === judgeSpaceId() ? 'Guest' : null;
+}
+
 export function canCreateProjects(role: SpaceRole | null | undefined): boolean {
   return role === 'Admin' || role === 'Developer';
 }

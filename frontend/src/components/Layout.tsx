@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Logo } from "./Logo";
 import { SpaceSwitcher } from "./SpaceSwitcher";
 import { GridBackground } from "./GridBackground";
+import { JudgeBanner } from "./JudgeBanner";
 import { motion, AnimatePresence } from "motion/react";
 import logoDarkUrl from "../assets/brand/01-logo-dark-removebg-preview.png";
 import logoLightUrl from "../assets/brand/01-logo-light-removebg-preview.png";
@@ -36,10 +37,10 @@ const NOTIFICATION_TYPE_KEYS: Record<string, string> = {
 };
 
 export function Layout() {
-  const { t } = useTranslation(["navigation", "common"]);
+  const { t } = useTranslation(["navigation", "common", "auth"]);
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, signOut } = useAuth();
+  const { session, signOut, isJudge } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage } = useLanguage();
   const isAIActive = location.pathname.includes("task") || location.pathname.includes("create");
@@ -61,8 +62,8 @@ export function Layout() {
 
   const email = session?.user.email ?? "";
   const fullName = session?.user.user_metadata?.full_name as string | undefined;
-  const initials = getInitials(fullName, email);
-  const displayName = fullName ?? email.split("@")[0];
+  const initials = getInitials(isJudge ? t("auth:judge.name") : fullName, email);
+  const displayName = isJudge ? t("auth:judge.name") : fullName ?? email.split("@")[0];
   const isProjectsActive = location.pathname === "/" || location.pathname.startsWith("/projects/");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -200,6 +201,7 @@ export function Layout() {
   return (
     <div className="w-full h-dvh flex flex-col app-bg relative overflow-hidden">
       <GridBackground isAIActive={isAIActive} theme={theme} />
+      {isJudge && <JudgeBanner />}
 
       {/* Full-viewport-width header */}
       <header className="h-16 shrink-0 border-b app-border app-surface backdrop-blur-md flex items-center justify-center relative z-30 overflow-visible">
@@ -587,17 +589,19 @@ export function Layout() {
               <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:autopilot")}</span>
             </NavLink>
 
-            <NavLink
-              to="/create"
-              className={({ isActive }) =>
-                `relative flex items-center gap-3 px-4 py-2.5 rounded-lg overflow-hidden group transition-colors ${isActive ? "sidebar-active" : "sidebar-item"
-                }`
-              }
-            >
-              <div className="absolute inset-0 rounded-lg bg-(--app-sidebar-active) opacity-0 scale-95 transition duration-300 ease-out group-hover:opacity-100 group-hover:scale-100" />
-              <Plus className="w-4 h-4 relative z-10 group-hover:text-white transition-colors duration-200" />
-              <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:createProject")}</span>
-            </NavLink>
+            {!isJudge && (
+              <NavLink
+                to="/create"
+                className={({ isActive }) =>
+                  `relative flex items-center gap-3 px-4 py-2.5 rounded-lg overflow-hidden group transition-colors ${isActive ? "sidebar-active" : "sidebar-item"
+                  }`
+                }
+              >
+                <div className="absolute inset-0 rounded-lg bg-(--app-sidebar-active) opacity-0 scale-95 transition duration-300 ease-out group-hover:opacity-100 group-hover:scale-100" />
+                <Plus className="w-4 h-4 relative z-10 group-hover:text-white transition-colors duration-200" />
+                <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:createProject")}</span>
+              </NavLink>
+            )}
 
             <NavLink
               to="/migrate"
@@ -657,15 +661,17 @@ export function Layout() {
           </NavLink>
 
           {/* Centre action — Create */}
-          <NavLink
-            to="/create"
-            className={({ isActive }) =>
-              `flex items-center justify-center h-11 w-11 rounded-2xl transition-colors shadow-lg ${isActive ? "bg-purple-500 shadow-purple-500/30" : "bg-purple-600 shadow-purple-600/20 hover:bg-purple-500"}`
-            }
-            aria-label={t("navigation:createProject")}
-          >
-            <Plus className="h-5 w-5 text-white" />
-          </NavLink>
+          {!isJudge && (
+            <NavLink
+              to="/create"
+              className={({ isActive }) =>
+                `flex items-center justify-center h-11 w-11 rounded-2xl transition-colors shadow-lg ${isActive ? "bg-purple-500 shadow-purple-500/30" : "bg-purple-600 shadow-purple-600/20 hover:bg-purple-500"}`
+              }
+              aria-label={t("navigation:createProject")}
+            >
+              <Plus className="h-5 w-5 text-white" />
+            </NavLink>
+          )}
 
           <button
             onClick={() => { setNotificationsOpen((v) => !v); setMenuOpen(false); refreshNotifications(); }}

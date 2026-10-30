@@ -6,6 +6,7 @@ import {
   getSpaceRole,
   httpError,
   isSpaceRole,
+  judgeSpaceId,
   requireSpaceAdmin,
   spaceProjectIds,
   type HttpError,
@@ -76,6 +77,7 @@ async function adminCount(spaceId: string): Promise<number> {
 // invited person lands straight in the space after signing up.
 router.get('/', async (_req, res) => {
   try {
+    if (res.locals.isGuest) return res.json({ spaces: await judgeSpaces() });
     const userId = res.locals.userId as string;
     const { data: me, error: meError } = await withTimeout(supabase.from('users').select('email').eq('id', userId).maybeSingle());
     if (meError) throw meError;
@@ -94,6 +96,15 @@ router.get('/', async (_req, res) => {
     sendError(res, error);
   }
 });
+
+/** A judge sees only the judge space, as a read-only guest. */
+async function judgeSpaces() {
+  const id = judgeSpaceId();
+  if (!id) return [];
+  const { data, error } = await withTimeout(supabase.from('spaces').select(SPACE_FIELDS).eq('id', id).maybeSingle());
+  if (error) throw error;
+  return data ? [{ ...data, role: 'Guest' }] : [];
+}
 
 // Lets the create form say whether a key is free before submitting.
 router.get('/keys/:key', async (req, res) => {

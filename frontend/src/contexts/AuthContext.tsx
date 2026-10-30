@@ -5,7 +5,10 @@ import { supabase } from '../lib/supabase';
 interface AuthContextValue {
   session: Session | null;
   loading: boolean;
+  /** Signed in with "Enter as a judge": an anonymous, view-only session. */
+  isJudge: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInAsJudge: () => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -45,6 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function signInAsJudge(): Promise<void> {
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) throw new Error(error.message);
+  }
+
   async function signUp(email: string, password: string, fullName: string): Promise<void> {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw new Error(error.message);
@@ -63,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ session, loading, isJudge: session?.user.is_anonymous === true, signIn, signInAsJudge, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
