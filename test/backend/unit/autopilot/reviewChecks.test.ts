@@ -45,6 +45,11 @@ describe('runChecks', () => {
       expect(failed(runChecks(page(`<img src="https://tracker.example/x.png"><p>${english}</p>`), 'html', { language: 'en' }))).toContain('html_self_contained');
     });
 
+    it('does not count markup and CSS as English in a bilingual page', () => {
+      const styled = `<!doctype html><html><head><style>${'.hero-section{display:flex;justify-content:center;background-color:white}'.repeat(30)}</style></head><body><p>${arabic}</p><p>${english.slice(0, 120)}</p></body></html>`;
+      expect(failed(runChecks(styled, 'html', { language: 'both' }))).not.toContain('language');
+    });
+
     it('rejects an unfinished document', () => {
       expect(failed(runChecks(`<html><body><p>${english}</p>`, 'html', { language: 'en' }))).toContain('html_complete');
     });

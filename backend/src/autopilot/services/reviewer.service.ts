@@ -3,7 +3,7 @@ import type { PlanTask } from '../models/plan';
 import type { Deliverable } from '../models/run';
 import type { LlmSession } from './llm/llmSession';
 import { buildReviewerPrompt, REVIEWER_SYSTEM } from './prompts/reviewer.prompt';
-import { runChecks } from './review/checks';
+import { runChecks, visibleText } from './review/checks';
 
 export interface ReviewerOptions {
   model: string;
@@ -57,12 +57,6 @@ export function feedbackFrom(review: Review): string {
 
 /** The judge reads text, not markup: styles and tags are stripped to save tokens. */
 function toJudgeText(content: string, format: Deliverable['format']): string {
-  const text =
-    format === 'html'
-      ? content
-          .replace(/<style[\s\S]*?<\/style>/gi, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/\s+/g, ' ')
-      : content;
+  const text = format === 'html' ? `[HTML page; markup removed for review, judge the content only]\n${visibleText(content)}` : content;
   return text.slice(0, JUDGE_INPUT_CHARS);
 }

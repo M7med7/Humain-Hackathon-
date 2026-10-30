@@ -23,10 +23,19 @@ export function runChecks(content: string, format: 'markdown' | 'html', task: Pi
       passed: !PLACEHOLDER.test(content),
       detail: PLACEHOLDER.test(content) ? 'contains placeholder text' : 'no placeholder text',
     },
-    languageCheck(content, task.language),
+    languageCheck(format === 'html' ? visibleText(content) : content, task.language),
   ];
   if (format === 'html') checks.push(...htmlChecks(content));
   return checks;
+}
+
+/** Text a reader sees: styles, scripts and tags removed, so markup does not count as English. */
+export function visibleText(html: string): string {
+  return html
+    .replace(/<(style|script)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function languageCheck(content: string, language: PlanTask['language']): ReviewCheck {

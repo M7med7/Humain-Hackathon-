@@ -20,6 +20,7 @@ import searchRoutes from './routes/search';
 import { requireAuth } from './lib/auth';
 import { requireSpace } from './lib/spaceAccess';
 import spaceRoutes from './routes/spaces';
+import { mountAutopilot } from './autopilot/http';
 
 dotenv.config();
 
@@ -68,6 +69,7 @@ app.use('/api/time', timeRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/client', clientRoutes);
 app.use('/api/search', searchRoutes);
+mountAutopilot(app);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });

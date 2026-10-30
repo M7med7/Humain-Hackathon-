@@ -45,6 +45,9 @@ const RESPONSE_TIMEOUT_HOURS = HOURS_PER_DAY;
 const MAX_REMINDERS = 1;
 const SCOPED_INPUT_CHARS = 2_500;
 const REQUEST_CHANGES = 'Request changes';
+const DECLINE = 'Decline';
+/** Answers offered on human tasks; an empty list means free text (information to provide). */
+const HUMAN_TASK_OPTIONS: Record<HumanRequestKind, string[]> = { approve: ['Approve', DECLINE], perform: ['Done'], provide: [] };
 const ACCEPT_AS_IS = 'Accept as is';
 const TAKE_OVER = 'I will finish it';
 
@@ -80,9 +83,9 @@ export class AutopilotEngine {
     return structuredClone({ ...this.run, calls: [...this.services.llm.calls] });
   }
 
-  async start(objective: Objective): Promise<Run> {
+  async start(objective: Objective, runId: string = randomUUID()): Promise<Run> {
     this.objective = objective;
-    this.run = { ...emptyRun(), id: randomUUID(), objective: objective.objective, deadlineDays: objective.deadlineDays, lang: objective.lang };
+    this.run = { ...emptyRun(), id: runId, objective: objective.objective, deadlineDays: objective.deadlineDays, lang: objective.lang };
     this.emit('client', 'observed', 'objective', `New objective: ${objective.objective}`);
     try {
       const plan = await this.services.planner.plan(objective);
@@ -154,7 +157,8 @@ export class AutopilotEngine {
     if (!task || task.status !== 'waiting') return;
     if (task.routing.executor === 'human') {
       this.updateTask(task.id, { status: 'needs_person' });
-      this.openRequest(task.routing.action ?? 'perform', task.assignee ?? this.sponsor(), task.title, instructionFor(task), [], task.id);
+      const kind = task.routing.action ?? 'perform';
+      this.openRequest(kind, task.assignee ?? this.sponsor(), task.title, instructionFor(task), HUMAN_TASK_OPTIONS[kind], task.id);
       return;
     }
     this.updateTask(task.id, { status: 'working' });
@@ -179,6 +183,10 @@ export class AutopilotEngine {
     if (!request.taskId) return this.applyClientDecision(request, response);
     const task = this.task(request.taskId);
     if (!task) return;
+    if (response === DECLINE) {
+      this.declineTask(task, by);
+      return;
+    }
     if (response === REQUEST_CHANGES) {
       this.updateTask(task.id, { status: 'waiting', feedback: `${by} asked for changes before approving.` });
       this.queue.push(this.hour, { type: 'ready', taskId: task.id });
@@ -186,6 +194,24 @@ export class AutopilotEngine {
     }
     const takeOverHours = response === TAKE_OVER ? task.estimatedDays * HOURS_PER_DAY : 0;
     this.queue.push(this.hour + takeOverHours, { type: 'complete', taskId: task.id });
+  }
+
+  /** A declined step fails, and everything that depended on it is cancelled rather than run anyway. */
+  private declineTask(task: RunTask, by: string): void {
+    this.updateTask(task.id, { status: 'failed', finishedAtHour: this.hour });
+    const blocked = new Set([task.id]);
+    for (let grew = true; grew; ) {
+      grew = false;
+      for (const candidate of this.run.tasks) {
+        if (blocked.has(candidate.id) || isTerminal(candidate) || !candidate.dependsOn.some((id) => blocked.has(id))) continue;
+        blocked.add(candidate.id);
+        this.updateTask(candidate.id, { status: 'cancelled' });
+        grew = true;
+      }
+    }
+    const cancelled = blocked.size - 1;
+    this.emit('lead', 'decided', 'declined', `${by} declined "${task.title}"${cancelled ? `; cancelled ${cancelled} dependent task(s)` : ''}`, task.id);
+    this.queueReady();
   }
 
   private onTimeout(requestId: string): void {

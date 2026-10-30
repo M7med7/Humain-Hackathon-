@@ -16,7 +16,9 @@ export interface WorkResult {
   model: string;
 }
 
-const OUTPUT_TOKENS = { markdown: 3_000, bilingual: 5_000, html: 9_000 } as const;
+const OUTPUT_TOKENS = { markdown: 3_000, bilingual: 5_000, html: 16_000 } as const;
+/** Gemini counts thinking toward the output limit, so thinking harder needs more room. */
+const THINKING_HEADROOM: Record<ThinkingLevel, number> = { minimal: 0, low: 1_500, medium: 4_000, high: 8_000 };
 const CODE_FENCE = /^```[a-z]*\n([\s\S]*?)\n```$/i;
 
 /** Produces deliverables for agent tasks. Which model runs depends on the attempt number. */
@@ -36,7 +38,7 @@ export class WorkerService {
       prompt: buildWorkerPrompt(input),
       temperature: 0.6,
       thinking: tier.thinking,
-      maxOutputTokens: format === 'html' ? OUTPUT_TOKENS.html : input.task.language === 'both' ? OUTPUT_TOKENS.bilingual : OUTPUT_TOKENS.markdown,
+      maxOutputTokens: baseOutputTokens(format, input.task.language) + THINKING_HEADROOM[tier.thinking],
     });
     return { content: stripFence(text), format, model: tier.model };
   }
@@ -49,6 +51,11 @@ export class WorkerService {
     if (attempt === 2 || role === 'builder') return { model: standard, thinking: 'low' };
     return { model: fast, thinking: 'minimal' };
   }
+}
+
+function baseOutputTokens(format: WorkResult['format'], language: WorkerInput['task']['language']): number {
+  if (format === 'html') return OUTPUT_TOKENS.html;
+  return language === 'both' ? OUTPUT_TOKENS.bilingual : OUTPUT_TOKENS.markdown;
 }
 
 function stripFence(text: string): string {

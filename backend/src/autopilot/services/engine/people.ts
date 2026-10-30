@@ -33,6 +33,19 @@ export class SimulatedPeople implements PeopleChannel {
   }
 }
 
+/**
+ * Demo mode: a simulated team handles task requests so the run keeps moving,
+ * while decisions addressed to the client (deadline and scope trade-offs) wait
+ * for the real user in the app.
+ */
+export class DemoTeam implements PeopleChannel {
+  private readonly team = new SimulatedPeople();
+
+  deliver(request: HumanRequest, openedIndex: number): ScheduledAnswer | null {
+    return request.taskId === null ? null : this.team.deliver(request, openedIndex);
+  }
+}
+
 function responseDelay(seed: string): number {
   const byte = createHash('sha256').update(seed).digest()[0] ?? 0;
   return MIN_RESPONSE_HOURS + (byte % (RESPONSE_SPREAD_HOURS * 2)) / 2;

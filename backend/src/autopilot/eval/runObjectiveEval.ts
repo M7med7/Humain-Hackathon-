@@ -4,6 +4,7 @@ import { resolve } from 'path';
 import { loadConfig, type AutopilotConfig, type OptimizationFlags } from '../config';
 import { createEngine } from '../index';
 import type { Objective } from '../models/plan';
+import type { Run } from '../models/run';
 import type { ScenarioHooks } from '../services/engine/autopilotEngine';
 import { SimulatedPeople } from '../services/engine/people';
 import { ResponseCache, type CacheMode } from '../services/llm/responseCache';
@@ -12,7 +13,7 @@ import { computeObjectiveMetrics, type ObjectiveMetrics } from './objectiveMetri
 
 /**
  * Usage: npm run eval:objectives -- --split dev [--case obj-dev-01] [--repeat 1]
- *        [--disable eventDrivenSupervision,modelCascade,...] [--cache record|replay]
+ *        [--disable eventDrivenSupervision,modelCascade,...] [--cache record|replay] [--verbose]
  */
 dotenv.config();
 
@@ -70,6 +71,7 @@ async function main(): Promise<void> {
   const repeat = Number(arg('repeat', '1'));
   const disabled = arg('disable', '').split(',').filter(Boolean);
   const cacheMode = arg('cache', 'off') as CacheMode;
+  const verbose = process.argv.includes('--verbose');
   const config = withDisabled(loadConfig(), disabled);
   const variant = disabled.length ? `no-${disabled.join('-no-')}` : 'full';
   const cases = loadObjectiveCases(split).filter((testCase) => !only || testCase.id === only);
@@ -80,7 +82,13 @@ async function main(): Promise<void> {
     for (let trial = 1; trial <= repeat; trial += 1) {
       const { hooks, silent } = scenarioFor(testCase);
       const cache = new ResponseCache(resolve(RESULTS_DIR, `recordings/objectives.${split}.${testCase.id}.${variant}.t${trial}.json`), cacheMode);
-      const engine = createEngine(config, { people: new SimulatedPeople(silent), simulateTimeouts: true, scenario: hooks, cache });
+      let printed = 0;
+      const onChange = (snapshot: Run): void => {
+        if (!verbose) return;
+        for (const event of snapshot.events.slice(printed)) process.stdout.write(`  [h${event.hour.toFixed(1)}] ${event.actor}: ${event.summary}\n`);
+        printed = snapshot.events.length;
+      };
+      const engine = createEngine(config, { people: new SimulatedPeople(silent), simulateTimeouts: true, scenario: hooks, cache, onChange });
       const objective: Objective = { objective: testCase.objective, deadlineDays: testCase.deadlineDays, people: testCase.people, context: testCase.context, lang: testCase.lang };
       const run = await engine.start(objective);
       cache.flush();
