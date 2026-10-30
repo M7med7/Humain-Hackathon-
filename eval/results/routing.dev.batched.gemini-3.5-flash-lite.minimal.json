@@ -1,0 +1,351 @@
+{
+  "split": "dev",
+  "label": "batched.gemini-3.5-flash-lite.minimal",
+  "metrics": {
+    "cases": 40,
+    "accuracy": 0.95,
+    "missedHumanRate": 0,
+    "unnecessaryHumanRate": 0,
+    "reasonAccuracy": 0.8666666666666667,
+    "arabicAccuracy": 0.8333333333333334,
+    "calls": 2,
+    "inputTokens": 2337,
+    "outputTokens": 2089,
+    "costUsd": 0.005923599999999999,
+    "latencyMs": 7196,
+    "errors": [
+      {
+        "id": "dev-21",
+        "expected": "human",
+        "got": "hybrid"
+      },
+      {
+        "id": "dev-26",
+        "expected": "hybrid",
+        "got": "human"
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "taskId": "dev-01",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "researcher",
+      "rationale": "Agents can research and summarize competitor marketing campaigns easily using available knowledge."
+    },
+    {
+      "taskId": "dev-02",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents excel at multilingual copywriting and marketing messaging."
+    },
+    {
+      "taskId": "dev-03",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "builder",
+      "rationale": "Agents can build responsive single-page HTML files."
+    },
+    {
+      "taskId": "dev-04",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can easily draft email marketing sequences."
+    },
+    {
+      "taskId": "dev-05",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can create structured social media schedules and post copy."
+    },
+    {
+      "taskId": "dev-06",
+      "executor": "human",
+      "reason": "authority",
+      "action": "approve",
+      "role": null,
+      "rationale": "Only a person can approve budgets and financial spending."
+    },
+    {
+      "taskId": "dev-07",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "Agent prepares ad sets, human publishes them inside external ad accounts."
+    },
+    {
+      "taskId": "dev-08",
+      "executor": "human",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": null,
+      "rationale": "Only humans can supply proprietary internal brand assets and files."
+    },
+    {
+      "taskId": "dev-09",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can define standard marketing KPIs and measurement frameworks."
+    },
+    {
+      "taskId": "dev-10",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Task involves physical movement of real-world objects."
+    },
+    {
+      "taskId": "dev-11",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can prepare detailed design briefs and text layouts."
+    },
+    {
+      "taskId": "dev-12",
+      "executor": "hybrid",
+      "reason": "relationship",
+      "action": "perform",
+      "role": "analyst",
+      "rationale": "Agent shortlists influencers, human builds relationships and agrees deals."
+    },
+    {
+      "taskId": "dev-13",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can translate documents between English and Arabic accurately."
+    },
+    {
+      "taskId": "dev-14",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can write engaging social media comments in Arabic."
+    },
+    {
+      "taskId": "dev-15",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can generate comprehensive role onboarding plans."
+    },
+    {
+      "taskId": "dev-16",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Agents can draft welcome emails and scheduling templates."
+    },
+    {
+      "taskId": "dev-17",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "analyst",
+      "rationale": "Agent details account setups, human executes creation in external IT systems."
+    },
+    {
+      "taskId": "dev-18",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Handing over physical equipment requires human presence."
+    },
+    {
+      "taskId": "dev-19",
+      "executor": "human",
+      "reason": "authority",
+      "action": "approve",
+      "role": null,
+      "rationale": "Only authorized personnel can sign legal employment contracts."
+    },
+    {
+      "taskId": "dev-20",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Agents can construct structured checklists for managers."
+    },
+    {
+      "taskId": "dev-21",
+      "executor": "hybrid",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": "researcher",
+      "rationale": "Requires internal start date and uniform size from the manager."
+    },
+    {
+      "taskId": "dev-22",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Summarizing documents is standard text processing suitable for agents."
+    },
+    {
+      "taskId": "dev-23",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Generating a quiz from product catalog information is pure writing."
+    },
+    {
+      "taskId": "dev-24",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Holding a live physical meeting requires human presence."
+    },
+    {
+      "taskId": "dev-25",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Drafting a schedule with agendas is information work."
+    },
+    {
+      "taskId": "dev-26",
+      "executor": "human",
+      "reason": "relationship",
+      "action": "approve",
+      "role": null,
+      "rationale": "Choosing a buddy involves personal relationships and team dynamics."
+    },
+    {
+      "taskId": "dev-27",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Writing FAQ lists in Arabic is translation and content generation."
+    },
+    {
+      "taskId": "dev-28",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Setting up physical desks and physical parking spots requires manual action."
+    },
+    {
+      "taskId": "dev-29",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Drafting an agenda and run of show is planning work."
+    },
+    {
+      "taskId": "dev-30",
+      "executor": "hybrid",
+      "reason": "authority",
+      "action": "approve",
+      "role": "researcher",
+      "rationale": "Booking a venue involves financial commitment and contracts."
+    },
+    {
+      "taskId": "dev-31",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Writing bilingual invitation emails is a writing task."
+    },
+    {
+      "taskId": "dev-32",
+      "executor": "human",
+      "reason": "physical",
+      "action": "perform",
+      "role": null,
+      "rationale": "Inspecting physical AV equipment on site requires physical presence."
+    },
+    {
+      "taskId": "dev-33",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "builder",
+      "rationale": "Creating templates and spreadsheets is builder work."
+    },
+    {
+      "taskId": "dev-34",
+      "executor": "human",
+      "reason": "private_knowledge",
+      "action": "provide",
+      "role": null,
+      "rationale": "VIP names and titles exist only in the client's knowledge."
+    },
+    {
+      "taskId": "dev-35",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "analyst",
+      "rationale": "Comparing quotes based on attached documents is analytical work."
+    },
+    {
+      "taskId": "dev-36",
+      "executor": "human",
+      "reason": "authority",
+      "action": "approve",
+      "role": null,
+      "rationale": "Paying money requires financial authorization and payment accounts."
+    },
+    {
+      "taskId": "dev-37",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Writing speaker briefing notes based on project data is writing."
+    },
+    {
+      "taskId": "dev-38",
+      "executor": "hybrid",
+      "reason": "access",
+      "action": "perform",
+      "role": "writer",
+      "rationale": "Sending emails from the CEO's mailbox requires external email account access."
+    },
+    {
+      "taskId": "dev-39",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "writer",
+      "rationale": "Drafting a survey is standard writing work."
+    },
+    {
+      "taskId": "dev-40",
+      "executor": "ai",
+      "reason": null,
+      "action": null,
+      "role": "builder",
+      "rationale": "Preparing a report template is structure and document building."
+    }
+  ]
+}
