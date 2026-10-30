@@ -7,6 +7,7 @@ import type { LeadService } from '../lead.service';
 import type { LlmSession } from '../llm/llmSession';
 import { LlmError } from '../llm/types';
 import type { PlannerService } from '../planner.service';
+import { repairHtml } from '../review/repair';
 import { feedbackFrom, type ReviewerService } from '../reviewer.service';
 import type { RouterService } from '../router.service';
 import type { WorkerService } from '../worker.service';
@@ -259,7 +260,8 @@ export class AutopilotEngine {
 
       let result;
       try {
-        result = await this.services.worker.produce(role, { objective: objective.objective, context: objective.context, task, inputs: this.inputsFor(task), feedback }, attempt - task.attempts);
+        const input = { objective: objective.objective, context: objective.context, task, inputs: this.inputsFor(task), feedback, people: objective.people, sender: task.assignee ?? task.owner ?? this.sponsor() };
+        result = await this.services.worker.produce(role, input, attempt - task.attempts);
       } catch (error: unknown) {
         if (error instanceof LlmError && error.code === 'budget_exhausted') throw error;
         this.emit('lead', 'observed', 'agent_error', `Agent could not produce "${task.title}": ${error instanceof Error ? error.message : 'unknown error'}`, task.id);
@@ -267,10 +269,15 @@ export class AutopilotEngine {
       }
       const corrupted = attempt === task.attempts + 1 && this.options.scenario?.corruptJobs.has(jobIndex);
       if (corrupted) this.corrupted.add(task.id);
-      const content = corrupted ? `${result.content.slice(0, Math.floor(result.content.length * 0.3))}\n\nTBD` : result.content;
+      let content = corrupted ? `${result.content.slice(0, Math.floor(result.content.length * 0.3))}\n\nTBD` : result.content;
+      if (result.format === 'html') {
+        const repair = repairHtml(content);
+        content = repair.content;
+        if (repair.changes.length) this.emit('reviewer', 'acted', 'repaired', `Removed ${repair.changes.join(', ')} from "${task.title}" in code, without a model call`, task.id);
+      }
 
       this.updateTask(task.id, { status: 'review' });
-      const review = await this.services.reviewer.review(task, content, result.format);
+      const review = await this.services.reviewer.review(task, content, result.format, task.routing.executor === 'hybrid');
       const deliverable: Deliverable = { id: randomUUID(), taskId: task.id, attempt, format: result.format, content, model: result.model, review };
       this.run = { ...this.run, deliverables: [...this.run.deliverables, deliverable] };
       this.updateTask(task.id, { deliverableId: deliverable.id, feedback: null });

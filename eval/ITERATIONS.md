@@ -23,3 +23,19 @@ Defects found and fixed:
 | Reviewer misled by its own token optimization | Tags are stripped before judging; the judge rejected a valid page as "plain text, no HTML" | The judge is told markup was removed and to judge content only |
 | Third attempt ran out of output tokens | Gemini counts thinking toward the output limit; medium thinking exhausted 9k tokens | Output limit grows with the thinking level; HTML limit raised to 16k |
 | Plans stopped at documents | 0% of expected human checkpoints (budget approval, publishing ads, brand files) appeared in the plan | Planner v2 plans through to the real-world outcome and makes those steps explicit |
+
+## Engine run 2 (planner-v2, all three dev objectives)
+
+| Objective | Delivered | Agent share | First-pass | Human checkpoints covered | Perturbation | Calls | Cost |
+|---|---|---|---|---|---|---|---|
+| Campaign launch | day 1/10 | 82% | 78% | 67% (was 0%) | scope change handled | 27 | $0.120 |
+| Employee onboarding | day 4/7 | 44% | 25% | 100% | bad output caught | 15 | $0.023 |
+| Customer event | day 3/14 | 80% | 88% | 67% | silent person reassigned | 20 | $0.031 |
+
+Onboarding's 25% first-pass rate traced to three causes, all fixed for run 3:
+
+| Cause | Evidence | Fix |
+|---|---|---|
+| Writers did not know who signs | Emails ended with "[Your Name]" and failed the placeholder check | Workers get the project's people and a named sender (worker-v2); mail-merge fields like `{{first_name}}` are allowed for unknown recipients |
+| Hybrid tasks judged on the person's step | "Send welcome emails" rejected because hires had not confirmed receipt | The judge is told a person finishes the task and to judge only the agent's part (reviewer-v2) |
+| The page builder kept adding scripts and web fonts | Each rejection paid for a 16k-token regeneration | Scripts, handlers and external resources are removed in code before review, with no model call |

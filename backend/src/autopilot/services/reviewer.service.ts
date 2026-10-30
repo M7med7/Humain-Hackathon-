@@ -28,7 +28,7 @@ export class ReviewerService {
     private readonly options: ReviewerOptions,
   ) {}
 
-  async review(task: PlanTask, content: string, format: Deliverable['format']): Promise<Review> {
+  async review(task: PlanTask, content: string, format: Deliverable['format'], personFinishes: boolean): Promise<Review> {
     const checks = runChecks(content, format, task);
     const checksPassed = checks.every((check) => check.passed);
     if (this.options.tiered && !checksPassed) return { passed: false, checks, judge: null };
@@ -38,7 +38,7 @@ export class ReviewerService {
       purpose: 'reviewer',
       model: this.options.model,
       system: REVIEWER_SYSTEM,
-      prompt: buildReviewerPrompt(task, toJudgeText(content, format)),
+      prompt: buildReviewerPrompt(task, toJudgeText(content, format), personFinishes),
       schema: judgeSchema,
       temperature: 0,
       thinking: 'minimal',

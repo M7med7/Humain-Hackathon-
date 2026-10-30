@@ -2,7 +2,8 @@ import type { PlanTask } from '../../models/plan';
 import type { ReviewCheck } from '../../models/run';
 
 const MIN_LENGTH = { markdown: 300, html: 800 } as const;
-const PLACEHOLDER = /lorem ipsum|\[insert|\[your |\bTBD\b|\bTODO\b|\{\{.*?\}\}/i;
+/** Unfinished work. Mail-merge fields such as {{first_name}} are allowed in templates. */
+const PLACEHOLDER = /lorem ipsum|\[insert|\[your |\bTBD\b|\bTODO\b/i;
 const ARABIC_LETTER = /[؀-ۿ]/g;
 const LATIN_LETTER = /[A-Za-z]/g;
 const MIN_LANGUAGE_SHARE = 0.25;
