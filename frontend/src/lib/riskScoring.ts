@@ -1,5 +1,6 @@
 import type { Project, ProjectMember, RiskLevel, Task } from "./api";
 import type { ScheduleInfo } from "./schedule";
+import { hasOwner } from "./taskAgent";
 
 export interface RiskResult {
   score: number;
@@ -68,7 +69,7 @@ export function scoreTaskRisk(
   if (task.is_blocked) {
     addRisk(state, 25, `Blocked by ${task.blocking_count ?? 1} unfinished prerequisite${(task.blocking_count ?? 1) === 1 ? "" : "s"}.`, "Finish or reassign the blocking work first.");
   }
-  if (!task.assigned_to) {
+  if (!hasOwner(task)) {
     addRisk(state, 20, "No owner is assigned.", "Assign one accountable owner.");
   }
   if (assignedOpenDays > 10) {
@@ -107,7 +108,7 @@ export function scoreProjectHealth(project: Project, tasks: Task[], members: Pro
   const openTasks = tasks.filter((task) => task.status !== "Done");
   const highPriority = openTasks.filter((task) => task.priority === "High");
   const blocked = openTasks.filter((task) => task.is_blocked);
-  const missingOwner = openTasks.filter((task) => !task.assigned_to);
+  const missingOwner = openTasks.filter((task) => !hasOwner(task));
   const overdue = openTasks.filter((task) => {
     const end = schedules.get(task.id)?.end ?? (task.end_date ? new Date(task.end_date) : null);
     return Boolean(end && end < startOfToday());

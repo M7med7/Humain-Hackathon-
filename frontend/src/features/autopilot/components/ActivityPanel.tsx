@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Brain, Eye, Zap } from 'lucide-react';
+import { actorName } from '../../../lib/taskAgent';
 import { clockLabel } from '../format';
 import type { RunEvent } from '../types';
 
@@ -9,13 +10,6 @@ const KIND = {
   decided: { icon: Brain, color: 'var(--ap-hybrid)' },
   acted: { icon: Zap, color: 'var(--ap-accent)' },
 } as const;
-
-function actorLabel(actor: string): string {
-  const [kind, name] = actor.split(':');
-  if (kind === 'agent') return `${name ?? ''} agent`;
-  if (kind === 'person') return name ?? actor;
-  return actor;
-}
 
 /** What the agents saw, concluded and did, in order. Follows the newest line while the run is live. */
 export function ActivityPanel({ events, live }: { events: RunEvent[]; live: boolean }) {
@@ -50,7 +44,7 @@ export function ActivityPanel({ events, live }: { events: RunEvent[]; live: bool
               <Icon className="w-4 h-4 mt-0.5 shrink-0" style={{ color: KIND[event.kind].color }} aria-label={t(`activity.${event.kind}`)} />
               <div className="min-w-0">
                 <p className="text-[11px] text-(--ap-muted)">
-                  {clockLabel(event.hour, t('run.day'))} · <span className="capitalize">{actorLabel(event.actor)}</span>
+                  {clockLabel(event.hour, t('run.day'))} · {actorName(event.actor)}
                 </p>
                 <p className="break-words" dir="auto">
                   {event.summary}

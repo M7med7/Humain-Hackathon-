@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, Calendar as CalendarIcon, CheckCircle2, Circle, Pencil, Send, Sparkles, Tag, User as UserIcon, Clock, Check, X, AlertTriangle, Link2, Plus, Paperclip, Image as ImageIcon, MessageSquare, History, Upload, Trash2, ListChecks, Search, FileText, SplitSquareHorizontal, Github, GitBranch, GitPullRequest, ExternalLink, RefreshCw, CalendarPlus, Timer, Target } from "lucide-react";
 import { api, type Task, type ProjectMember, type TaskComment, type TaskAttachment, type TaskActivity, type TaskChecklistItem, type GitHubRepository, type GitHubTaskLink, type GitHubCommit, type GitHubPullRequest, type CalendarConnection, type TaskCalendarEvent, type TimeEntry } from "../lib/api";
 import { riskStyle, scoreTaskRisk } from "../lib/riskScoring";
+import { actorName, commentAgentName, hasOwner, taskAgent } from "../lib/taskAgent";
+import { AgentAvatar } from "./AgentAvatar";
 
 interface ChatMessage { role: "user" | "ai"; content: string; }
 
@@ -126,15 +128,18 @@ function displayUser(user?: { full_name: string | null; email: string } | null):
   return user?.full_name ?? user?.email ?? "Someone";
 }
 
-// Work posted by ZeroOne Autopilot has no user account behind it; name it instead of "Someone".
+// Work posted by ZeroOne Autopilot has no user account behind it; name the agent or person who did it.
 const AUTOPILOT_AUTHOR = "Autopilot";
 
-function activityAuthor(item: { activity_type: string; users?: { full_name: string | null; email: string } | null }): string {
-  return item.activity_type === "autopilot" ? AUTOPILOT_AUTHOR : displayUser(item.users);
+function activityAuthor(item: Pick<TaskActivity, "activity_type" | "metadata" | "users">): string {
+  if (item.activity_type !== "autopilot") return displayUser(item.users);
+  const actor = item.metadata?.actor;
+  return typeof actor === "string" ? actorName(actor) : AUTOPILOT_AUTHOR;
 }
 
 function commentAuthor(comment: { content: string; users?: { full_name: string | null; email: string } | null }): string {
-  return !comment.users && comment.content.startsWith("Autopilot ·") ? AUTOPILOT_AUTHOR : displayUser(comment.users);
+  if (comment.users || !comment.content.startsWith("Autopilot ·")) return displayUser(comment.users);
+  return commentAgentName(comment.content) ?? AUTOPILOT_AUTHOR;
 }
 
 function formatCompactDate(iso: string): string {
@@ -309,6 +314,19 @@ export function TaskDetailPanel({
   const priority = PRIORITY_STYLES[task.priority] ?? PRIORITY_STYLES.Medium;
   const { summary, steps } = parseSteps(task.description);
   const assignee = members.find(m => m.user_id === task.assigned_to);
+  const agent = taskAgent(task);
+  const currentMember = members.find((member) => member.user_id === currentUserId);
+  // Optimistic activity lines carry the current user, so they show a name before the next reload.
+  const localActivity = (activityType: string, summary: string): TaskActivity => ({
+    id: `local-${Date.now()}`,
+    task_id: task.id,
+    user_id: currentUserId ?? null,
+    activity_type: activityType,
+    summary,
+    metadata: {},
+    created_at: new Date().toISOString(),
+    users: currentMember ? { id: currentMember.user_id, full_name: currentMember.full_name, email: currentMember.email, avatar_url: currentMember.avatar_url } : null,
+  });
   const acceptanceCriteria = task.acceptance_criteria ?? [];
   const definitionOfDone = task.definition_of_done ?? [];
   const incompleteQualityCount = incompleteQualityItems(task).length;
@@ -337,7 +355,7 @@ export function TaskDetailPanel({
     const dueDate = task.end_date ? new Date(task.end_date) : (schedule?.end ?? null);
     if (task.status !== 'Done' && dueDate && dueDate < today)
       return { text: 'Overdue — update the schedule or reduce scope', type: 'overdue' as const };
-    if (!task.assigned_to)
+    if (!hasOwner(task))
       return { text: 'No owner assigned — assign a team member to start', type: 'unassigned' as const };
     if (incompleteQualityCount > 0 && (task.status === 'In Review' || task.status === 'Done'))
       return { text: `${incompleteQualityCount} acceptance check${incompleteQualityCount === 1 ? '' : 's'} still open`, type: 'criteria' as const };
@@ -407,7 +425,7 @@ export function TaskDetailPanel({
       `Task description: ${summary || task.description || "Not provided"}`,
       `Implementation steps: ${steps.length > 0 ? steps.map((step, index) => `${index + 1}. ${step}`).join(" ") : "None listed"}`,
       `Suggested technologies: ${(task.assigned_tech ?? []).join(", ") || "None listed"}`,
-      `Assignee: ${assignee?.full_name ?? assignee?.email ?? "Unassigned"}`,
+      `Assignee: ${[agent?.name, assignee?.full_name ?? assignee?.email].filter(Boolean).join(" + ") || "Unassigned"}`,
       `Assignee skills: ${(assignee?.skills ?? []).join(", ") || "No skills listed"}`,
       `Assignee experience: ${assignee?.experience_summary ?? "No experience summary listed"}`,
       `Blocked by: ${blockedBy}`,
@@ -533,7 +551,7 @@ export function TaskDetailPanel({
         mentioned_user_ids: mentionedUserIds(commentText),
       });
       setComments((current) => [...current, comment]);
-      setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId ?? null, activity_type: "comment_added", summary: "Added a comment", metadata: {}, created_at: new Date().toISOString() }, ...current]);
+      setActivity((current) => [localActivity("comment_added", "Added a comment"), ...current]);
       onTaskUpdated?.({ ...task, latest_activity_at: new Date().toISOString() });
       setCommentText("");
     } catch (err) {
@@ -569,7 +587,7 @@ export function TaskDetailPanel({
     try {
       const { attachment } = await api.tasks.uploadAttachment(task.id, file, currentUserId ?? null);
       setAttachments((current) => [attachment, ...current]);
-      setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId ?? null, activity_type: "file_uploaded", summary: `Uploaded ${file.name}`, metadata: {}, created_at: new Date().toISOString() }, ...current]);
+      setActivity((current) => [localActivity("file_uploaded", `Uploaded ${file.name}`), ...current]);
       onTaskUpdated?.({ ...task, latest_activity_at: new Date().toISOString() });
     } catch (err) {
       setCollabError(err instanceof Error ? err.message : "Could not upload file");
@@ -585,7 +603,7 @@ export function TaskDetailPanel({
     try {
       await api.tasks.updatePriority(task.id, priorityValue, currentUserId ?? null);
       onTaskUpdated?.({ ...task, priority: priorityValue, latest_activity_at: new Date().toISOString() });
-      setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId ?? null, activity_type: "priority_changed", summary: `Changed priority to ${priorityValue}`, metadata: {}, created_at: new Date().toISOString() }, ...current]);
+      setActivity((current) => [localActivity("priority_changed", `Changed priority to ${priorityValue}`), ...current]);
     } catch (err) {
       setCollabError(err instanceof Error ? err.message : "Could not update priority");
     } finally {
@@ -603,7 +621,7 @@ export function TaskDetailPanel({
         user_id: currentUserId ?? null,
       });
       onTaskUpdated?.({ ...task, ...updated, latest_activity_at: new Date().toISOString() });
-      setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId ?? null, activity_type: "quality_updated", summary: "Updated acceptance criteria", metadata: {}, created_at: new Date().toISOString() }, ...current]);
+      setActivity((current) => [localActivity("quality_updated", "Updated acceptance criteria"), ...current]);
     } catch (err) {
       setCollabError(err instanceof Error ? err.message : "Could not update acceptance criteria");
     } finally {
@@ -676,7 +694,7 @@ export function TaskDetailPanel({
       setGithubIssueInput("");
       setGithubBranchInput("");
       setGithubPrInput("");
-      setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId ?? null, activity_type: "github_linked", summary: "Linked GitHub work", metadata: {}, created_at: new Date().toISOString() }, ...current]);
+      setActivity((current) => [localActivity("github_linked", "Linked GitHub work"), ...current]);
     } catch (err) {
       setGithubError(err instanceof Error ? err.message : "Could not link GitHub work");
     } finally {
@@ -704,7 +722,7 @@ export function TaskDetailPanel({
     try {
       const { link } = await api.github.createIssueFromTask(task.id, currentUserId ?? null);
       setGithubLinks((current) => [link, ...current]);
-      setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId ?? null, activity_type: "github_issue_created", summary: `Created GitHub issue #${link.issue_number}`, metadata: {}, created_at: new Date().toISOString() }, ...current]);
+      setActivity((current) => [localActivity("github_issue_created", `Created GitHub issue #${link.issue_number}`), ...current]);
     } catch (err) {
       setGithubError(err instanceof Error ? err.message : "Could not create GitHub issue");
     } finally {
@@ -721,9 +739,8 @@ export function TaskDetailPanel({
       setGithubCommits(data.commits);
       setGithubPrs(data.pull_requests);
       setGithubLinks(data.links);
-      const now = new Date().toISOString();
       if (data.pull_requests.length > 0) {
-        setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId ?? null, activity_type: "github_synced", summary: "Synced GitHub activity", metadata: {}, created_at: now }, ...current]);
+        setActivity((current) => [localActivity("github_synced", "Synced GitHub activity"), ...current]);
       }
     } catch (err) {
       setGithubError(err instanceof Error ? err.message : "Could not sync GitHub activity");
@@ -754,7 +771,7 @@ export function TaskDetailPanel({
         create_work_block: eventType === "due_date" && calendarConnection.create_work_blocks,
       });
       onCalendarEventsChange?.(events);
-      setActivity((current) => [{ id: `local-${Date.now()}`, task_id: task.id, user_id: currentUserId, activity_type: "calendar_synced", summary: "Synced task to calendar", metadata: {}, created_at: new Date().toISOString() }, ...current]);
+      setActivity((current) => [localActivity("calendar_synced", "Synced task to calendar"), ...current]);
     } catch (err) {
       setCalendarError(err instanceof Error ? err.message : "Could not sync calendar");
     } finally {
@@ -1015,7 +1032,7 @@ export function TaskDetailPanel({
           </div>
         </div>
 
-        <div className="space-y-3 rounded-xl border app-border app-surface-soft p-3">
+        {!(agent && !agent.withPerson) && <div className="space-y-3 rounded-xl border app-border app-surface-soft p-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm font-semibold app-text">
               <Timer className="h-4 w-4 text-purple-400" /> Time Tracking
@@ -1073,13 +1090,15 @@ export function TaskDetailPanel({
               ))}
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Assignee */}
         <div className="flex items-center gap-3 p-3 rounded-xl app-surface-soft border app-border">
-          <UserIcon className="w-4 h-4 text-purple-400 shrink-0" />
+          {agent ? <AgentAvatar name={agent.name} size="md" /> : <UserIcon className="w-4 h-4 text-purple-400 shrink-0" />}
           <span className="text-sm app-muted">
-            {assignee ? (assignee.full_name ?? assignee.email) : "Unassigned"}
+            {agent
+              ? (assignee ? `${agent.name} prepares · ${assignee.full_name ?? assignee.email} finishes` : agent.name)
+              : assignee ? (assignee.full_name ?? assignee.email) : "Unassigned"}
           </span>
         </div>
 

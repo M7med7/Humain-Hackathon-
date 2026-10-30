@@ -1,19 +1,22 @@
 import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { useParams, Link, useLocation, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Calendar as CalendarIcon, ChevronDown, Sparkles, UserPlus, UserMinus, Users, CheckCircle2, Circle, Clock, Tag, LayoutGrid, List, Filter, AlertTriangle, BookmarkPlus, Download, Github, Link2, UploadCloud, CalendarPlus, MessageCircle, Timer, Share2, Copy, EyeOff } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon, ChevronDown, Sparkles, UserPlus, UserMinus, Users, CheckCircle2, Circle, Clock, Tag, LayoutGrid, List, Filter, AlertTriangle, BookmarkPlus, Download, Github, Link2, UploadCloud, CalendarPlus, MessageCircle, Share2, Copy, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { api, type Project, type Task, type ProjectMember, type User, type GitHubRepository, type CalendarConnection, type TaskCalendarEvent, type SlackIntegration, type TimeEntry, type TaskTimeSummary, type ProjectPermissions, type ProjectInvitation, type ProjectRole, type ProjectClientShare, type ClientShareSettings } from "../lib/api";
+import { api, type Project, type Task, type ProjectMember, type User, type GitHubRepository, type CalendarConnection, type TaskCalendarEvent, type SlackIntegration, type ProjectPermissions, type ProjectInvitation, type ProjectRole, type ProjectClientShare, type ClientShareSettings } from "../lib/api";
 import { useAuth } from "../contexts/AuthContext";
 import { TaskDetailPanel } from "../components/TaskDetailPanel";
 import { AddTaskForm } from "../components/AddTaskForm";
 import { buildDependencyAwareSchedule } from "../lib/schedule";
 import { exportProject, type ExportFormat } from "../lib/projectExport";
 import { riskStyle, scoreProjectHealth } from "../lib/riskScoring";
+import { hasOwner, taskAgent } from "../lib/taskAgent";
+import { AgentAvatar } from "../components/AgentAvatar";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
 /** Text the Autopilot mirror writes into the descriptions of projects it creates. */
 const AUTOPILOT_MARKER = "Run by ZeroOne Autopilot.";
+const AGENT_FILTER = "agents";
 
 function formatDate(iso: string, locale: string): string {
   return new Date(iso).toLocaleDateString(locale, { month: "long", day: "numeric", year: "numeric" });
@@ -105,31 +108,6 @@ function statusLabel(status: string): string {
   return status === "In Review" ? "Review" : status;
 }
 
-function formatMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h === 0) return `${m}m`;
-  return m ? `${h}h ${m}m` : `${h}h`;
-}
-
-function downloadText(filename: string, text: string, type: string) {
-  const blob = new Blob([text], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function weekLabel(iso: string | null, locale: string): string {
-  const date = iso ? new Date(iso) : new Date();
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  const monday = new Date(date);
-  monday.setDate(diff);
-  return monday.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
-}
 
 function translateProjectRisk(t: TFunction, text: string): string {
   const countMatch = text.match(/^(\d+) (overdue|blocked) tasks?\.$/);
@@ -201,10 +179,6 @@ export function TaskDetails() {
   const [slackChannelInput, setSlackChannelInput] = useState("");
   const [slackLoading, setSlackLoading] = useState(false);
   const [slackError, setSlackError] = useState<string | null>(null);
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
-  const [timeTasks, setTimeTasks] = useState<TaskTimeSummary[]>([]);
-  const [timeTotals, setTimeTotals] = useState<{ actual_minutes: number; estimated_minutes: number; estimate_accuracy: number | null } | null>(null);
-  const [timeError, setTimeError] = useState<string | null>(null);
   const [taskPanelWidth, setTaskPanelWidth] = useState(440);
   const panelDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
@@ -251,13 +225,6 @@ export function TaskDetails() {
             setSlackChannelInput(data.integration?.channel_name ?? "");
           })
           .catch(() => setSlackError("Slack integration is not configured yet."));
-        api.time.project(taskId)
-          .then((data) => {
-            setTimeEntries(data.entries);
-            setTimeTasks(data.tasks);
-            setTimeTotals(data.totals);
-          })
-          .catch(() => setTimeError("Time tracking is not available yet."));
         if (pd.permissions?.can_manage_project) {
           api.clientShares.list(taskId, currentUserId)
             .then((data) => {
@@ -279,17 +246,11 @@ export function TaskDetails() {
   const blockedTasks = tasks.filter((t) => t.is_blocked);
   const todayStart = startOfToday();
   const projectRisk = project ? scoreProjectHealth(project, tasks, members, scheduleMap) : null;
-  const weeklyTimesheet = Array.from(timeEntries.reduce((map, entry) => {
-    const key = weekLabel(entry.start_time, locale);
-    map.set(key, (map.get(key) ?? 0) + Number(entry.minutes || 0));
-    return map;
-  }, new Map<string, number>()).entries()).slice(0, 6);
   const canManageMembers = Boolean(permissions?.can_manage_members);
   const canManageIntegrations = Boolean(permissions?.can_manage_integrations);
   const canManageProject = Boolean(permissions?.can_manage_project);
   const canEditTasks = Boolean(permissions?.can_edit_tasks);
   const canExportProject = Boolean(permissions?.can_export);
-  const canViewCapacity = permissions?.can_view_capacity !== false;
   const roleLabel = permissions?.role ? t(`detail.roles.${permissions.role}`) : t("detail.noRole");
   const activeClientShare = clientShares.find((share) => share.is_active) ?? null;
   const clientShareUrl = activeClientShare ? `${window.location.origin}/client/${activeClientShare.token}` : "";
@@ -301,8 +262,15 @@ export function TaskDetails() {
     return sched.end < todayStart;
   };
 
+  const matchesAssignee = (task: Task): boolean => {
+    if (filters.assignee === "all") return true;
+    if (filters.assignee === AGENT_FILTER) return taskAgent(task) !== null;
+    if (filters.assignee === "unassigned") return !hasOwner(task);
+    return task.assigned_to === filters.assignee;
+  };
+
   const filteredTasks = tasks.filter((task) => {
-    if (filters.assignee !== "all" && (task.assigned_to ?? "unassigned") !== filters.assignee) return false;
+    if (!matchesAssignee(task)) return false;
     if (filters.priority !== "all" && task.priority !== filters.priority) return false;
     if (filters.status !== "all" && task.status !== filters.status) return false;
     if (filters.overdueOnly && !isOverdue(task)) return false;
@@ -532,34 +500,6 @@ export function TaskDetails() {
     } finally {
       setSlackLoading(false);
     }
-  };
-
-  const refreshProjectTime = async () => {
-    if (!taskId) return;
-    try {
-      const data = await api.time.project(taskId);
-      setTimeEntries(data.entries);
-      setTimeTasks(data.tasks);
-      setTimeTotals(data.totals);
-    } catch (err) {
-      setTimeError(err instanceof Error ? err.message : "Could not refresh time tracking");
-    }
-  };
-
-  const exportTimesheet = (format: "csv" | "xlsx") => {
-    if (!project) return;
-    const rows = [
-      ["Task", "Status", "Estimated hours", "Actual hours", "Accuracy"],
-      ...timeTasks.map((task) => [
-        task.title,
-        task.status,
-        (task.estimated_minutes / 60).toFixed(2),
-        (task.actual_minutes / 60).toFixed(2),
-        task.estimate_accuracy === null ? "" : `${task.estimate_accuracy}%`,
-      ]),
-    ];
-    const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
-    downloadText(`${project.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-timesheet.${format === "csv" ? "csv" : "xls"}`, csv, format === "csv" ? "text/csv;charset=utf-8" : "application/vnd.ms-excel");
   };
 
   const handleAddMember = async (userId: string) => {
@@ -1087,6 +1027,7 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
             >
               <option value="all">{t("detail.allAssignees")}</option>
               <option value="unassigned">{t("detail.unassigned")}</option>
+              <option value={AGENT_FILTER}>{t("detail.aiAgents")}</option>
               {members.map((member) => (
                 <option key={member.user_id} value={member.user_id}>{member.full_name ?? member.email}</option>
               ))}
@@ -1167,6 +1108,7 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
                         <div className="space-y-3">
                           {columnTasks.map((task) => {
                             const assignee = members.find((m) => m.user_id === task.assigned_to);
+                            const agent = taskAgent(task);
                             const sched = scheduleMap.get(task.id);
                             const prio = PRIORITY_COLORS[task.priority] ?? PRIORITY_COLORS.Medium;
                             const overdue = isOverdue(task);
@@ -1210,10 +1152,13 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
                                 </div>
                                 <div className="mt-3 flex items-center justify-between gap-3">
                                   <div className="min-w-0 text-xs text-gray-400">
-                                    {assignee ? (
+                                    {assignee || agent ? (
                                       <span className="flex items-center gap-2 truncate">
-                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-purple-600 to-purple-800 text-[10px] font-bold text-white">{getInitials(assignee.full_name, assignee.email)}</span>
-                                        <span className="truncate">{assignee.full_name ?? assignee.email}</span>
+                                        <span className="flex shrink-0 -space-x-1.5">
+                                          {agent && <AgentAvatar name={agent.name} size="md" />}
+                                          {assignee && <span className="flex h-6 w-6 items-center justify-center rounded-full bg-linear-to-br from-purple-600 to-purple-800 text-[10px] font-bold text-white">{getInitials(assignee.full_name, assignee.email)}</span>}
+                                        </span>
+                                        <span className="truncate">{assignee ? (assignee.full_name ?? assignee.email) : agent?.name}</span>
                                       </span>
                                     ) : (
                                       <span className="text-gray-600">{t("detail.unassigned")}</span>
@@ -1235,6 +1180,9 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
               {filteredTasks.map((task) => {
                 const assignee = members.find((m) => m.user_id === task.assigned_to);
+                const agent = taskAgent(task);
+                const assigneeName = assignee ? (assignee.full_name ?? assignee.email) : agent?.name;
+                const completedBy = task.completer_name ?? (agent && !agent.withPerson ? agent.name : null);
                 const isDone = task.status === "Done";
                 const isSelected = selectedTaskId === task.id;
                 const sched = scheduleMap.get(task.id);
@@ -1279,20 +1227,23 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
                             {sched && <span className="text-[10px] text-gray-500">{sched.start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} → {sched.end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>}
                             {latest && <span className="text-[10px] text-gray-500">{t("detail.activity", { date: latest })}</span>}
                           </div>
-                          {isDone && task.completer_name && <div className="text-[10px] text-green-400/70 mt-1">✓ by {task.completer_name}</div>}
+                          {isDone && completedBy && <div className="text-[10px] text-green-400/70 mt-1">✓ by {completedBy}</div>}
                         </div>
 
                         {/* Assign button */}
-                        <button onClick={(e) => { e.stopPropagation(); if (canEditTasks) setAssignDropdownId(isDropdownOpen ? null : task.id); }} disabled={assigningTaskId === task.id || !canEditTasks} aria-label={assignee ? (assignee.full_name ?? assignee.email) : t("detail.assign")} className="flex items-center gap-1.5 shrink-0 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-gray-400 hover:border-purple-500/40 hover:bg-purple-900/20 hover:text-purple-300 transition-all disabled:opacity-40">
+                        <button onClick={(e) => { e.stopPropagation(); if (canEditTasks) setAssignDropdownId(isDropdownOpen ? null : task.id); }} disabled={assigningTaskId === task.id || !canEditTasks} aria-label={assigneeName ?? t("detail.assign")} className="flex items-center gap-1.5 shrink-0 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-gray-400 hover:border-purple-500/40 hover:bg-purple-900/20 hover:text-purple-300 transition-all disabled:opacity-40">
                           {assigningTaskId === task.id ? (
                             <div className="h-3 w-3 animate-spin rounded-full border border-purple-400 border-t-transparent" />
-                          ) : assignee ? (
-                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-linear-to-br from-purple-600 to-purple-800 text-[10px] font-bold text-white">{getInitials(assignee.full_name, assignee.email)}</div>
+                          ) : assignee || agent ? (
+                            <span className="flex -space-x-1.5">
+                              {agent && <AgentAvatar name={agent.name} />}
+                              {assignee && <span className="flex h-5 w-5 items-center justify-center rounded-full bg-linear-to-br from-purple-600 to-purple-800 text-[10px] font-bold text-white">{getInitials(assignee.full_name, assignee.email)}</span>}
+                            </span>
                           ) : (
                             <UserPlus className="h-3 w-3" />
                           )}
                           {/* Name hidden on phones so the task title keeps the width */}
-                          <span className="hidden sm:inline">{assignee ? (assignee.full_name ?? assignee.email).split(" ")[0] : t("detail.assign")}</span>
+                          <span className="hidden sm:inline">{assignee ? (assignee.full_name ?? assignee.email).split(" ")[0] : agent?.name ?? t("detail.assign")}</span>
                           <ChevronDown className={`h-3 w-3 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
                         </button>
                       </div>
@@ -1464,63 +1415,6 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
               <h3 className="text-2xl mb-4 font-semibold">{t("detail.description")}</h3>
               <p className="text-gray-300 text-lg leading-relaxed">{project.description}</p>
             </div>
-
-            {canViewCapacity && <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Timer className="h-5 w-5 text-purple-300" />
-                  <div>
-                    <h3 className="text-xl font-semibold">{t("detail.accuracy.title")}</h3>
-                    <p className="mt-1 text-sm text-gray-500">{t("detail.accuracy.subtitle")}</p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => exportTimesheet("csv")} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-gray-300 hover:border-purple-500/40">CSV</button>
-                  <button onClick={() => exportTimesheet("xlsx")} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-gray-300 hover:border-purple-500/40">Excel</button>
-                </div>
-              </div>
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-white/10 app-surface-soft p-3">
-                  <div className="text-xs text-gray-500">{t("detail.accuracy.actual")}</div>
-                  <div className="mt-1 text-xl font-semibold text-white">{formatMinutes(timeTotals?.actual_minutes ?? 0)}</div>
-                </div>
-                <div className="rounded-xl border border-white/10 app-surface-soft p-3">
-                  <div className="text-xs text-gray-500">{t("detail.accuracy.estimate")}</div>
-                  <div className="mt-1 text-xl font-semibold text-white">{formatMinutes(timeTotals?.estimated_minutes ?? tasks.reduce((sum, task) => sum + Number(task.estimated_days || 0) * 8 * 60, 0))}</div>
-                </div>
-                <div className="rounded-xl border border-white/10 app-surface-soft p-3">
-                  <div className="text-xs text-gray-500">{t("detail.accuracy.accuracy")}</div>
-                  <div className="mt-1 text-xl font-semibold text-white">{timeTotals?.estimate_accuracy === null || timeTotals?.estimate_accuracy === undefined ? "-" : `${timeTotals.estimate_accuracy}%`}</div>
-                </div>
-              </div>
-              {timeError && <p className="mt-3 rounded-lg border border-red-500/30 bg-red-900/20 px-3 py-2 text-xs text-red-200">{timeError}</p>}
-              <div className="mt-4 max-h-52 overflow-y-auto rounded-xl border border-white/10">
-                {timeTasks.length === 0 ? (
-                  <p className="p-4 text-center text-sm text-gray-600">{t("detail.accuracy.noTime")}</p>
-                ) : timeTasks.slice(0, 8).map((task) => (
-                  <button key={task.id} onClick={() => setSelectedTaskId(task.id)} className="grid w-full grid-cols-[1fr_auto_auto] gap-3 border-b border-white/5 px-3 py-2 text-left text-xs last:border-b-0 hover:bg-white/5">
-                    <span className="truncate text-gray-200">{task.title}</span>
-                    <span className="text-gray-500">{formatMinutes(task.actual_minutes)}</span>
-                    <span className="text-gray-500">{task.estimate_accuracy === null ? "-" : `${task.estimate_accuracy}%`}</span>
-                  </button>
-                ))}
-              </div>
-              <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t("detail.accuracy.timesheet")}</div>
-                {weeklyTimesheet.length === 0 ? (
-                  <p className="text-sm text-gray-600">{t("detail.accuracy.noEntries")}</p>
-                ) : (
-                  <div className="space-y-2">
-                    {weeklyTimesheet.map(([week, minutes]) => (
-                      <div key={week} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-400">{t("detail.accuracy.weekOf", { date: week })}</span>
-                        <span className="font-semibold text-white">{formatMinutes(minutes)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>}
 
             {canManageProject && (
               <div className="min-w-0 rounded-2xl border border-white/20 bg-linear-to-br from-white/7 to-white/2 p-6 backdrop-blur-2xl">
@@ -1884,7 +1778,6 @@ Blocked tasks: ${blockedTasks.map((task) => task.title).join(", ") || "None"}`,
               ...current.filter((event) => event.task_id !== selectedTask.id),
               ...events,
             ])}
-            onTimeChanged={refreshProjectTime}
             allTasks={tasks}
             onAddDependency={handleAddDependency}
             onRemoveDependency={handleRemoveDependency}

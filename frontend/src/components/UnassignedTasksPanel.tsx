@@ -4,6 +4,7 @@ import { UserPlus, ChevronDown, Zap } from "lucide-react";
 import type { Task } from "../lib/api";
 import type { TeamMember } from "../lib/teamUtils";
 import { suggestOwner } from "../lib/teamUtils";
+import { hasOwner } from "../lib/taskAgent";
 import { useTranslation } from "react-i18next";
 
 interface UnassignedTasksPanelProps {
@@ -21,7 +22,7 @@ export function UnassignedTasksPanel({
   const [open, setOpen] = useState(false);
   const [assigningId, setAssigningId] = useState<string | null>(null);
 
-  const unassigned = tasks.filter((t) => !t.assigned_to && t.status !== "Done");
+  const unassigned = tasks.filter((t) => !hasOwner(t) && t.status !== "Done");
 
   if (unassigned.length === 0) return null;
 

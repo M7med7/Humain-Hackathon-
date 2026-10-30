@@ -46,6 +46,13 @@ export function labelsFor(task: RunTask): string[] {
   return ['autopilot', who, ...(task.routing.role ? [`agent:${task.routing.role}`] : []), ...(task.status === 'cancelled' ? ['cancelled'] : [])];
 }
 
+/** ZeroOne's checklist item (tasks.acceptance_criteria). */
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
+}
+
 export interface TaskRow {
   id: string;
   project_id: string;
@@ -59,7 +66,7 @@ export interface TaskRow {
   completed_at: string | null;
   start_date: string | null;
   end_date: string | null;
-  acceptance_criteria: string[];
+  acceptance_criteria: ChecklistItem[];
   labels: string[];
 }
 
@@ -90,10 +97,22 @@ export function buildTaskRows(run: Run, people: Objective['people'], completedAt
       completed_at: task.status === 'done' ? (completedAt.get(task.id) ?? null) : null,
       start_date: startHour === null ? null : dateForHour(run.startedAt, startHour),
       end_date: endHour === null ? null : dateForHour(run.startedAt, endHour),
-      acceptance_criteria: task.acceptanceCriteria,
+      acceptance_criteria: checklist(run.id, task),
       labels: labelsFor(task),
     };
   });
+}
+
+/**
+ * The planner's criteria as ZeroOne checklist items. Ids are derived, so repeated syncs keep them;
+ * items are ticked once the task is done, which for agent work means the reviewer accepted it against them.
+ */
+function checklist(runId: string, task: RunTask): ChecklistItem[] {
+  return task.acceptanceCriteria.map((text, index) => ({
+    id: stableUuid(`${runId}:${task.id}:criterion:${index}`),
+    text,
+    checked: task.status === 'done',
+  }));
 }
 
 function routingNote(task: RunTask): string {

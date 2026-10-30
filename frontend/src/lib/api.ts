@@ -148,6 +148,7 @@ export interface Task {
   assigned_to: string | null;
   acceptance_criteria?: TaskChecklistItem[];
   definition_of_done?: TaskChecklistItem[];
+  labels?: string[];
   completed_by: string | null;
   completed_at: string | null;
   start_date?: string | null;

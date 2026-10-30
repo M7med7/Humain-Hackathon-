@@ -80,6 +80,15 @@ describe('buildTaskRows', () => {
     expect(rows[1]?.labels).toContain('cancelled');
   });
 
+  it('writes acceptance criteria as checklist items that keep their ids and are ticked when done', () => {
+    const open = buildTaskRows(run([task('t1', { acceptanceCriteria: ['Lists 5 features', 'Names the personas'] })]), people)[0];
+    const done = buildTaskRows(run([task('t1', { acceptanceCriteria: ['Lists 5 features', 'Names the personas'], status: 'done' })]), people)[0];
+    expect(open?.acceptance_criteria.map((item) => item.text)).toEqual(['Lists 5 features', 'Names the personas']);
+    expect(open?.acceptance_criteria.every((item) => !item.checked && UUID_V4.test(item.id))).toBe(true);
+    expect(done?.acceptance_criteria.map((item) => item.id)).toEqual(open?.acceptance_criteria.map((item) => item.id));
+    expect(done?.acceptance_criteria.every((item) => item.checked)).toBe(true);
+  });
+
   it('assigns human steps to space members and leaves outside people unassigned', () => {
     const human = (id: string, assignee: string): RunTask =>
       task(id, { assignee, status: 'done', finishedAtHour: 12, routing: { taskId: id, executor: 'human', reason: 'authority', action: 'approve', role: null, rationale: 'spend' } });
