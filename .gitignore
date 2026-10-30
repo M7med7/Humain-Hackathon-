@@ -1,0 +1,18 @@
+node_modules/
+.env
+dist/
+.DS_Store
+.claude/
+.code-graph/
+.gstack/
+/context-vault/
+/graphify-out/cache/
+
+# AI assistant context and generated code maps (kept local, never published)
+CLAUDE.md
+AGENTS.md
+graph3d.html
+graphify-out/
+docs/HACKATHON.md
+docs/PLAN.md
+docs/briefing/

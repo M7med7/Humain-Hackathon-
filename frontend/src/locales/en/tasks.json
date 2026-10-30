@@ -1,0 +1,31 @@
+{
+  "status": {
+    "backlog": "Backlog",
+    "todo": "To Do",
+    "inProgress": "In Progress",
+    "inReview": "In Review",
+    "done": "Done"
+  },
+  "priority": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "risk": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "blocked": "Blocked",
+  "detail": {
+    "statusLabel": "Status",
+    "projectStatus": { "Planning": "Planning", "Active": "Active", "Completed": "Completed", "On Hold": "On Hold" }, "noRole": "No project role", "days": "{{count}}d", "due": "Due {{date}}", "activity": "Activity {{date}}",
+    "loading": "Loading project…", "notFound": "Project not found", "back": "Back to Projects", "complete": "{{progress}}% complete", "guestExport": "Guests cannot export this project", "export": "Export", "exports": { "pdf": "PDF report", "word": "Word report", "csv": "CSV tasks", "excel": "Excel workbook" }, "saveTemplate": "Save as template", "created": "Created", "progress": "Progress", "taskCountProgress": "{{done}}/{{total}} tasks", "description": "Description",
+    "health": { "title": "Project Health", "summary": "{{health}}% health · {{level}} risk", "reasons": "Reasons", "actions": "Suggested actions", "generateReport": "Generate weekly AI report", "generatingReport": "Generating weekly report…", "overdue": "{{count}} overdue tasks.", "blocked": "{{count}} blocked tasks.", "unowned": "{{count}} tasks have no owner.", "capacityReason": "Open estimates exceed team timeline capacity.", "priorityReason": "More than 40% of open tasks are high priority.", "dependenciesReason": "Most tasks have no dependencies.", "healthyReason": "Project is currently healthy.", "overdueAction": "Review overdue work and reset dates or owners.", "blockedAction": "Clear blockers before starting more work.", "unownedAction": "Assign owners for unowned tasks.", "capacityAction": "Reduce scope, extend timeline, or add capacity.", "priorityAction": "Separate true critical-path work from normal priority work.", "dependenciesAction": "Add key dependencies for setup, integration, testing, and release.", "healthyAction": "Keep updating task status and blockers." },
+    "accuracy": { "title": "Planning Accuracy", "subtitle": "Optional time tracking for better estimates and billing support", "actual": "Actual effort", "estimate": "AI estimate", "accuracy": "Estimate accuracy", "noTime": "No time tracked yet", "timesheet": "Weekly timesheet", "noEntries": "No weekly time entries yet.", "weekOf": "Week of {{date}}" },
+    "integrations": { "githubHelp": "Optional code activity connection for this project", "connected": "Connected", "connecting": "Connecting…", "connectRepo": "Connect repo", "adminOnly": "Only owners and admins can manage project integrations.", "calendar": "Calendar Sync", "calendarHelp": "Push approved task dates to your real calendar", "googleConnected": "Google connected", "connectCalendar": "Connect Google Calendar", "calendarNote": "Outlook Calendar support is planned next. Google Calendar is available now.", "calendarAdminOnly": "Only owners and admins can change calendar sync settings.", "slack": "Slack Updates", "slackHelp": "Send useful project updates to a team channel", "connectSlack": "Connect Slack", "teamsNote": "Microsoft Teams notifications can use the same webhook-style pattern later.", "slackAdminOnly": "Only owners and admins can manage Slack notifications." },
+    "team": { "title": "Team ({{count}})", "inviteMember": "Invite member", "invitePlaceholder": "Invite by email", "invite": "Invite", "inviting": "Inviting…", "noUsers": "No existing users available. Invite by email above.", "pending": "Pending invitations", "adminOnly": "Only owners and admins can invite, remove, or change project roles.", "empty": "No team members assigned yet." }, "roles": { "Owner": "Owner", "Admin": "Admin", "Member": "Member", "Guest": "Guest" }, "addTask": { "action": "Add Task", "title": "New Task", "titlePlaceholder": "Task title *", "descriptionPlaceholder": "Description (optional)", "daysPlaceholder": "Days *", "techPlaceholder": "Tech stack (comma-separated, optional)", "create": "Create Task" }, "blockedWork": "Blocked Work", "blockedBy": "Blocked by {{tasks}}", "tasks": "Tasks ({{count}})", "list": "List", "kanban": "Kanban", "viewOnly": "View-only role", "filters": "Filters", "allAssignees": "All assignees", "unassigned": "Unassigned", "allPriorities": "All priorities", "allStatuses": "All statuses", "overdue": "Overdue", "noTasks": "No tasks yet. Add a task or generate them with AI.", "noMatches": "No tasks match these filters.", "scheduleWarning": "Schedule warning", "assign": "Assign",
+    "assistant": { "title": "AI Assistant", "subtitle": "Select a task to view details and chat with AI", "empty": "No task selected", "emptyHelp": "Click any task in the list to view its details, implementation steps, and chat with AI about it." }
+  }
+}

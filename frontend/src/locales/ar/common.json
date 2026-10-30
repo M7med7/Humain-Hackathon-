@@ -1,0 +1,72 @@
+{
+  "brand": {
+    "name": "01 Manager"
+  },
+  "language": {
+    "label": "اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "switcherAriaLabel": "تغيير اللغة"
+  },
+  "theme": {
+    "light": "الوضع الفاتح",
+    "dark": "الوضع الداكن",
+    "switchToLight": "التبديل إلى الوضع الفاتح",
+    "switchToDark": "التبديل إلى الوضع الداكن"
+  },
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "edit": "تعديل"
+  },
+  "search": {
+    "placeholder": "ابحث في المشاريع والمهام والملفات..."
+  },
+  "notifications": {
+    "ariaLabel": "الإشعارات",
+    "title": "الإشعارات",
+    "unreadCount_zero": "لا إشعارات غير مقروءة",
+    "unreadCount_one": "إشعار واحد غير مقروء",
+    "unreadCount_two": "إشعاران غير مقروءين",
+    "unreadCount_few": "{{count}} إشعارات غير مقروءة",
+    "unreadCount_many": "{{count}} إشعارًا غير مقروء",
+    "unreadCount_other": "{{count}} إشعار غير مقروء",
+    "markAllRead": "تحديد الكل كمقروء",
+    "preferences": "التفضيلات",
+    "preferencesAriaLabel": "تفضيلات الإشعارات",
+    "empty": "لا توجد إشعارات بعد",
+    "markRead": "مقروء",
+    "markUnread": "غير مقروء",
+    "preferenceLabels": {
+      "assignments": "إسناد المهام",
+      "mentions": "الإشارات",
+      "comments": "التعليقات",
+      "status_changes": "تغييرات الحالة",
+      "due_reminders": "تذكيرات الاستحقاق",
+      "overdue_alerts": "تنبيهات التأخير",
+      "project_risk": "مخاطر المشروع"
+    }
+  },
+  "profile": {
+    "viewProfile": "عرض الملف الشخصي",
+    "editProfile": "تعديل الملف الشخصي",
+    "signOut": "تسجيل الخروج",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "namePlaceholder": "اسمك الكامل",
+    "phonePlaceholder": "+966 5x xxx xxxx",
+    "saveFailed": "فشل الحفظ",
+    "page": {
+      "loadFailed": "تعذر تحميل الملف الشخصي", "notFound": "غير موجود", "rolePlaceholder": "مثال: مهندس واجهات أمامية أول", "addRole": "أضف مسماك الوظيفي…", "updateCv": "تحديث السيرة الذاتية", "uploadCv": "رفع السيرة الذاتية",
+      "aiProfile": "الملف التقني بالذكاء الاصطناعي", "generating": "جارٍ الإنشاء…", "regenerate": "إعادة الإنشاء", "generate": "إنشاء", "aiProfileHelp": "أنشئ ملخصًا لملفك التقني بالذكاء الاصطناعي لتحسين توزيع المهام وتخطيط الفريق.",
+      "about": "نبذة عني", "aboutPlaceholder": "عرّف الفريق بنفسك وخبراتك…", "noSummary": "لا توجد نبذة بعد. ارفع سيرتك الذاتية لإنشائها تلقائيًا.", "skills": "المهارات", "skillsExpertise": "المهارات والخبرات", "levelHelp": "اضغط على النقطة لتحديد مستوى الخبرة", "cvVerified": "موثّقة من السيرة الذاتية", "changeLevel": "{{level}} — اضغط للتغيير", "setLevel": "اضغط لتحديد المستوى", "levels": { "beginner": "مبتدئ", "intermediate": "متوسط", "expert": "خبير" }, "noSkills": "لا توجد مهارات مدرجة. ارفع سيرتك الذاتية أو أضفها يدويًا.", "addSkill": "أضف مهارة — مثال: React، Python (اضغط Enter للإضافة)",
+      "preferredTech": "التقنيات المفضلة", "preferredTechHelp": "التقنيات التي تفضل العمل بها لتحسين توزيع المهام.", "avoidTech": "تقنيات يُفضّل تجنبها", "avoidTechHelp": "التقنيات التي لا تفضل العمل بها؛ ستظهر للمديرين عند توزيع المهام.",
+      "recentTasks": "المهام المكتملة مؤخرًا", "moreCompleted": "+{{count}} مهام مكتملة أخرى", "level": "المستوى", "taskProgress": "{{completed}} / {{total}} مهام", "achievements": "الإنجازات", "noAchievements": "أكمل المهام لتحصل على الإنجازات.",
+      "availability": "التوفر", "availabilityHelp": "يُستخدم لتوقع ضغط العمل واقتراح توزيع المهام.", "daysPerWeek": "أيام العمل أسبوعيًا", "daysWeek": "{{count}} أيام / أسبوع", "dailyCapacity": "السعة اليومية (ساعات)", "weeklyHours": "إجمالي {{count}} ساعة / أسبوع",
+      "links": "الروابط", "portfolio": "معرض الأعمال", "portfolioUrl": "رابط معرض الأعمال / الموقع", "noLinks": "لم تُضف روابط", "privacy": "الخصوصية", "privacyHelp": "تحكم فيما يراه أعضاء الفريق في ملفك الشخصي.", "visible": "ظاهر", "hidden": "مخفي", "privacyLabels": { "show_skills": "المهارات والخبرات", "show_availability": "التوفر", "show_completed_tasks": "المهام المكتملة", "show_summary": "النبذة والملخص", "show_social_links": "روابط التواصل" },
+      "weeklyStreak": "سلسلة النشاط الأسبوعية", "weeks": "أسابيع"
+    }
+  }
+}

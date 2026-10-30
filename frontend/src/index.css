@@ -1,0 +1,666 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: var(--app-bg, #000);
+    color: var(--app-text, #fff);
+    font-family: system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    scrollbar-color: rgba(148, 163, 184, 0.22) transparent;
+    scrollbar-width: thin;
+  }
+
+  /* Arabic mode uses a dedicated Arabic-optimized typeface layered ahead of
+     the Latin stack, so Latin text kept inside RTL content (emails, URLs,
+     code) still renders in the normal font via its own dir="ltr" override. */
+  html[dir="rtl"] body {
+    font-family: "IBM Plex Sans Arabic", system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+  }
+
+  html[dir="rtl"] [dir="ltr"] {
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  :root,
+  .theme-dark {
+    --app-bg: #000;
+    --app-text: #fff;
+    --app-text-muted: #94a3b8;
+    --app-text-subtle: #64748b;
+    --app-text-disabled: rgba(255, 255, 255, 0.4);
+    --app-sidebar-foreground: #cbd5e1;
+    --app-sidebar-muted: #94a3b8;
+    --app-sidebar-active: #7c3aed;
+    --app-sidebar-active-foreground: #fff;
+    --app-surface: rgba(0, 0, 0, 0.82);
+    --app-surface-soft: rgba(255, 255, 255, 0.05);
+    --app-surface-elevated: rgba(10, 10, 14, 0.96);
+    --app-panel: rgba(0, 0, 0, 0.55);
+    --app-main: rgba(255, 255, 255, 0.05);
+    --app-main-ai: rgba(0, 0, 0, 0.55);
+    --app-border: rgba(255, 255, 255, 0.1);
+    --app-muted: #9ca3af;
+    --app-input: rgba(255, 255, 255, 0.06);
+    --app-sidebar: rgba(0, 0, 0, 0.6);
+    --app-modal: rgba(0, 0, 0, 0.94);
+    --app-hover: rgba(255, 255, 255, 0.08);
+    --app-table-row-hover: rgba(255, 255, 255, 0.05);
+    --app-kanban-column: rgba(255, 255, 255, 0.035);
+    --app-calendar-cell: rgba(255, 255, 255, 0.03);
+    --app-task-card: rgba(0, 0, 0, 0.42);
+    --app-primary: #7c3aed;
+    --app-primary-hover: #8b5cf6;
+    --app-primary-soft: rgba(124, 58, 237, 0.18);
+    --app-focus: rgba(168, 85, 247, 0.72);
+    --app-success: #10b981;
+    --app-success-soft: rgba(16, 185, 129, 0.14);
+    --app-warning: #f59e0b;
+    --app-warning-soft: rgba(245, 158, 11, 0.14);
+    --app-error: #ef4444;
+    --app-error-soft: rgba(239, 68, 68, 0.14);
+    --app-info: #3b82f6;
+    --app-info-soft: rgba(59, 130, 246, 0.14);
+    --app-shadow: rgba(0, 0, 0, 0.45);
+  }
+
+  .theme-light {
+    --app-bg: #f8fafc;
+    --app-text: #111827;
+    --app-text-muted: #475569;
+    --app-text-subtle: #64748b;
+    --app-text-disabled: #94a3b8;
+    --app-sidebar-foreground: #334155;
+    --app-sidebar-muted: #475569;
+    --app-sidebar-active: #7c3aed;
+    --app-sidebar-active-foreground: #fff;
+    --app-surface: rgba(255, 255, 255, 0.94);
+    --app-surface-soft: rgba(248, 250, 252, 0.96);
+    --app-surface-elevated: rgba(255, 255, 255, 0.98);
+    --app-panel: rgba(255, 255, 255, 0.96);
+    /* Main content backdrop stays translucent so the animated grid shows, as in dark. */
+    --app-main: rgba(248, 250, 252, 0.55);
+    --app-main-ai: rgba(255, 255, 255, 0.7);
+    --app-border: rgba(15, 23, 42, 0.16);
+    --app-muted: #64748b;
+    --app-input: rgba(255, 255, 255, 0.96);
+    --app-sidebar: rgba(255, 255, 255, 0.97);
+    --app-modal: rgba(255, 255, 255, 0.98);
+    --app-hover: rgba(124, 58, 237, 0.12);
+    --app-table-row-hover: rgba(15, 23, 42, 0.04);
+    --app-kanban-column: rgba(248, 250, 252, 0.92);
+    --app-calendar-cell: rgba(255, 255, 255, 0.82);
+    --app-task-card: rgba(255, 255, 255, 0.94);
+    --app-primary: #7c3aed;
+    --app-primary-hover: #6d28d9;
+    --app-primary-soft: rgba(124, 58, 237, 0.12);
+    --app-focus: rgba(124, 58, 237, 0.58);
+    --app-success: #047857;
+    --app-success-soft: rgba(16, 185, 129, 0.12);
+    --app-warning: #b45309;
+    --app-warning-soft: rgba(245, 158, 11, 0.13);
+    --app-error: #dc2626;
+    --app-error-soft: rgba(239, 68, 68, 0.11);
+    --app-info: #2563eb;
+    --app-info-soft: rgba(59, 130, 246, 0.1);
+    --app-shadow: rgba(15, 23, 42, 0.14);
+  }
+}
+
+@layer utilities {
+  .app-bg {
+    background: var(--app-bg);
+    color: var(--app-text);
+  }
+
+  .app-surface {
+    background: var(--app-surface);
+    border-color: var(--app-border);
+    color: var(--app-text);
+  }
+
+  .app-surface-soft {
+    background: var(--app-surface-soft);
+    border-color: var(--app-border);
+    color: var(--app-text);
+  }
+
+  .hover\:app-surface-soft:hover {
+    background: var(--app-hover);
+    border-color: var(--app-border);
+  }
+
+  .app-surface-elevated {
+    background: var(--app-surface-elevated);
+    border-color: var(--app-border);
+    color: var(--app-text);
+    box-shadow: 0 18px 45px var(--app-shadow);
+  }
+
+  .app-main {
+    background: var(--app-main);
+  }
+
+  .app-main-ai {
+    background: var(--app-main-ai);
+  }
+
+  .app-panel {
+    background: var(--app-panel);
+    border-color: var(--app-border);
+    color: var(--app-text);
+  }
+
+  .app-sidebar {
+    background: var(--app-sidebar);
+    border-color: var(--app-border);
+    color: var(--app-sidebar-foreground);
+  }
+
+  /* Mobile drawer direction is language-aware. At desktop widths the sidebar
+     must always be in-flow and visible. Keeping this in one media rule avoids
+     Tailwind direction variants overriding the responsive transform. */
+  .sidebar-shell {
+    transform: translateX(-100%);
+  }
+
+  html[dir="rtl"] .sidebar-shell {
+    transform: translateX(100%);
+  }
+
+  .sidebar-shell[data-open="true"],
+  html[dir="rtl"] .sidebar-shell[data-open="true"] {
+    transform: translateX(0);
+  }
+
+  @media (min-width: 768px) {
+    .sidebar-shell,
+    html[dir="rtl"] .sidebar-shell,
+    .sidebar-shell[data-open="true"] {
+      transform: translateX(0);
+    }
+  }
+
+  .app-input {
+    background: var(--app-input);
+    border-color: var(--app-border);
+    color: var(--app-text);
+  }
+
+  .app-muted {
+    color: var(--app-text-muted);
+  }
+
+  .app-subtle {
+    color: var(--app-text-subtle);
+  }
+
+  .app-text {
+    color: var(--app-text);
+  }
+
+  .hover\:app-text:hover {
+    color: var(--app-text);
+  }
+
+  .hover\:app-muted:hover {
+    color: var(--app-text-muted);
+  }
+
+  .app-border {
+    border-color: var(--app-border);
+  }
+
+  .sidebar-foreground {
+    color: var(--app-sidebar-foreground);
+  }
+
+  .sidebar-muted {
+    color: var(--app-sidebar-muted);
+  }
+
+  .sidebar-active {
+    background: var(--app-sidebar-active) !important;
+    border-color: color-mix(in srgb, var(--app-sidebar-active), white 25%) !important;
+    color: var(--app-sidebar-active-foreground) !important;
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--app-sidebar-active), transparent 78%);
+  }
+
+  .sidebar-active * {
+    color: var(--app-sidebar-active-foreground) !important;
+  }
+
+  .sidebar-item {
+    border: 1px solid transparent;
+    color: var(--app-sidebar-foreground);
+  }
+
+  .sidebar-item:hover {
+    background: var(--app-hover);
+    border-color: var(--app-border);
+    color: var(--app-text);
+  }
+
+  .app-button-primary {
+    background: var(--app-primary);
+    color: #fff;
+    border-color: color-mix(in srgb, var(--app-primary), white 18%);
+  }
+
+  .app-button-primary:hover {
+    background: var(--app-primary-hover);
+  }
+
+  .app-button-secondary {
+    background: var(--app-surface-soft);
+    color: var(--app-text-muted);
+    border-color: var(--app-border);
+  }
+
+  .app-button-secondary:hover {
+    background: var(--app-hover);
+    color: var(--app-text);
+  }
+
+  .app-focus {
+    outline: none;
+  }
+
+  .app-focus:focus,
+  .app-focus:focus-visible {
+    border-color: var(--app-focus) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-focus), transparent 70%);
+  }
+
+  .app-success {
+    background: var(--app-success-soft);
+    border-color: color-mix(in srgb, var(--app-success), transparent 70%);
+    color: var(--app-success);
+  }
+
+  .app-warning {
+    background: var(--app-warning-soft);
+    border-color: color-mix(in srgb, var(--app-warning), transparent 70%);
+    color: var(--app-warning);
+  }
+
+  .app-error {
+    background: var(--app-error-soft);
+    border-color: color-mix(in srgb, var(--app-error), transparent 70%);
+    color: var(--app-error);
+  }
+
+  .app-info {
+    background: var(--app-info-soft);
+    border-color: color-mix(in srgb, var(--app-info), transparent 72%);
+    color: var(--app-info);
+  }
+
+  .theme-light .text-white,
+  .theme-light [class*="text-white/"],
+  .theme-light [class*="hover:text-white"]:hover {
+    color: var(--app-text) !important;
+  }
+
+  .theme-light .text-gray-200,
+  .theme-light .text-gray-300,
+  .theme-light .text-gray-400,
+  .theme-light .text-gray-500,
+  .theme-light .text-gray-600 {
+    color: var(--app-text-muted) !important;
+  }
+
+  .theme-light .text-purple-100,
+  .theme-light .text-purple-200,
+  .theme-light .text-purple-300,
+  .theme-light .text-purple-400 {
+    color: #6d28d9 !important;
+  }
+
+  .theme-light .text-green-100,
+  .theme-light .text-green-200,
+  .theme-light .text-green-300,
+  .theme-light .text-green-400,
+  .theme-light .text-emerald-100,
+  .theme-light .text-emerald-200,
+  .theme-light .text-emerald-300,
+  .theme-light .text-emerald-400 {
+    color: #047857 !important;
+  }
+
+  .theme-light .text-red-100,
+  .theme-light .text-red-200,
+  .theme-light .text-red-300,
+  .theme-light .text-red-400 {
+    color: #dc2626 !important;
+  }
+
+  .theme-light .text-yellow-100,
+  .theme-light .text-yellow-200,
+  .theme-light .text-yellow-300,
+  .theme-light .text-yellow-400,
+  .theme-light .text-amber-100,
+  .theme-light .text-amber-200,
+  .theme-light .text-amber-300,
+  .theme-light .text-amber-400 {
+    color: #b45309 !important;
+  }
+
+  .theme-light .text-orange-100,
+  .theme-light .text-orange-200,
+  .theme-light .text-orange-300,
+  .theme-light .text-orange-400 {
+    color: #c2410c !important;
+  }
+
+  /* Translucent like the dark sidebar so the animated grid shows through. */
+  .theme-light .app-sidebar {
+    background: rgba(255, 255, 255, 0.72);
+    border-inline-end-color: rgba(15, 23, 42, 0.14) !important;
+    box-shadow: 14px 0 45px rgba(15, 23, 42, 0.05), inset -1px 0 0 rgba(15, 23, 42, 0.08);
+  }
+
+  html[dir="rtl"] .theme-light .app-sidebar {
+    box-shadow: -14px 0 45px rgba(15, 23, 42, 0.05), inset 1px 0 0 rgba(15, 23, 42, 0.08);
+  }
+
+  /* Nav items match dark mode: no resting box, and on hover the purple overlay
+     fades in with white label + icon. */
+  .theme-light .app-sidebar nav a.sidebar-active,
+  .theme-light .app-sidebar nav a.sidebar-active *,
+  .theme-light .app-sidebar nav a:hover,
+  .theme-light .app-sidebar nav a:hover * {
+    color: #fff !important;
+  }
+
+  .theme-light [class*="from-white/"][class*="to-white/"] {
+    background: var(--app-surface-elevated) !important;
+  }
+
+  .theme-light [class*="from-purple-900/"][class*="to-purple-950/"],
+  .theme-light [class*="from-purple-950/"][class*="to-purple-950/"] {
+    background: rgba(237, 233, 254, 0.68) !important;
+  }
+
+  .theme-light [class*="from-orange-900/"][class*="to-orange-950/"] {
+    background: rgba(255, 247, 237, 0.94) !important;
+  }
+
+  .theme-light [class*="from-green-900/"],
+  .theme-light [class*="to-emerald-900/"] {
+    background: rgba(236, 253, 245, 0.94) !important;
+  }
+
+  .theme-light [class*="from-red-900/"],
+  .theme-light [class*="to-orange-900/"] {
+    background: rgba(254, 242, 242, 0.94) !important;
+  }
+
+  .theme-light .text-blue-100,
+  .theme-light .text-blue-200,
+  .theme-light .text-blue-300,
+  .theme-light .text-blue-400 {
+    color: #2563eb !important;
+  }
+
+  .theme-light .bg-clip-text.text-transparent {
+    background-image: none !important;
+    color: var(--app-text) !important;
+    -webkit-text-fill-color: var(--app-text);
+  }
+
+  .theme-light .bg-purple-600.text-white,
+  .theme-light .bg-purple-500.text-white,
+  .theme-light .hover\:bg-purple-500:hover,
+  .theme-light [class*="bg-purple"].text-white,
+  .theme-light [class*="bg-purple"] .text-white,
+  .theme-light .from-purple-600.text-white,
+  .theme-light .from-purple-700.text-white,
+  .theme-light .from-purple-800.text-white,
+  .theme-light .from-purple-900.text-white,
+  .theme-light .from-purple-600 .text-white,
+  .theme-light .from-purple-700 .text-white,
+  .theme-light .from-purple-800 .text-white,
+  .theme-light .from-purple-900 .text-white,
+  .theme-light .bg-red-600.text-white,
+  .theme-light .bg-green-600.text-white,
+  .theme-light .bg-emerald-600.text-white,
+  .theme-light .bg-blue-600.text-white,
+  .theme-light .bg-orange-600.text-white,
+  .theme-light .from-red-600.text-white,
+  .theme-light .from-green-600.text-white,
+  .theme-light .from-gray-600.text-white,
+  .theme-light nav a.text-white,
+  .theme-light nav a.text-white * {
+    color: #fff !important;
+  }
+
+  .theme-light .from-purple-600,
+  .theme-light .from-purple-700,
+  .theme-light .from-purple-800,
+  .theme-light .from-purple-900,
+  .theme-light .bg-purple-600,
+  .theme-light .bg-purple-500 {
+    color: #fff;
+  }
+
+  .theme-light .from-purple-600 *,
+  .theme-light .from-purple-700 *,
+  .theme-light .from-purple-800 *,
+  .theme-light .from-purple-900 *,
+  .theme-light .bg-purple-600 *,
+  .theme-light .bg-purple-500 * {
+    color: inherit;
+  }
+
+  .theme-light .bg-black,
+  .theme-light [class*="bg-black/"] {
+    background-color: var(--app-surface) !important;
+  }
+
+  .theme-light .fixed.inset-0[class*="bg-black/"] {
+    background-color: rgba(15, 23, 42, 0.46) !important;
+  }
+
+  .theme-light [class*="bg-white/"],
+  .theme-light [class*="hover:bg-white/"]:hover {
+    background-color: var(--app-surface-soft) !important;
+  }
+
+  .theme-light [class*="bg-emerald-500/"],
+  .theme-light [class*="bg-green-500/"],
+  .theme-light [class*="bg-green-900/"] {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+  }
+
+  .theme-light [class*="bg-red-500/"],
+  .theme-light [class*="bg-red-900/"] {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+
+  .theme-light [class*="bg-yellow-500/"],
+  .theme-light [class*="bg-yellow-900/"],
+  .theme-light [class*="bg-amber-500/"],
+  .theme-light [class*="bg-amber-900/"] {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+  }
+
+  .theme-light [class*="bg-orange-500/"],
+  .theme-light [class*="bg-orange-900/"] {
+    background-color: rgba(249, 115, 22, 0.11) !important;
+  }
+
+  .theme-light [class*="bg-blue-500/"],
+  .theme-light [class*="bg-blue-900/"] {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  .theme-light [class*="bg-purple-500/"],
+  .theme-light [class*="bg-purple-600/"],
+  .theme-light [class*="bg-purple-800/"],
+  .theme-light [class*="bg-purple-900/"] {
+    background-color: rgba(124, 58, 237, 0.12) !important;
+  }
+
+  .theme-light [class*="bg-purple-500/"].text-white,
+  .theme-light [class*="bg-purple-600/"].text-white,
+  .theme-light [class*="bg-purple-800/"].text-white,
+  .theme-light [class*="bg-purple-900/"].text-white,
+  .theme-light [class*="bg-purple-500/"] .text-white,
+  .theme-light [class*="bg-purple-600/"] .text-white,
+  .theme-light [class*="bg-purple-800/"] .text-white,
+  .theme-light [class*="bg-purple-900/"] .text-white {
+    color: #6d28d9 !important;
+  }
+
+  .theme-light .bg-purple-600,
+  .theme-light .hover\:bg-purple-500:hover {
+    background-color: #7c3aed !important;
+  }
+
+  .theme-light .bg-purple-500 {
+    background-color: #8b5cf6 !important;
+  }
+
+  .theme-light .bg-linear-to-r.from-purple-600,
+  .theme-light .bg-linear-to-br.from-purple-600,
+  .theme-light .bg-linear-to-r.from-purple-700,
+  .theme-light .bg-linear-to-br.from-purple-700,
+  .theme-light .bg-linear-to-r.from-purple-800,
+  .theme-light .bg-linear-to-br.from-purple-800,
+  .theme-light .bg-linear-to-r.from-purple-900,
+  .theme-light .bg-linear-to-br.from-purple-900 {
+    /* Tailwind v4 stores positions separately. Appending position variables to
+       these color tokens makes the computed gradient transparent. */
+    --tw-gradient-to: #7c3aed !important;
+    --tw-gradient-from: #8b5cf6 !important;
+  }
+
+  .theme-light .bg-black\/60,
+  .theme-light .bg-black\/70 {
+    background-color: rgba(15, 23, 42, 0.48) !important;
+  }
+
+  .theme-light [class*="border-white/"],
+  .theme-light [class*="hover:border-white/"]:hover {
+    border-color: var(--app-border) !important;
+  }
+
+  .theme-light [class*="border-emerald-500/"],
+  .theme-light [class*="border-green-500/"] {
+    border-color: rgba(4, 120, 87, 0.3) !important;
+  }
+
+  .theme-light [class*="border-red-500/"] {
+    border-color: rgba(220, 38, 38, 0.32) !important;
+  }
+
+  .theme-light [class*="border-yellow-500/"],
+  .theme-light [class*="border-amber-500/"] {
+    border-color: rgba(180, 83, 9, 0.32) !important;
+  }
+
+  .theme-light [class*="border-orange-500/"] {
+    border-color: rgba(194, 65, 12, 0.3) !important;
+  }
+
+  .theme-light [class*="border-blue-500/"] {
+    border-color: rgba(37, 99, 235, 0.28) !important;
+  }
+
+  .theme-light [class*="border-purple-500/"] {
+    border-color: rgba(109, 40, 217, 0.3) !important;
+  }
+
+  .theme-light [class*="placeholder-gray"]::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  .theme-light input,
+  .theme-light textarea,
+  .theme-light select {
+    color: var(--app-text);
+  }
+
+  .theme-light button:disabled,
+  .theme-light [aria-disabled="true"] {
+    color: var(--app-text-disabled);
+  }
+
+  /* Disabled primary actions must remain readable on their purple surface. */
+  .theme-light button:disabled[class*="from-purple"],
+  .theme-light button:disabled[class*="bg-purple"],
+  .theme-light [aria-disabled="true"][class*="from-purple"],
+  .theme-light [aria-disabled="true"][class*="bg-purple"] {
+    color: rgba(255, 255, 255, 0.82) !important;
+  }
+
+  .theme-light option {
+    background: #fff;
+    color: #111827;
+  }
+
+  .theme-light .shadow-black\/50 {
+    --tw-shadow-color: var(--app-shadow) !important;
+  }
+
+  .theme-light .bg-gray-800\/40,
+  .theme-light .bg-gray-900,
+  .theme-light .bg-slate-900 {
+    background-color: var(--app-surface-soft) !important;
+  }
+
+  .theme-light .border-gray-600\/30,
+  .theme-light .border-gray-700,
+  .theme-light .border-gray-800,
+  .theme-light .border-slate-800 {
+    border-color: var(--app-border) !important;
+  }
+
+  .theme-light table tr:hover,
+  .theme-light [data-row-hover]:hover {
+    background: var(--app-table-row-hover);
+  }
+}
+
+/* ZeroOne Manager Custom Animations */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50%       { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+.animate-float      { animation: float 3s ease-in-out infinite; }
+.animate-shimmer    { animation: shimmer 3s linear infinite; }
+
+/* Scrollbar */
+::-webkit-scrollbar       { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.18); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,0.5); }
+
+.theme-light ::-webkit-scrollbar-track { background: transparent; }
+.theme-light ::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.16); border: 2px solid transparent; background-clip: content-box; }
+.theme-light ::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.36); background-clip: content-box; }

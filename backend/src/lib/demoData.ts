@@ -1,0 +1,95 @@
+const now = new Date('2026-05-06T09:00:00.000Z').toISOString();
+
+export const demoProjects = [
+  {
+    id: 'demo-zeroone-redesign',
+    name: 'ZeroOne Manager Redesign',
+    description: 'Refine the AI planning workspace, project dashboard, and calendar experience.',
+    status: 'Active',
+    created_by: null,
+    created_at: '2026-05-01T09:00:00.000Z',
+    updated_at: now,
+    team_count: 3,
+    progress: 45,
+  },
+  {
+    id: 'demo-takamul-backend',
+    name: 'Takamul Platform Backend',
+    description: 'Build the core API, Supabase schema, task dependencies, and reporting services.',
+    status: 'Planning',
+    created_by: null,
+    created_at: '2026-05-03T09:00:00.000Z',
+    updated_at: now,
+    team_count: 4,
+    progress: 80,
+  },
+];
+
+export const demoTasks = [
+  {
+    id: 'demo-task-schema',
+    project_id: 'demo-zeroone-redesign',
+    title: 'Database Schema',
+    description: 'Model users, projects, task dependencies, and assignments.',
+    status: 'Done',
+    estimated_days: 2,
+    assigned_tech: ['PostgreSQL', 'Supabase'],
+    assigned_to: 'demo-user-abdullah',
+    created_at: '2026-05-06T09:00:00.000Z',
+    updated_at: now,
+    project_name: 'ZeroOne Manager Redesign',
+  },
+  {
+    id: 'demo-task-dashboard',
+    project_id: 'demo-zeroone-redesign',
+    title: 'Dashboard Cards',
+    description: 'Connect project cards to live API data and progress calculations.',
+    status: 'In Progress',
+    estimated_days: 3,
+    assigned_tech: ['React', 'TypeScript'],
+    assigned_to: 'demo-user-mohammed',
+    created_at: '2026-05-08T09:00:00.000Z',
+    updated_at: now,
+    project_name: 'ZeroOne Manager Redesign',
+  },
+  {
+    id: 'demo-task-calendar',
+    project_id: 'demo-takamul-backend',
+    title: 'Calendar Timeline',
+    description: 'Render generated tasks on the board calendar.',
+    status: 'To Do',
+    estimated_days: 4,
+    assigned_tech: ['React', 'Vite'],
+    assigned_to: 'demo-user-sarah',
+    created_at: '2026-05-12T09:00:00.000Z',
+    updated_at: now,
+    project_name: 'Takamul Platform Backend',
+  },
+];
+
+export const demoUsers = [
+  {
+    id: 'demo-user-abdullah',
+    email: 'abdullah@example.com',
+    full_name: 'Abdullah S.',
+    avatar_url: null,
+    created_at: '2026-04-28T09:00:00.000Z',
+    task_count: 1,
+  },
+  {
+    id: 'demo-user-mohammed',
+    email: 'mohammed@example.com',
+    full_name: 'Mohammed A.',
+    avatar_url: null,
+    created_at: '2026-04-29T09:00:00.000Z',
+    task_count: 1,
+  },
+  {
+    id: 'demo-user-sarah',
+    email: 'sarah@example.com',
+    full_name: 'Sarah K.',
+    avatar_url: null,
+    created_at: '2026-04-30T09:00:00.000Z',
+    task_count: 1,
+  },
+];

@@ -1,0 +1,15 @@
+{
+  "migration": {
+    "title": "Migration", "subtitle": "Export your plans to Jira or Linear, or import existing issues into 01 Manager for AI analysis.",
+    "export": "Export", "import": "Import", "chooseFormat": "Choose export format", "selectProject": "Select project", "loadingProjects": "Loading projects…",
+    "jiraDescription": "Summary, Description, Priority, Story Points, Labels, Acceptance Criteria", "linearDescription": "Title, Description, Priority, Status, Estimate, Labels",
+    "fieldMapping": "Field mapping", "managerColumn": "01 Manager", "jiraColumn": "Jira column", "linearColumn": "Linear column", "notes": "Notes",
+    "fields": { "title": "Title", "summary": "Summary", "description": "Description", "priority": "Priority", "status": "Status", "estimatedDays": "Estimated days", "storyPoints": "Story Points", "estimate": "Estimate", "dueDate": "Due date", "labels": "Labels", "acceptance": "Acceptance criteria", "implementation": "Implementation Steps", "definition": "Definition of done" },
+    "noteValues": { "priorities": "High/Medium/Low", "dayPoint": "1 day = 1 point", "comma": "comma-separated", "checklist": "checklist format", "includesAcceptance": "includes acceptance criteria" },
+    "exporting": "Exporting…", "download": "Download {{format}} CSV", "importSource": "Import source", "fromJira": "From Jira", "fromLinear": "From Linear", "uploadJira": "Upload a Jira CSV export", "uploadLinear": "Upload a Linear CSV export", "destination": "Destination project",
+    "uploadCsv": "Upload CSV", "replace": "Click to replace", "drop": "Drop your CSV here or click to upload", "jiraPath": "Jira → Issues → Export → CSV", "linearPath": "Linear → Export → CSV",
+    "preview": "Mapping preview", "ready": "{{count}} tasks ready to import", "more": "+{{count}} more", "due": "Due: {{date}}", "externalId": "External ID: {{id}}", "daysShort": "{{count}}d", "importing": "Importing…", "importTasks": "Import {{count}} tasks", "duplicates": "Duplicate tasks will be skipped automatically.",
+    "complete": "Import complete", "imported": "{{count}} tasks imported", "skipped": "{{count}} skipped (already exist)", "viewProjects": "View in Projects", "analyzing": "Analyzing…", "analysis": "AI Analysis", "another": "Import another file", "findings": "Findings", "recommendations": "Recommendations", "risk": "{{level}} Risk",
+    "errors": { "load": "Failed to load projects.", "export": "Export failed", "csvOnly": "Please upload a .csv file.", "tooLarge": "File is too large (max 5 MB).", "parse": "Failed to parse CSV.", "import": "Import failed", "analysis": "Analysis failed" }
+  }
+}

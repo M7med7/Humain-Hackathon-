@@ -1,0 +1,116 @@
+{
+  "roles": {
+    "Admin": "Admin",
+    "Developer": "Developer",
+    "Member": "Member",
+    "Guest": "Guest"
+  },
+  "roleHelp": {
+    "Admin": "Manages the space, its members and every project.",
+    "Developer": "Builds projects and works on tasks.",
+    "Member": "Follows projects and comments, e.g. finance or HR.",
+    "Guest": "Outside collaborator who can view and comment."
+  },
+  "gate": {
+    "loading": "Loading your space…",
+    "loadFailed": "Could not load your spaces.",
+    "retry": "Try again"
+  },
+  "create": {
+    "title": "Create your space",
+    "subtitle": "A space holds your organization's members and projects. Only people you invite can see it.",
+    "newTitle": "Create a new space",
+    "nameLabel": "Space name",
+    "namePlaceholder": "e.g. ZeroOne",
+    "keyLabel": "Space key",
+    "keyHelp": "A short code for this space, like ZEROONE. API calls and integrations (such as MCP) use it to find your space, so it can't be changed later.",
+    "descriptionLabel": "Description",
+    "optional": "(optional)",
+    "descriptionPlaceholder": "What does your organization do?",
+    "preview": "Preview",
+    "previewName": "Your space",
+    "previewDescription": "Your space description will appear here.",
+    "previewMembers": "You",
+    "keyExplainer": "The key identifies this space everywhere outside the app, so it stays the same even if you rename the space.",
+    "keyStatus": {
+      "invalid": "Use 2-10 letters or numbers, starting with a letter.",
+      "checking": "Checking availability…",
+      "available": "Available",
+      "taken": "Already taken. Try another key.",
+      "unknown": "Couldn't check availability. You can still continue."
+    },
+    "submit": "Create space",
+    "submitting": "Creating…",
+    "failed": "Could not create the space.",
+    "waitingInvite": "Expecting an invitation? Ask your admin to invite {{email}}, then",
+    "checkAgain": "check again",
+    "signOut": "Sign out",
+    "cancel": "Cancel"
+  },
+  "switcher": {
+    "label": "Space",
+    "switch": "Switch space",
+    "settings": "Space settings",
+    "new": "New space"
+  },
+  "settings": {
+    "details": {
+      "title": "Details",
+      "key": "Space key",
+      "keyHelp": "Used by API calls and integrations. It can't be changed.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "description": "Description",
+      "editDescription": "Edit description",
+      "noDescription": "No description yet.",
+      "saveFailed": "Could not save the description."
+    },
+    "title": "Space settings",
+    "subtitle": "Manage who is in {{name}} and what they can do.",
+    "yourRole": "Your role",
+    "name": "Space name",
+    "rename": "Rename",
+    "save": "Save",
+    "cancel": "Cancel",
+    "renameFailed": "Could not rename the space.",
+    "rolesTitle": "What each role can do",
+    "invite": {
+      "title": "Invite people",
+      "help": "New people get an email to set their password. People who already have an account are added right away.",
+      "email": "Email",
+      "emailPlaceholder": "name@company.com",
+      "role": "Role",
+      "submit": "Send invite",
+      "sending": "Sending…",
+      "added": "{{email}} was added to the space.",
+      "sent": "Invitation sent to {{email}}.",
+      "emailFailed": "Invitation saved, but the email could not be sent ({{reason}}). They can sign up with {{email}} to join.",
+      "failed": "Could not send the invitation."
+    },
+    "members": {
+      "title": "Members",
+      "count_zero": "No members",
+      "count_one": "{{count}} member",
+      "count_two": "{{count}} members",
+      "count_few": "{{count}} members",
+      "count_many": "{{count}} members",
+      "count_other": "{{count}} members",
+      "you": "You",
+      "remove": "Remove",
+      "removeTitle": "Remove {{name}}?",
+      "removeBody": "They will lose access to this space and its projects. Their account is not deleted.",
+      "removing": "Removing…",
+      "removeFailed": "Could not remove this member.",
+      "roleFailed": "Could not change the role.",
+      "loadFailed": "Could not load members.",
+      "changeRole": "Role for {{name}}"
+    },
+    "pending": {
+      "title": "Pending invitations",
+      "revoke": "Revoke",
+      "empty": "No pending invitations.",
+      "invitedAs": "Invited as {{role}}",
+      "revokeFailed": "Could not revoke the invitation."
+    }
+  }
+}

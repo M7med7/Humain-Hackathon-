@@ -1,0 +1,44 @@
+{
+  "breadcrumb": "البحث الشامل",
+  "title": "ابحث في كل شيء",
+  "description": "ابحث في المشاريع والمهام والتعليقات والملفات والمسؤولين والمخاطر والتقنيات.",
+  "searchPlaceholder": "ابحث حسب المهمة أو المشروع أو التعليق أو الملف أو المسؤول أو التقنية...",
+  "quickFilters": {
+    "myTasks": "مهامي",
+    "overdue": "متأخرة",
+    "blocked": "متوقفة",
+    "highPriority": "أولوية عالية",
+    "dueThisWeek": "مستحقة هذا الأسبوع"
+  },
+  "saveFilter": "حفظ الفلتر",
+  "saveFilterPromptLabel": "اسم الفلتر المحفوظ",
+  "saveFilterDefaultName": "فلتر {{query}}",
+  "saveFilterDefaultNameFallback": "الفلتر المحفوظ",
+  "clear": "مسح {{count}}",
+  "removeSavedFilter": "حذف الفلتر المحفوظ",
+  "filters": {
+    "anyStatus": "أي حالة",
+    "anyPriority": "أي أولوية",
+    "anyAssignee": "أي مسؤول",
+    "unassigned": "غير مسندة",
+    "anyProject": "أي مشروع",
+    "anyRisk": "أي مستوى مخاطر",
+    "anyDueDate": "أي تاريخ استحقاق",
+    "dueThisWeek": "مستحقة هذا الأسبوع",
+    "techPlaceholder": "تقنية أو وسم"
+  },
+  "savedFilters": "الفلاتر المحفوظة",
+  "results": {
+    "title": "النتائج",
+    "searching": "جارٍ البحث...",
+    "count_zero": "لا توجد نتائج",
+    "count_one": "نتيجة واحدة",
+    "count_two": "نتيجتان",
+    "count_few": "{{count}} نتائج",
+    "count_many": "{{count}} نتيجة",
+    "count_other": "{{count}} نتيجة",
+    "empty": "لا يوجد عمل مطابق.",
+    "searchFailed": "فشل البحث",
+    "riskSuffix": "مخاطر {{risk}}"
+  }
+}

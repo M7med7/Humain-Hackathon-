@@ -1,0 +1,14 @@
+{
+  "title": "تقويم المهام", "description": "الجدول الزمني للمشاريع والمهام",
+  "views": { "day": "يوم", "week": "أسبوع", "month": "شهر", "year": "سنة" },
+  "mySchedule": "جدولي", "aiOptimize": "تحسين بالذكاء الاصطناعي", "allProjects": "جميع المشاريع",
+  "aiPanelTitle": "تحسين الجدول بالذكاء الاصطناعي", "analyzing": "جارٍ تحليل الجدول…", "aiError": "تعذر تحميل الاقتراح. حاول مرة أخرى.",
+  "overloadedTasks": "حمل زائد — {{count}} مهام", "noDayWork": "لا توجد مهام مجدولة لهذا اليوم", "noWork": "لا توجد مهام مجدولة",
+  "tasks_zero": "لا توجد مهام", "tasks_one": "مهمة واحدة", "tasks_two": "مهمتان", "tasks_few": "{{count}} مهام", "tasks_many": "{{count}} مهمة", "tasks_other": "{{count}} مهمة",
+  "more": "+{{count}} إضافية", "loading": "جارٍ تحميل المهام…",
+  "conflicts_zero": "لا توجد تعارضات في الجدول.", "conflicts_one": "مهمة واحدة بها تعارض في الجدول — لدى المكلّف مواعيد متداخلة.", "conflicts_two": "مهمتان بهما تعارض في الجدول — لدى المكلّف مواعيد متداخلة.", "conflicts_few": "{{count}} مهام بها تعارضات في الجدول — لدى المكلّف مواعيد متداخلة.", "conflicts_many": "{{count}} مهمة بها تعارضات في الجدول — لدى المكلّف مواعيد متداخلة.", "conflicts_other": "{{count}} مهمة بها تعارض في الجدول.",
+  "dependencyWarnings_zero": "لا توجد مخالفات في ترتيب الاعتماديات.", "dependencyWarnings_one": "تبدأ مهمة واحدة قبل اكتمال اعتماديتها — قد يكون ترتيب الاعتماديات غير صحيح.", "dependencyWarnings_two": "تبدأ مهمتان قبل اكتمال اعتماديتهما — قد يكون ترتيب الاعتماديات غير صحيح.", "dependencyWarnings_few": "تبدأ {{count}} مهام قبل اكتمال اعتمادياتها — قد يكون الترتيب غير صحيح.", "dependencyWarnings_many": "تبدأ {{count}} مهمة قبل اكتمال اعتمادياتها — قد يكون الترتيب غير صحيح.", "dependencyWarnings_other": "تبدأ {{count}} مهمة قبل اكتمال اعتمادياتها.",
+  "projects": "المشاريع:", "blocked": "متوقفة", "conflict": "تعارض", "dependencyWarning": "تحذير اعتماديات", "overloadedDay": "يوم ذو حمل زائد",
+  "calendarSynced": "التقويم متزامن", "noCalendarSync": "التقويم غير متزامن", "startsBeforeBlocker": "تبدأ قبل اكتمال المهمة المانعة",
+  "previous": "الفترة السابقة", "next": "الفترة التالية"
+}

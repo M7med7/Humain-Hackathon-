@@ -1,0 +1,15 @@
+{
+  "migration": {
+    "title": "الترحيل", "subtitle": "صدّر خططك إلى Jira أو Linear، أو استورد المهام الحالية إلى 01 Manager لتحليلها بالذكاء الاصطناعي.",
+    "export": "تصدير", "import": "استيراد", "chooseFormat": "اختر صيغة التصدير", "selectProject": "اختر المشروع", "loadingProjects": "جارٍ تحميل المشاريع…",
+    "jiraDescription": "الملخص، الوصف، الأولوية، نقاط القصة، التصنيفات، معايير القبول", "linearDescription": "العنوان، الوصف، الأولوية، الحالة، التقدير، التصنيفات",
+    "fieldMapping": "مطابقة الحقول", "managerColumn": "01 Manager", "jiraColumn": "حقل Jira", "linearColumn": "حقل Linear", "notes": "ملاحظات",
+    "fields": { "title": "العنوان", "summary": "الملخص", "description": "الوصف", "priority": "الأولوية", "status": "الحالة", "estimatedDays": "الأيام المقدّرة", "storyPoints": "نقاط القصة", "estimate": "التقدير", "dueDate": "تاريخ الاستحقاق", "labels": "التصنيفات", "acceptance": "معايير القبول", "implementation": "خطوات التنفيذ", "definition": "تعريف الإنجاز" },
+    "noteValues": { "priorities": "عالية/متوسطة/منخفضة", "dayPoint": "يوم واحد = نقطة واحدة", "comma": "مفصولة بفواصل", "checklist": "بصيغة قائمة تحقق", "includesAcceptance": "يتضمن معايير القبول" },
+    "exporting": "جارٍ التصدير…", "download": "تنزيل ملف {{format}} CSV", "importSource": "مصدر الاستيراد", "fromJira": "من Jira", "fromLinear": "من Linear", "uploadJira": "ارفع ملف CSV مصدّرًا من Jira", "uploadLinear": "ارفع ملف CSV مصدّرًا من Linear", "destination": "المشروع المستهدف",
+    "uploadCsv": "رفع ملف CSV", "replace": "اضغط للاستبدال", "drop": "أفلت ملف CSV هنا أو اضغط لرفعه", "jiraPath": "Jira ← المشكلات ← تصدير ← CSV", "linearPath": "Linear ← تصدير ← CSV",
+    "preview": "معاينة المطابقة", "ready": "{{count}} مهام جاهزة للاستيراد", "more": "+{{count}} إضافية", "due": "الاستحقاق: {{date}}", "externalId": "المعرّف الخارجي: {{id}}", "daysShort": "{{count}} ي", "importing": "جارٍ الاستيراد…", "importTasks": "استيراد {{count}} مهام", "duplicates": "سيتم تخطي المهام المكررة تلقائيًا.",
+    "complete": "اكتمل الاستيراد", "imported": "تم استيراد {{count}} مهام", "skipped": "تم تخطي {{count}} (موجودة مسبقًا)", "viewProjects": "عرضها في المشاريع", "analyzing": "جارٍ التحليل…", "analysis": "تحليل الذكاء الاصطناعي", "another": "استيراد ملف آخر", "findings": "النتائج", "recommendations": "التوصيات", "risk": "مخاطر {{level}}",
+    "errors": { "load": "تعذر تحميل المشاريع.", "export": "فشل التصدير", "csvOnly": "يرجى رفع ملف بصيغة CSV.", "tooLarge": "حجم الملف كبير جدًا (الحد الأقصى 5 ميجابايت).", "parse": "تعذرت قراءة ملف CSV.", "import": "فشل الاستيراد", "analysis": "فشل التحليل" }
+  }
+}

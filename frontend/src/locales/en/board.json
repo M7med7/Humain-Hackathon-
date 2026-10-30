@@ -1,0 +1,19 @@
+{
+  "title": "Board Calendar", "description": "Project timeline and task schedule",
+  "views": { "day": "Day", "week": "Week", "month": "Month", "year": "Year" },
+  "mySchedule": "My Schedule", "aiOptimize": "AI Optimize", "allProjects": "All Projects",
+  "aiPanelTitle": "AI Schedule Optimization", "analyzing": "Analyzing schedule…", "aiError": "Could not load suggestion. Please try again.",
+  "overloadedTasks": "Overloaded — {{count}} tasks", "noDayWork": "No scheduled work for this day", "noWork": "No scheduled work",
+  "tasks_zero": "No tasks", "tasks_one": "{{count}} task", "tasks_two": "{{count}} tasks", "tasks_few": "{{count}} tasks", "tasks_many": "{{count}} tasks", "tasks_other": "{{count}} tasks", "more": "+{{count}} more", "loading": "Loading tasks…",
+  "conflicts_zero": "No scheduling conflicts.",
+  "conflicts_one": "{{count}} task has a scheduling conflict — the same assignee has overlapping dates.",
+  "conflicts_two": "{{count}} tasks have scheduling conflicts — the same assignee has overlapping dates.", "conflicts_few": "{{count}} tasks have scheduling conflicts — the same assignee has overlapping dates.", "conflicts_many": "{{count}} tasks have scheduling conflicts — the same assignee has overlapping dates.",
+  "conflicts_other": "{{count}} tasks have scheduling conflicts — the same assignee has overlapping dates.",
+  "dependencyWarnings_zero": "No dependency order warnings.",
+  "dependencyWarnings_one": "{{count}} task starts before a dependency finishes — dependency order may be violated.",
+  "dependencyWarnings_two": "{{count}} tasks start before dependencies finish — dependency order may be violated.", "dependencyWarnings_few": "{{count}} tasks start before dependencies finish — dependency order may be violated.", "dependencyWarnings_many": "{{count}} tasks start before dependencies finish — dependency order may be violated.",
+  "dependencyWarnings_other": "{{count}} tasks start before dependencies finish — dependency order may be violated.",
+  "projects": "Projects:", "blocked": "Blocked", "conflict": "Conflict", "dependencyWarning": "Dependency warning", "overloadedDay": "Overloaded day",
+  "calendarSynced": "Calendar synced", "noCalendarSync": "No calendar sync", "startsBeforeBlocker": "Starts before a blocker finishes",
+  "previous": "Previous period", "next": "Next period"
+}

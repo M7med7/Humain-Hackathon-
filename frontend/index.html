@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" style="height:100%">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>01-Manager</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("zeroone-theme");
+          var theme = saved === "light" || saved === "dark"
+            ? saved
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.classList.add(theme === "light" ? "theme-light" : "theme-dark");
+          document.documentElement.style.colorScheme = theme;
+        } catch (_) {
+          document.documentElement.classList.add("theme-dark");
+          document.documentElement.style.colorScheme = "dark";
+        }
+      })();
+      (function () {
+        try {
+          var saved = localStorage.getItem("zeroone-language");
+          var lang = saved === "en" || saved === "ar"
+            ? saved
+            : ((navigator.language || "").toLowerCase().indexOf("ar") === 0 ? "ar" : "en");
+          document.documentElement.lang = lang;
+          document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+        } catch (_) {
+          document.documentElement.lang = "en";
+          document.documentElement.dir = "ltr";
+        }
+      })();
+    </script>
+    <style>html,body{height:100%;margin:0;background:var(--app-bg,#000);color:var(--app-text,#fff);}#root{height:100%;}</style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

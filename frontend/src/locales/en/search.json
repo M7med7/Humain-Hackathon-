@@ -1,0 +1,44 @@
+{
+  "breadcrumb": "Global search",
+  "title": "Search Everything",
+  "description": "Find projects, tasks, comments, files, assignees, risks, and technologies.",
+  "searchPlaceholder": "Search by task, project, comment, file, assignee, technology...",
+  "quickFilters": {
+    "myTasks": "My Tasks",
+    "overdue": "Overdue",
+    "blocked": "Blocked",
+    "highPriority": "High Priority",
+    "dueThisWeek": "Due This Week"
+  },
+  "saveFilter": "Save filter",
+  "saveFilterPromptLabel": "Saved filter name",
+  "saveFilterDefaultName": "{{query}} filter",
+  "saveFilterDefaultNameFallback": "My saved filter",
+  "clear": "Clear {{count}}",
+  "removeSavedFilter": "Remove saved filter",
+  "filters": {
+    "anyStatus": "Any status",
+    "anyPriority": "Any priority",
+    "anyAssignee": "Any assignee",
+    "unassigned": "Unassigned",
+    "anyProject": "Any project",
+    "anyRisk": "Any risk",
+    "anyDueDate": "Any due date",
+    "dueThisWeek": "Due this week",
+    "techPlaceholder": "Tech/tag"
+  },
+  "savedFilters": "Saved filters",
+  "results": {
+    "title": "Results",
+    "searching": "Searching...",
+    "count_zero": "No results",
+    "count_one": "{{count}} found",
+    "count_two": "{{count}} found",
+    "count_few": "{{count}} found",
+    "count_many": "{{count}} found",
+    "count_other": "{{count}} found",
+    "empty": "No matching work found.",
+    "searchFailed": "Search failed",
+    "riskSuffix": "{{risk}} risk"
+  }
+}

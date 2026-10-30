@@ -1,0 +1,72 @@
+{
+  "brand": {
+    "name": "01 Manager"
+  },
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "arabic": "Arabic",
+    "switcherAriaLabel": "Change language"
+  },
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "edit": "Edit"
+  },
+  "search": {
+    "placeholder": "Search projects, tasks, files..."
+  },
+  "notifications": {
+    "ariaLabel": "Notifications",
+    "title": "Notifications",
+    "unreadCount_zero": "No unread notifications",
+    "unreadCount_one": "{{count}} unread",
+    "unreadCount_two": "{{count}} unread",
+    "unreadCount_few": "{{count}} unread",
+    "unreadCount_many": "{{count}} unread",
+    "unreadCount_other": "{{count}} unread",
+    "markAllRead": "Mark all read",
+    "preferences": "Preferences",
+    "preferencesAriaLabel": "Notification preferences",
+    "empty": "No notifications yet",
+    "markRead": "Read",
+    "markUnread": "Unread",
+    "preferenceLabels": {
+      "assignments": "Task assignments",
+      "mentions": "Mentions",
+      "comments": "Comments",
+      "status_changes": "Status changes",
+      "due_reminders": "Due date reminders",
+      "overdue_alerts": "Overdue alerts",
+      "project_risk": "Project risk"
+    }
+  },
+  "profile": {
+    "viewProfile": "View profile",
+    "editProfile": "Edit profile",
+    "signOut": "Sign out",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "namePlaceholder": "Your full name",
+    "phonePlaceholder": "+966 5x xxx xxxx",
+    "saveFailed": "Failed to save",
+    "page": {
+      "loadFailed": "Failed to load profile", "notFound": "Not found", "rolePlaceholder": "e.g. Senior Frontend Engineer", "addRole": "Add your role…", "updateCv": "Update CV", "uploadCv": "Upload CV",
+      "aiProfile": "AI Technical Profile", "generating": "Generating…", "regenerate": "Regenerate", "generate": "Generate", "aiProfileHelp": "Generate an AI-written summary of your technical profile — used to improve task assignment and team planning.",
+      "about": "About", "aboutPlaceholder": "Tell the team about yourself and your background…", "noSummary": "No summary yet. Upload your CV to auto-generate one.", "skills": "Skills", "skillsExpertise": "Skills & Expertise", "levelHelp": "Click the dot to set experience level", "cvVerified": "CV verified", "changeLevel": "{{level}} — click to change", "setLevel": "Click to set level", "levels": { "beginner": "Beginner", "intermediate": "Intermediate", "expert": "Expert" }, "noSkills": "No skills listed. Upload your CV or add manually.", "addSkill": "Add skill — e.g. React, Python (Enter to add)",
+      "preferredTech": "Preferred Technologies", "preferredTechHelp": "Technologies you enjoy working with — used to improve task assignment.", "avoidTech": "Technologies to Avoid", "avoidTechHelp": "Technologies you prefer not to work with — managers will see these when assigning tasks.",
+      "recentTasks": "Recent Completed Tasks", "moreCompleted": "+{{count}} more completed", "level": "Level", "taskProgress": "{{completed}} / {{total}} tasks", "achievements": "Achievements", "noAchievements": "Complete tasks to earn achievements.",
+      "availability": "Availability", "availabilityHelp": "Used for workload forecasting and task assignment suggestions.", "daysPerWeek": "Days per week", "daysWeek": "{{count}} days / week", "dailyCapacity": "Daily capacity (hours)", "weeklyHours": "{{count}}h / week total",
+      "links": "Links", "portfolio": "Portfolio", "portfolioUrl": "Portfolio / website URL", "noLinks": "No links added", "privacy": "Privacy", "privacyHelp": "Control what team members see on your profile.", "visible": "Visible", "hidden": "Hidden", "privacyLabels": { "show_skills": "Skills & expertise", "show_availability": "Availability", "show_completed_tasks": "Completed tasks", "show_summary": "About / summary", "show_social_links": "Social links" },
+      "weeklyStreak": "Weekly Streak", "weeks": "weeks"
+    }
+  }
+}
