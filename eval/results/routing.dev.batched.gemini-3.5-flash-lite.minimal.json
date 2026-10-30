@@ -3,22 +3,17 @@
   "label": "batched.gemini-3.5-flash-lite.minimal",
   "metrics": {
     "cases": 40,
-    "accuracy": 0.95,
+    "accuracy": 0.975,
     "missedHumanRate": 0,
     "unnecessaryHumanRate": 0,
-    "reasonAccuracy": 0.8666666666666667,
-    "arabicAccuracy": 0.8333333333333334,
+    "reasonAccuracy": 0.875,
+    "arabicAccuracy": 1,
     "calls": 2,
-    "inputTokens": 2337,
-    "outputTokens": 2089,
-    "costUsd": 0.005923599999999999,
-    "latencyMs": 7196,
+    "inputTokens": 2401,
+    "outputTokens": 2589,
+    "costUsd": 0.007192800000000001,
+    "latencyMs": 14436,
     "errors": [
-      {
-        "id": "dev-21",
-        "expected": "human",
-        "got": "hybrid"
-      },
       {
         "id": "dev-26",
         "expected": "hybrid",
@@ -33,7 +28,7 @@
       "reason": null,
       "action": null,
       "role": "researcher",
-      "rationale": "Agents can research and summarize competitor marketing campaigns easily using available knowledge."
+      "rationale": "Agents can research and summarize competitor marketing campaigns easily using existing knowledge."
     },
     {
       "taskId": "dev-02",
@@ -41,7 +36,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Agents excel at multilingual copywriting and marketing messaging."
+      "rationale": "Agents can write bilingual landing page copy."
     },
     {
       "taskId": "dev-03",
@@ -49,7 +44,7 @@
       "reason": null,
       "action": null,
       "role": "builder",
-      "rationale": "Agents can build responsive single-page HTML files."
+      "rationale": "Agents can produce single-page HTML files."
     },
     {
       "taskId": "dev-04",
@@ -57,7 +52,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Agents can easily draft email marketing sequences."
+      "rationale": "Agents can draft email sequences."
     },
     {
       "taskId": "dev-05",
@@ -65,7 +60,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Agents can create structured social media schedules and post copy."
+      "rationale": "Agents can create social media schedules and post copy in Arabic."
     },
     {
       "taskId": "dev-06",
@@ -73,7 +68,7 @@
       "reason": "authority",
       "action": "approve",
       "role": null,
-      "rationale": "Only a person can approve budgets and financial spending."
+      "rationale": "Only humans can approve company spending."
     },
     {
       "taskId": "dev-07",
@@ -81,7 +76,7 @@
       "reason": "access",
       "action": "perform",
       "role": "writer",
-      "rationale": "Agent prepares ad sets, human publishes them inside external ad accounts."
+      "rationale": "Agent prepares ad sets, human publishes in the external ad account."
     },
     {
       "taskId": "dev-08",
@@ -89,7 +84,7 @@
       "reason": "private_knowledge",
       "action": "provide",
       "role": null,
-      "rationale": "Only humans can supply proprietary internal brand assets and files."
+      "rationale": "Only humans can supply internal brand asset files."
     },
     {
       "taskId": "dev-09",
@@ -97,7 +92,7 @@
       "reason": null,
       "action": null,
       "role": "analyst",
-      "rationale": "Agents can define standard marketing KPIs and measurement frameworks."
+      "rationale": "Agents can define campaign KPIs and measurement plans."
     },
     {
       "taskId": "dev-10",
@@ -105,7 +100,7 @@
       "reason": "physical",
       "action": "perform",
       "role": null,
-      "rationale": "Task involves physical movement of real-world objects."
+      "rationale": "Only humans can handle physical items in the real world."
     },
     {
       "taskId": "dev-11",
@@ -113,15 +108,15 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Agents can prepare detailed design briefs and text layouts."
+      "rationale": "Agents can write design briefs and layouts."
     },
     {
       "taskId": "dev-12",
       "executor": "hybrid",
       "reason": "relationship",
       "action": "perform",
-      "role": "analyst",
-      "rationale": "Agent shortlists influencers, human builds relationships and agrees deals."
+      "role": "researcher",
+      "rationale": "Agent shortlists influencers, human negotiates and builds relationships."
     },
     {
       "taskId": "dev-13",
@@ -129,7 +124,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Agents can translate documents between English and Arabic accurately."
+      "rationale": "Agents can translate press releases between English and Arabic."
     },
     {
       "taskId": "dev-14",
@@ -137,7 +132,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Agents can write engaging social media comments in Arabic."
+      "rationale": "Agents can write short social media comments in Arabic."
     },
     {
       "taskId": "dev-15",
@@ -145,7 +140,7 @@
       "reason": null,
       "action": null,
       "role": "analyst",
-      "rationale": "Agents can generate comprehensive role onboarding plans."
+      "rationale": "Agents can prepare 30-60-90 day onboarding plans."
     },
     {
       "taskId": "dev-16",
@@ -153,7 +148,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Agents can draft welcome emails and scheduling templates."
+      "rationale": "Agents can write welcome emails and schedules."
     },
     {
       "taskId": "dev-17",
@@ -161,7 +156,7 @@
       "reason": "access",
       "action": "perform",
       "role": "analyst",
-      "rationale": "Agent details account setups, human executes creation in external IT systems."
+      "rationale": "Agent drafts account creation details, human performs the system setup."
     },
     {
       "taskId": "dev-18",
@@ -169,7 +164,7 @@
       "reason": "physical",
       "action": "perform",
       "role": null,
-      "rationale": "Handing over physical equipment requires human presence."
+      "rationale": "Only humans can physically hand over equipment."
     },
     {
       "taskId": "dev-19",
@@ -177,23 +172,23 @@
       "reason": "authority",
       "action": "approve",
       "role": null,
-      "rationale": "Only authorized personnel can sign legal employment contracts."
+      "rationale": "Only humans can sign legal employment contracts."
     },
     {
       "taskId": "dev-20",
       "executor": "ai",
       "reason": null,
       "action": null,
-      "role": "analyst",
-      "rationale": "Agents can construct structured checklists for managers."
+      "role": "writer",
+      "rationale": "Agents can build structured management checklists."
     },
     {
       "taskId": "dev-21",
-      "executor": "hybrid",
+      "executor": "human",
       "reason": "private_knowledge",
       "action": "provide",
-      "role": "researcher",
-      "rationale": "Requires internal start date and uniform size from the manager."
+      "role": null,
+      "rationale": "Confirms private employee start date and uniform size details."
     },
     {
       "taskId": "dev-22",
@@ -201,7 +196,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Summarizing documents is standard text processing suitable for agents."
+      "rationale": "Summarizes attached HR policies into a guide."
     },
     {
       "taskId": "dev-23",
@@ -209,7 +204,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Generating a quiz from product catalog information is pure writing."
+      "rationale": "Creates training quiz questions and answer key."
     },
     {
       "taskId": "dev-24",
@@ -217,7 +212,7 @@
       "reason": "physical",
       "action": "perform",
       "role": null,
-      "rationale": "Holding a live physical meeting requires human presence."
+      "rationale": "Requires physical attendance at live welcome meeting."
     },
     {
       "taskId": "dev-25",
@@ -225,7 +220,7 @@
       "reason": null,
       "action": null,
       "role": "analyst",
-      "rationale": "Drafting a schedule with agendas is information work."
+      "rationale": "Drafts the first-week schedule and agendas."
     },
     {
       "taskId": "dev-26",
@@ -233,7 +228,7 @@
       "reason": "relationship",
       "action": "approve",
       "role": null,
-      "rationale": "Choosing a buddy involves personal relationships and team dynamics."
+      "rationale": "Assigning a team buddy requires interpersonal judgment."
     },
     {
       "taskId": "dev-27",
@@ -241,7 +236,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Writing FAQ lists in Arabic is translation and content generation."
+      "rationale": "Writes Arabic FAQ list for sales role."
     },
     {
       "taskId": "dev-28",
@@ -249,7 +244,7 @@
       "reason": "physical",
       "action": "perform",
       "role": null,
-      "rationale": "Setting up physical desks and physical parking spots requires manual action."
+      "rationale": "Requires physical setup of physical desk and parking."
     },
     {
       "taskId": "dev-29",
@@ -257,7 +252,7 @@
       "reason": null,
       "action": null,
       "role": "analyst",
-      "rationale": "Drafting an agenda and run of show is planning work."
+      "rationale": "Drafts event agenda and run of show."
     },
     {
       "taskId": "dev-30",
@@ -265,7 +260,7 @@
       "reason": "authority",
       "action": "approve",
       "role": "researcher",
-      "rationale": "Booking a venue involves financial commitment and contracts."
+      "rationale": "AI finds venue options, person books and pays."
     },
     {
       "taskId": "dev-31",
@@ -273,7 +268,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Writing bilingual invitation emails is a writing task."
+      "rationale": "Writes invitation emails in Arabic and English."
     },
     {
       "taskId": "dev-32",
@@ -281,7 +276,7 @@
       "reason": "physical",
       "action": "perform",
       "role": null,
-      "rationale": "Inspecting physical AV equipment on site requires physical presence."
+      "rationale": "Requires physical site inspection."
     },
     {
       "taskId": "dev-33",
@@ -289,7 +284,7 @@
       "reason": null,
       "action": null,
       "role": "builder",
-      "rationale": "Creating templates and spreadsheets is builder work."
+      "rationale": "Builds guest list and RSVP tracker template."
     },
     {
       "taskId": "dev-34",
@@ -297,7 +292,7 @@
       "reason": "private_knowledge",
       "action": "provide",
       "role": null,
-      "rationale": "VIP names and titles exist only in the client's knowledge."
+      "rationale": "Requires internal VIP list information."
     },
     {
       "taskId": "dev-35",
@@ -305,15 +300,15 @@
       "reason": null,
       "action": null,
       "role": "analyst",
-      "rationale": "Comparing quotes based on attached documents is analytical work."
+      "rationale": "Compares catering quotes on price, menu, capacity."
     },
     {
       "taskId": "dev-36",
       "executor": "human",
       "reason": "authority",
-      "action": "approve",
+      "action": "perform",
       "role": null,
-      "rationale": "Paying money requires financial authorization and payment accounts."
+      "rationale": "Requires financial transaction and money movement."
     },
     {
       "taskId": "dev-37",
@@ -321,15 +316,15 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Writing speaker briefing notes based on project data is writing."
+      "rationale": "Writes speaker briefing notes and key messages."
     },
     {
       "taskId": "dev-38",
       "executor": "hybrid",
       "reason": "access",
-      "action": "perform",
+      "action": "approve",
       "role": "writer",
-      "rationale": "Sending emails from the CEO's mailbox requires external email account access."
+      "rationale": "AI drafts invite, person sends from CEO mailbox."
     },
     {
       "taskId": "dev-39",
@@ -337,7 +332,7 @@
       "reason": null,
       "action": null,
       "role": "writer",
-      "rationale": "Drafting a survey is standard writing work."
+      "rationale": "Drafts post-event survey questionnaire."
     },
     {
       "taskId": "dev-40",
@@ -345,7 +340,7 @@
       "reason": null,
       "action": null,
       "role": "builder",
-      "rationale": "Preparing a report template is structure and document building."
+      "rationale": "Prepares event recap report template."
     }
   ]
 }

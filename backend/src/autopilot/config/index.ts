@@ -45,10 +45,12 @@ const flag = z
 
 const envSchema = z.object({
   GEMINI_API_KEY: z.string().min(20, 'GEMINI_API_KEY is missing or malformed'),
-  AUTOPILOT_MODEL_FAST: z.string().default('gemini-3.5-flash-lite'),
-  AUTOPILOT_MODEL_STANDARD: z.string().default('gemini-3.6-flash'),
-  AUTOPILOT_MODEL_STANDARD_FALLBACK: z.string().default('gemini-3.5-flash'),
-  AUTOPILOT_MODEL_FALLBACK: z.string().default('gemini-3.1-flash-lite'),
+  // Defaults fit Gemini's free tier: two Flash-Lite models, each with its own daily quota.
+  // On a paid key, set AUTOPILOT_MODEL_STANDARD to a Flash model for stronger writing.
+  AUTOPILOT_MODEL_FAST: z.string().default('gemini-3.1-flash-lite'),
+  AUTOPILOT_MODEL_STANDARD: z.string().default('gemini-3.5-flash-lite'),
+  AUTOPILOT_MODEL_STANDARD_FALLBACK: z.string().default('gemini-3.1-flash-lite'),
+  AUTOPILOT_MODEL_FALLBACK: z.string().default('gemini-3.5-flash-lite'),
   AUTOPILOT_EVENT_DRIVEN: flag,
   AUTOPILOT_BATCHED_ROUTING: flag,
   AUTOPILOT_MODEL_CASCADE: flag,
