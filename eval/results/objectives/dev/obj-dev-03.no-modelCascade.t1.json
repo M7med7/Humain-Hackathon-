@@ -1,0 +1,87 @@
+{
+ "case": "obj-dev-03",
+ "variant": "no-modelCascade",
+ "trial": 1,
+ "metrics": {
+  "completed": false,
+  "tasks": 0,
+  "agentTasks": 0,
+  "hybridTasks": 0,
+  "humanTasks": 0,
+  "agentShare": 0,
+  "humanTouches": 0,
+  "firstPassRate": 0,
+  "rework": 0,
+  "personDaysByAgents": 0,
+  "deliveryDay": 1,
+  "deadlineDays": 14,
+  "onTime": false,
+  "humanStepCoverage": 0,
+  "inventedLinkDeliverables": 0,
+  "perturbationsHandled": 0,
+  "perturbationsTotal": 1,
+  "calls": 1,
+  "tokens": 0,
+  "costUsd": 0,
+  "costPerDeliveredTask": 0,
+  "latencyMs": 0
+ },
+ "run": {
+  "id": "1c8e2368-753d-4ebb-a56f-cf6954944b47",
+  "startedAt": "2026-10-30T16:04:01.812Z",
+  "title": "",
+  "objective": "Organize a customer appreciation evening for 120 guests in Riyadh on December 3.",
+  "deadlineDays": 14,
+  "lang": "en",
+  "summary": "",
+  "status": "stopped",
+  "tasks": [],
+  "requests": [],
+  "deliverables": [],
+  "events": [
+   {
+    "seq": 0,
+    "hour": 0,
+    "actor": "client",
+    "kind": "observed",
+    "type": "objective",
+    "summary": "New objective: Organize a customer appreciation evening for 120 guests in Riyadh on December 3.",
+    "taskId": null
+   },
+   {
+    "seq": 1,
+    "hour": 0,
+    "actor": "planner",
+    "kind": "acted",
+    "type": "planning",
+    "summary": "Drafting the plan: tasks, dependencies and acceptance criteria",
+    "taskId": null
+   },
+   {
+    "seq": 2,
+    "hour": 0,
+    "actor": "lead",
+    "kind": "observed",
+    "type": "stopped",
+    "summary": "Run stopped: gemini-3.1-flash-lite returned 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/",
+    "taskId": null
+   }
+  ],
+  "calls": [
+   {
+    "purpose": "planner",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 0,
+    "cachedTokens": 0,
+    "outputTokens": 0,
+    "thinkingTokens": 0,
+    "latencyMs": 0,
+    "costUsd": 0,
+    "ok": false,
+    "replayed": false
+   }
+  ],
+  "report": null,
+  "stopReason": "gemini-3.1-flash-lite returned 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/"
+ }
+}

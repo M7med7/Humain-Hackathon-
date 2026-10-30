@@ -1,0 +1,442 @@
+{
+ "11d316c07c08d0bbb0c61726384969047d421b35f90b1ff05dd68a64e599b4d7": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-01\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can draft the RFP document based on standard industry requirements and evaluation criteria.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 934,
+  "usage": {
+   "inputTokens": 692,
+   "cachedTokens": 0,
+   "outputTokens": 83,
+   "thinkingTokens": 0
+  }
+ },
+ "5932b5ced57b90d1bc2243b76c5b50c35fbdb49eb5b6065f5971ce2c438e1246": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-02\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can design a supplier evaluation scorecard with weighted criteria.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1150,
+  "usage": {
+   "inputTokens": 704,
+   "cachedTokens": 0,
+   "outputTokens": 80,
+   "thinkingTokens": 0
+  }
+ },
+ "5ea3ec238653bc031d03a46c3be39645e3bb5c33f369048b7f83958c1c6f5511": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-03\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can analyze and compare the provided documents against the scorecard.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 883,
+  "usage": {
+   "inputTokens": 687,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "ae7ef64210ff03be2bb94f957976d778f63722a93f0536b054198dda0c09f89a": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-04\",\n      \"executor\": \"human\",\n      \"reason\": \"authority\",\n      \"action\": \"approve\",\n      \"role\": null,\n      \"rationale\": \"Signing a purchase order requires legal authority.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1051,
+  "usage": {
+   "inputTokens": 685,
+   "cachedTokens": 0,
+   "outputTokens": 76,
+   "thinkingTokens": 0
+  }
+ },
+ "9eec652ea7a1dc49a0dd8ca87181425a3204f1bff4553756d5a8597f09b780c5": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-05\",\n      \"executor\": \"human\",\n      \"reason\": \"relationship\",\n      \"action\": \"perform\",\n      \"role\": null,\n      \"rationale\": \"Negotiation calls require human interaction and relationship management.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1193,
+  "usage": {
+   "inputTokens": 687,
+   "cachedTokens": 0,
+   "outputTokens": 78,
+   "thinkingTokens": 0
+  }
+ },
+ "f027427069c3b13e40ce70516e51d1cb6dfc32c3d6e6f8847c01f5b749ed6d26": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-06\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"Agents can analyze data and draft negotiation strategies based on project information.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1510,
+  "usage": {
+   "inputTokens": 691,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "1965490354b23581ad6de5e953a0cf50ac25b3d16c5ca846aa799007b626aa4c": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-07\",\n      \"executor\": \"human\",\n      \"reason\": \"private_knowledge\",\n      \"action\": \"provide\",\n      \"role\": null,\n      \"rationale\": \"Only the user has access to the internal approved budget figures.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 964,
+  "usage": {
+   "inputTokens": 692,
+   "cachedTokens": 0,
+   "outputTokens": 82,
+   "thinkingTokens": 0
+  }
+ },
+ "62653bba2cc740717284fe477cb1948874934615760b8756b438f55af55095f1": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-08\",\n      \"executor\": \"hybrid\",\n      \"reason\": \"access\",\n      \"action\": \"perform\",\n      \"role\": \"researcher\",\n      \"rationale\": \"The agent prepares the registration data, but a human must perform the action in the external system.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 773,
+  "usage": {
+   "inputTokens": 684,
+   "cachedTokens": 0,
+   "outputTokens": 89,
+   "thinkingTokens": 0
+  }
+ },
+ "d3e072fae64cca06cbfa6d4c72784ba270e8cfe2c32b39e0234854a9ad93caab": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-09\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can analyze the document and identify risks and clauses independently.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 801,
+  "usage": {
+   "inputTokens": 687,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "77c74be8f5bb38ca96c3f162ce4347cd50073e467d157033761ddaf7981fc103": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-10\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can compare documents and identify discrepancies against company policy.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 793,
+  "usage": {
+   "inputTokens": 692,
+   "cachedTokens": 0,
+   "outputTokens": 80,
+   "thinkingTokens": 0
+  }
+ },
+ "eec3023bc725c7821a7846bd3b5548c9060c29f7821f6dafa3eb81217ebe4635": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-11\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can draft the document and checklist for review.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 772,
+  "usage": {
+   "inputTokens": 687,
+   "cachedTokens": 0,
+   "outputTokens": 78,
+   "thinkingTokens": 0
+  }
+ },
+ "967f1180aac6e63acdf0d96d445129a11a7ab3e3c8b8b46b32c87aa6560fc216": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-12\",\n      \"executor\": \"human\",\n      \"reason\": \"authority\",\n      \"action\": \"perform\",\n      \"role\": null,\n      \"rationale\": \"Signing a legal agreement requires human authority.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 788,
+  "usage": {
+   "inputTokens": 689,
+   "cachedTokens": 0,
+   "outputTokens": 76,
+   "thinkingTokens": 0
+  }
+ },
+ "a9f7c1119c4e3c4280ec12a47a24d2fa5ac722e3ab468b466f05767a367e2fbd": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-13\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can summarize the contract document into an executive summary in Arabic.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 789,
+  "usage": {
+   "inputTokens": 698,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "fa1b31e49c5d26c764b027f1a783a9775d4956a3ef444e4c0a706810085a20d8": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-14\",\n      \"executor\": \"human\",\n      \"reason\": \"authority\",\n      \"action\": \"approve\",\n      \"role\": null,\n      \"rationale\": \"Legal counsel must exercise professional authority to approve legal redlines.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1111,
+  "usage": {
+   "inputTokens": 690,
+   "cachedTokens": 0,
+   "outputTokens": 80,
+   "thinkingTokens": 0
+  }
+ },
+ "02fe07ae49a01bf98a5013037d7425fcb9f8efb570e5b7d99e3802b779498661": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-15\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can draft legal redlines and alternative wording based on standard contract analysis.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1055,
+  "usage": {
+   "inputTokens": 687,
+   "cachedTokens": 0,
+   "outputTokens": 83,
+   "thinkingTokens": 0
+  }
+ },
+ "55739c21c640370188968c352459a28e693147bd6b61fe1bc14049f09194080c": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-16\",\n      \"executor\": \"hybrid\",\n      \"reason\": \"access\",\n      \"action\": \"perform\",\n      \"role\": \"writer\",\n      \"rationale\": \"Agent prepares the file, but human must access the restricted contract management system.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 855,
+  "usage": {
+   "inputTokens": 688,
+   "cachedTokens": 0,
+   "outputTokens": 84,
+   "thinkingTokens": 0
+  }
+ },
+ "8a95192900ce68dca4e75bbe22e00cf1b1a957a9a45e65f3410d462321ea4feb": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-17\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"Agents can draft informational content based on provided customer questions.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 704,
+  "usage": {
+   "inputTokens": 689,
+   "cachedTokens": 0,
+   "outputTokens": 78,
+   "thinkingTokens": 0
+  }
+ },
+ "5dbd10805046f2415e74cfa95132ae7464625105dc81a35d0645b74e697d76e7": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-18\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can draft professional customer service responses in both Arabic and English.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1518,
+  "usage": {
+   "inputTokens": 697,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "a9dd165efd32a8386242613b61b7a326935c6f85655bba1db9e35d0d993c7130": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-19\",\n      \"executor\": \"hybrid\",\n      \"reason\": \"access\",\n      \"action\": \"perform\",\n      \"role\": \"builder\",\n      \"rationale\": \"Agent provides configuration plan, human performs setup in external system requiring account access.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 11011,
+  "usage": {
+   "inputTokens": 686,
+   "cachedTokens": 0,
+   "outputTokens": 84,
+   "thinkingTokens": 0
+  }
+ },
+ "8ba67dffa8b4345e53ed2711d4ced5b215bce6f525a11a3e70b9db9bcc67db97": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-20\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can design the matrix and define response targets based on standard industry practices.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 10789,
+  "usage": {
+   "inputTokens": 688,
+   "cachedTokens": 0,
+   "outputTokens": 84,
+   "thinkingTokens": 0
+  }
+ },
+ "1d17572e8b3fc9c25247bdff96e9ac045e6704df12446db44daec9193e15852e": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-21\",\n      \"executor\": \"human\",\n      \"reason\": \"physical\",\n      \"action\": \"perform\",\n      \"role\": null,\n      \"rationale\": \"Training requires physical presence and live interaction at the office.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 856,
+  "usage": {
+   "inputTokens": 687,
+   "cachedTokens": 0,
+   "outputTokens": 79,
+   "thinkingTokens": 0
+  }
+ },
+ "b60a4affca65fece4aa834128949a7cd89915fb6ea91a3f6f3a95f54e6d46268": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-22\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"Agents can generate training materials and scenarios based on provided information.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1480,
+  "usage": {
+   "inputTokens": 686,
+   "cachedTokens": 0,
+   "outputTokens": 79,
+   "thinkingTokens": 0
+  }
+ },
+ "db715e4c53c86a016230282185f723593c43f4dd36483504f8a20b935d2d9772": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-23\",\n      \"executor\": \"human\",\n      \"reason\": \"private_knowledge\",\n      \"action\": \"provide\",\n      \"role\": null,\n      \"rationale\": \"Official business hours and holidays are internal company policies known only to management.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 13802,
+  "usage": {
+   "inputTokens": 688,
+   "cachedTokens": 0,
+   "outputTokens": 84,
+   "thinkingTokens": 0
+  }
+ },
+ "71d46b9d794161d3f84d14bd90e30af086b790372b609056b3a1dbdbba2263b3": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-24\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"Defining KPIs and report templates is an analytical task suitable for an AI agent.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 716,
+  "usage": {
+   "inputTokens": 684,
+   "cachedTokens": 0,
+   "outputTokens": 83,
+   "thinkingTokens": 0
+  }
+ },
+ "146f6022ad11f5911ac03f7b0811b4e471778d83b1d58be7eeee7edd57c61233": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-25\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can create a comprehensive transition schedule and task list for departments.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1353,
+  "usage": {
+   "inputTokens": 695,
+   "cachedTokens": 0,
+   "outputTokens": 82,
+   "thinkingTokens": 0
+  }
+ },
+ "7214be5c7527e480f547fc3a4404e6621baeeea41605161036284c81b7b1e370": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-26\",\n      \"executor\": \"human\",\n      \"reason\": \"physical\",\n      \"action\": \"perform\",\n      \"role\": null,\n      \"rationale\": \"Physical task requiring manual handling of IT equipment.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 885,
+  "usage": {
+   "inputTokens": 693,
+   "cachedTokens": 0,
+   "outputTokens": 77,
+   "thinkingTokens": 0
+  }
+ },
+ "e6df947205a1bcfda0580b6055777391c3d288cff3aac30ff5483beed827d1ce": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-27\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"Agents can analyze floor plans and generate office seating charts.\"\n    }\n  ]\n}",
+  "model": "gemini-3.5-flash-lite",
+  "latencyMs": 2213,
+  "usage": {
+   "inputTokens": 689,
+   "cachedTokens": 0,
+   "outputTokens": 79,
+   "thinkingTokens": 0
+  }
+ },
+ "7edf61699677a0b675b1f44f968c736a2d5062f1b4026ad98dad966861871071": {
+  "text": "{\"decisions\":[{\"taskId\":\"ho-28\",\"executor\":\"human\",\"reason\":\"physical\",\"action\":\"perform\",\"role\":null,\"rationale\":\"Physical site inspection requires a person on location.\"}]}",
+  "model": "gemini-3.5-flash-lite",
+  "latencyMs": 6685,
+  "usage": {
+   "inputTokens": 694,
+   "cachedTokens": 0,
+   "outputTokens": 40,
+   "thinkingTokens": 0
+  }
+ },
+ "16088b5585760c8f5f503523d92765c9eac60036deddc64ce69eb52d823a2a4b": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-29\",\n      \"executor\": \"hybrid\",\n      \"reason\": \"authority\",\n      \"action\": \"approve\",\n      \"role\": \"researcher\",\n      \"rationale\": \"Agent researches options, but a person must authorize the booking and payment.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 773,
+  "usage": {
+   "inputTokens": 686,
+   "cachedTokens": 0,
+   "outputTokens": 84,
+   "thinkingTokens": 0
+  }
+ },
+ "c3c9cbd1a2a4ce1ba828f0cb0ce2e3e46437bb734eaa335cc71375bf90dd2ac7": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-30\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can draft the internal communication regarding the office relocation plan.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 773,
+  "usage": {
+   "inputTokens": 696,
+   "cachedTokens": 0,
+   "outputTokens": 80,
+   "thinkingTokens": 0
+  }
+ },
+ "8a5f2beebbb9f69cdafeade21b273aeb552deff9f57e794f4d6a74d7f7a522dc": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-31\",\n      \"executor\": \"human\",\n      \"reason\": \"access\",\n      \"action\": \"perform\",\n      \"role\": null,\n      \"rationale\": \"Requires login to an external government portal which the AI cannot access.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 732,
+  "usage": {
+   "inputTokens": 689,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "e0fac5116d06ab1f0a795ae3c1a0b931f1183f233e718ad5ad3f5892f18a003e": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-32\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can draft the technical cutover plan based on standard IT migration procedures.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 809,
+  "usage": {
+   "inputTokens": 690,
+   "cachedTokens": 0,
+   "outputTokens": 84,
+   "thinkingTokens": 0
+  }
+ },
+ "c37e59d0ec4a3a78af14065f40695a0905f86833498a00f1c3296be0c8f01534": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-33\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"researcher\",\n      \"rationale\": \"The agent can extract and summarize company data from the provided market report.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 701,
+  "usage": {
+   "inputTokens": 686,
+   "cachedTokens": 0,
+   "outputTokens": 82,
+   "thinkingTokens": 0
+  }
+ },
+ "1cedf737c2197d44f35b3b6fe9a24c3d767c0335adf7470b166f8667ad572716": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-34\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can draft personalized emails for potential clients based on provided information.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1182,
+  "usage": {
+   "inputTokens": 693,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "9cbf2d374a4421858c3729b33b48da69c24ce9765666cdcef3e03f48dbab4776": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-35\",\n      \"executor\": \"hybrid\",\n      \"reason\": \"access\",\n      \"action\": \"perform\",\n      \"role\": \"writer\",\n      \"rationale\": \"Agent drafts the emails, but a human must send them from the specific mailbox.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 4941,
+  "usage": {
+   "inputTokens": 687,
+   "cachedTokens": 0,
+   "outputTokens": 85,
+   "thinkingTokens": 0
+  }
+ },
+ "2e1e3029346a6ae90e40a29cacb4bc51e61f8d76b3866e027a34802e8f5b08a3": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-36\",\n      \"executor\": \"human\",\n      \"reason\": \"relationship\",\n      \"action\": \"perform\",\n      \"role\": null,\n      \"rationale\": \"Discovery calls require human interaction and relationship building.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 2654,
+  "usage": {
+   "inputTokens": 683,
+   "cachedTokens": 0,
+   "outputTokens": 77,
+   "thinkingTokens": 0
+  }
+ },
+ "96a4009a9270b678d8501f72666a5c403375b3db9c82983801237ffcb43cee58": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-37\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"writer\",\n      \"rationale\": \"The agent can draft the company profile in Arabic based on provided information.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 3353,
+  "usage": {
+   "inputTokens": 691,
+   "cachedTokens": 0,
+   "outputTokens": 81,
+   "thinkingTokens": 0
+  }
+ },
+ "438dffa6d47c4fbb7d55760162a4960315aa3196db30930f42faf479463e8549": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-38\",\n      \"executor\": \"ai\",\n      \"reason\": null,\n      \"action\": null,\n      \"role\": \"analyst\",\n      \"rationale\": \"The agent can analyze lead data against the provided ideal customer profile criteria.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 833,
+  "usage": {
+   "inputTokens": 686,
+   "cachedTokens": 0,
+   "outputTokens": 82,
+   "thinkingTokens": 0
+  }
+ },
+ "16f9fa995290fd4aa45ba35140d7743b0a68881f920534d658f1083266ad7cbd": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-39\",\n      \"executor\": \"human\",\n      \"reason\": \"authority\",\n      \"action\": \"approve\",\n      \"role\": null,\n      \"rationale\": \"Approving financial discounts requires human authority.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 1178,
+  "usage": {
+   "inputTokens": 690,
+   "cachedTokens": 0,
+   "outputTokens": 76,
+   "thinkingTokens": 0
+  }
+ },
+ "5221121fa61d18c33fef280201e27807849ef596c54da9ddb847cdc816259473": {
+  "text": "{\n  \"decisions\": [\n    {\n      \"taskId\": \"ho-40\",\n      \"executor\": \"hybrid\",\n      \"reason\": \"access\",\n      \"action\": \"perform\",\n      \"role\": \"writer\",\n      \"rationale\": \"Agents lack direct access to external CRM systems.\"\n    }\n  ]\n}",
+  "model": "gemini-3.1-flash-lite",
+  "latencyMs": 850,
+  "usage": {
+   "inputTokens": 685,
+   "cachedTokens": 0,
+   "outputTokens": 78,
+   "thinkingTokens": 0
+  }
+ }
+}

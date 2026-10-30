@@ -1,0 +1,675 @@
+{
+ "case": "obj-dev-01",
+ "variant": "no-tieredReview",
+ "trial": 1,
+ "metrics": {
+  "completed": false,
+  "tasks": 8,
+  "agentTasks": 6,
+  "hybridTasks": 1,
+  "humanTasks": 1,
+  "agentShare": 0.875,
+  "humanTouches": 0,
+  "firstPassRate": 0.14285714285714285,
+  "rework": 0,
+  "personDaysByAgents": 1,
+  "deliveryDay": 1,
+  "deadlineDays": 10,
+  "onTime": false,
+  "humanStepCoverage": 0,
+  "inventedLinkDeliverables": 0,
+  "perturbationsHandled": 0,
+  "perturbationsTotal": 1,
+  "calls": 10,
+  "tokens": 16566,
+  "costUsd": 0.020147599999999998,
+  "costPerDeliveredTask": 0.020147599999999998,
+  "latencyMs": 39686
+ },
+ "run": {
+  "id": "808f9912-c733-4b1e-8745-55a08b71c338",
+  "startedAt": "2026-10-30T15:56:43.337Z",
+  "title": "Qahwa Lab Ramadan Campaign",
+  "objective": "Launch the Ramadan campaign for our specialty coffee brand Qahwa Lab by November 20: a bilingual landing page, a launch email sequence and a two-week social plan.",
+  "deadlineDays": 10,
+  "lang": "en",
+  "summary": "Launch a bilingual Ramadan marketing campaign for Qahwa Lab including a landing page, email sequence, and social media plan by November 20.",
+  "status": "stopped",
+  "tasks": [
+   {
+    "id": "t1",
+    "title": "Campaign Strategy and Outline",
+    "description": "Draft the campaign messaging, content pillars, and promotional schedule based on the 20% off offer and free delivery after Iftar.",
+    "acceptanceCriteria": [
+     "Contains campaign core message",
+     "Includes content calendar outline"
+    ],
+    "dependsOn": [],
+    "estimatedDays": 1,
+    "priority": "high",
+    "language": "en",
+    "owner": null,
+    "routing": {
+     "taskId": "t1",
+     "executor": "ai",
+     "reason": null,
+     "action": null,
+     "role": "analyst",
+     "rationale": "AI agents can analyze offers and draft strategic outlines and schedules."
+    },
+    "status": "done",
+    "attempts": 1,
+    "assignee": null,
+    "deliverableId": "06807ebe-9056-4840-a97e-40a4d77566c4",
+    "finishedAtHour": 0.5,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t2",
+    "title": "Visual Assets Brief",
+    "description": "Create a design brief for Omar Haddad detailing visual requirements for the landing page and social media posts.",
+    "acceptanceCriteria": [
+     "Lists all required image formats and dimensions",
+     "Specifies brand colors and warm Saudi tone"
+    ],
+    "dependsOn": [
+     "t1"
+    ],
+    "estimatedDays": 1,
+    "priority": "high",
+    "language": "en",
+    "owner": null,
+    "routing": {
+     "taskId": "t2",
+     "executor": "ai",
+     "reason": null,
+     "action": null,
+     "role": "writer",
+     "rationale": "AI can prepare design briefs and outline visual requirements for external designers."
+    },
+    "status": "review",
+    "attempts": 1,
+    "assignee": null,
+    "deliverableId": "97e52438-e40c-4ba3-bf67-38229ed17b95",
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t3",
+    "title": "Design Visual Assets",
+    "description": "Produce the visual assets and graphics for social posts and landing page hero banners.",
+    "acceptanceCriteria": [
+     "All requested graphic assets delivered",
+     "Aligns with Qahwa Lab modern brand identity"
+    ],
+    "dependsOn": [
+     "t2"
+    ],
+    "estimatedDays": 2,
+    "priority": "high",
+    "language": "ar",
+    "owner": "Omar Haddad",
+    "routing": {
+     "taskId": "t3",
+     "executor": "human",
+     "reason": "physical",
+     "action": "perform",
+     "role": null,
+     "rationale": "Producing actual graphic design assets requires a human designer."
+    },
+    "status": "waiting",
+    "attempts": 0,
+    "assignee": "Omar Haddad",
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t4",
+    "title": "Draft Landing Page Copy",
+    "description": "Write bilingual copy (Arabic and English) for the Ramadan specialty coffee landing page.",
+    "acceptanceCriteria": [
+     "Includes headline, offer details, and call to action",
+     "Written in both Arabic and English"
+    ],
+    "dependsOn": [
+     "t1"
+    ],
+    "estimatedDays": 2,
+    "priority": "high",
+    "language": "both",
+    "owner": null,
+    "routing": {
+     "taskId": "t4",
+     "executor": "ai",
+     "reason": null,
+     "action": null,
+     "role": "writer",
+     "rationale": "AI can fluently write bilingual copy in Arabic and English."
+    },
+    "status": "review",
+    "attempts": 1,
+    "assignee": null,
+    "deliverableId": "d36927e8-46f8-4760-9984-afe9425ac91e",
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t5",
+    "title": "Build Landing Page HTML",
+    "description": "Assemble the single-page HTML landing page incorporating copy and design assets.",
+    "acceptanceCriteria": [
+     "Single-page HTML file is fully formatted",
+     "Includes bilingual text sections"
+    ],
+    "dependsOn": [
+     "t3",
+     "t4"
+    ],
+    "estimatedDays": 2,
+    "priority": "high",
+    "language": "both",
+    "owner": null,
+    "routing": {
+     "taskId": "t5",
+     "executor": "ai",
+     "reason": null,
+     "action": null,
+     "role": "builder",
+     "rationale": "AI is permitted to write single-page HTML for web landing pages."
+    },
+    "status": "waiting",
+    "attempts": 0,
+    "assignee": null,
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t6",
+    "title": "Draft Email Sequence",
+    "description": "Write a 3-part launch email sequence announcing the Ramadan special offer to subscribers.",
+    "acceptanceCriteria": [
+     "Contains subject lines and body text",
+     "Includes discount codes and terms"
+    ],
+    "dependsOn": [
+     "t1"
+    ],
+    "estimatedDays": 1,
+    "priority": "medium",
+    "language": "both",
+    "owner": null,
+    "routing": {
+     "taskId": "t6",
+     "executor": "ai",
+     "reason": null,
+     "action": null,
+     "role": "writer",
+     "rationale": "AI agents excel at writing promotional email sequences."
+    },
+    "status": "review",
+    "attempts": 1,
+    "assignee": null,
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t7",
+    "title": "Draft Two-Week Social Plan",
+    "description": "Create a two-week social media content calendar with post captions and scheduling times.",
+    "acceptanceCriteria": [
+     "Covers 14 days of social media posts",
+     "Includes bilingual captions and hashtags"
+    ],
+    "dependsOn": [
+     "t1",
+     "t3"
+    ],
+    "estimatedDays": 2,
+    "priority": "high",
+    "language": "both",
+    "owner": null,
+    "routing": {
+     "taskId": "t7",
+     "executor": "ai",
+     "reason": null,
+     "action": null,
+     "role": "analyst",
+     "rationale": "AI can easily structure a two-week social media content calendar."
+    },
+    "status": "waiting",
+    "attempts": 0,
+    "assignee": null,
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t8",
+    "title": "Review and Approve Campaign Materials",
+    "description": "Review all completed campaign deliverables including landing page, emails, and social plan.",
+    "acceptanceCriteria": [
+     "Sara Al-Qahtani confirms approval of all materials",
+     "Requests any final text adjustments if needed"
+    ],
+    "dependsOn": [
+     "t5",
+     "t6",
+     "t7"
+    ],
+    "estimatedDays": 1,
+    "priority": "high",
+    "language": "en",
+    "owner": "Sara Al-Qahtani",
+    "routing": {
+     "taskId": "t8",
+     "executor": "hybrid",
+     "reason": "authority",
+     "action": "approve",
+     "role": "researcher",
+     "rationale": "Final approval requires human authority after AI gathers deliverables."
+    },
+    "status": "waiting",
+    "attempts": 0,
+    "assignee": "Sara Al-Qahtani",
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   }
+  ],
+  "requests": [],
+  "deliverables": [
+   {
+    "id": "06807ebe-9056-4840-a97e-40a4d77566c4",
+    "taskId": "t1",
+    "attempt": 1,
+    "format": "markdown",
+    "content": "# Ramadan Campaign Strategy & Outline: Qahwa Lab\n\n**From:** Sara Al-Qahtani, Marketing Director  \n**To:** Omar Haddad, Brand Designer  \n**Date:** November 20 (assumption)  \n\n---\n\n## 1. Campaign Core Message & Positioning\n\n* **Campaign Title:** Your Post-Iftar Ritual (مذاق صيامك، بَدء فطورك) *(assumption)*\n* **Core Value Proposition:** Elevate your Ramadan nights with Qahwa Lab's signature beans, crafted for the moments that matter most after breaking the fast.\n* **Key Offers:** \n  * 20% off the exclusive Ramadan Blend.\n  * Free delivery across Riyadh on all orders placed after Iftar (8:00 PM – 3:00 AM).\n* **Brand Tone:** Warm, modern, and proudly Saudi. The messaging balances traditional hospitality with contemporary specialty coffee culture.\n* **Primary Call to Action (CTA):** Shop the Ramadan Blend / Order Now (اطلب الآن) *(assumption)*.\n\n---\n\n## 2. Content Pillars\n\n1. **The Post-Iftar Ritual (Community & Connection):** Highlighting how Qahwa Lab fits into gathering with family and friends after Taraweeh and Iftar.\n2. **Craft & Quality (Product Education):** Showcasing the origin, roasting profile, and tasting notes of the 20% off Ramadan Blend.\n3. **Seamless Convenience (Offer & Delivery):** Clear, direct promotion of the free delivery window and discount mechanics to drive immediate e-commerce conversions.\n\n---\n\n## 3. Two-Week Social & Digital Content Outline\n\n### Week 1: Launch & Hype (Days 1–7)\n\n* **Day 1 (Launch Day - Nov 20):**\n  * *Channel:* Instagram / TikTok / Bilingual Landing Page\n  * *Content Pillar:* The Post-Iftar Ritual\n  * *Format:* Hero Campaign Video (30s) + Static Carousel\n  * *Messaging:* \"Welcome the holy month with Qahwa Lab. Enjoy 20% off our exclusive Ramadan Blend and free delivery every night after Iftar.\"\n  * *Action Item (Omar):* Finalize hero visual assets for the landing page banner and social grid.\n\n* **Day 2:**\n  * *Channel:* Instagram Stories / Twitter (X)\n  * *Content Pillar:* Craft & Quality\n  * *Format:* Product Spotlight (Photos of the Ramadan Blend packaging and brew cards)\n  * *Messaging:* \"Notes of cardamom, dark chocolate, and dates. Crafted in Riyadh for your peaceful nights.\"\n\n* **Day 3:**\n  * *Channel:* Email Sequence (Email 1 of 3)\n  * *Content Pillar:* Seamless Convenience\n  * *Format:* Direct Response Email to Subscriber Base\n  * *Subject:* Ramadan Mubarak, {{first_name}} | Enjoy 20% Off + Free Delivery Post-Iftar\n  * *Body:* Introduction to the Ramadan collection, highlighting the discount code (RAMADAN20 - assumption) and free delivery timing.\n\n* **Day 4:**\n  * *Channel:* Instagram Reels\n  * *Content Pillar:* The Post-Iftar Ritual\n  * *Format:* Short-form video showing a V60 pour-over setup in a modern Riyadh living room setting at 10:00 PM.\n  * *Messaging:* \"The best part of the night starts here.\"\n\n* **Day 5:**\n  * *Channel:* Twitter (X) & Instagram Stories\n  * *Content Pillar:* Seamless Convenience\n  * *Format:* Interactive Poll / Reminder Sticker\n  * *Messaging:* \"What is your go-to brewing method for Suhoor? Remember: Free delivery applies to all online orders after Iftar.\"\n\n* **Day 6:**\n  * *Channel:* Instagram Static Post\n  * *Content Pillar:* Craft & Quality\n  * *Format:* Infographic detailing the bean sourcing and roast profile of the Ramadan Blend.\n  * *Messaging:* \"Proudly roasted in Riyadh. Quality you can taste in every cup.\"\n\n* **Day 7:**\n  * *Channel:* Email Sequence (Email 2 of 3)\n  * *Content Pillar:* The Post-Iftar Ritual\n  * *Format:* Mid-week reminder email\n  * *Subject:* Elevate your Ghabga with Qahwa Lab\n  * *Body:* Highlighting bundles and pairing suggestions for traditional sweets with the Ramadan Blend.\n\n---\n\n### Week 2: Momentum & Urgency (Days 8–14)\n\n* **Day 8:**\n  * *Channel:* Instagram / TikTok\n  * *Content Pillar:* Craft & Quality\n  * *Format:* Barista tutorial reel: \"How to brew the perfect post-Iftar batch brew at home.\"\n  * *Messaging:* \"Simple steps, exceptional flavor. Get your Ramadan Blend today.\"\n\n* **Day 9:**\n  * *Channel:* Instagram Stories\n  * *Content Pillar:* Seamless Convenience\n  * *Format:* Real-time countdown timer to the start of the free delivery window (8:00 PM).\n  * *Messaging:* \"Craving specialty coffee for your late-night study or gathering? Free delivery starts at 8:00 PM.\"\n\n* **Day 10:**\n  * *Channel:* Twitter (X)\n  * *Content Pillar:* The Post-Iftar Ritual\n  * *Format:* Text-based community engagement question\n  * *Messaging:* \"Espresso or V60 after Taraweeh? Tell us your setup.\"\n\n* **Day 11:**\n  * *Channel:* Email Sequence (Email 3 of 3)\n  * *Content Pillar:* Seamless Convenience\n  * *Format:* Final push / Last chance messaging for weekly restocks.\n  * *Subject:* Stock up for the final weeks: 20% off continues\n  * *Body:* Reminder of the active discount and free delivery offer across Riyadh cafes and online store.\n\n* **Day 12:**\n  * *Channel:* Instagram Carousel\n  * *Content Pillar:* Craft & Quality\n  * *Format:* User-generated content spotlight (customer photos enjoying Qahwa Lab in Riyadh).\n  * *Messaging:* \"Your setups, our passion. Keep sharing your Qahwa Lab moments.\"\n\n* **Day 13:**\n  * *Channel:* Instagram Stories / Paid Ad Boost\n  * *Content Pillar:* Seamless Convenience\n  * *Format:* Dynamic Product Ad (20% off badge clearly visible)\n  * *Messaging:* \"Order in seconds, delivered right to your door after Iftar. Riyadh-wide.\"\n\n* **Day 14:**\n  * *Channel:* Instagram / Twitter (X)\n  * *Content Pillar:* The Post-Iftar Ritual\n  * *Format:* Closing weekend visual message\n  * *Messaging:* \"Wishing you peaceful nights and great coffee. Our Ramadan offer continues online and across all 6 Riyadh cafes.\"\n\n---\n*Sara Al-Qahtani, Marketing Director*",
+    "model": "gemini-3.1-flash-lite",
+    "review": {
+     "passed": true,
+     "checks": [
+      {
+       "name": "length",
+       "passed": true,
+       "detail": "5654 characters (minimum 300)"
+      },
+      {
+       "name": "no_placeholders",
+       "passed": true,
+       "detail": "no placeholder text"
+      },
+      {
+       "name": "language",
+       "passed": true,
+       "detail": "arabic 1%, latin 99%, required en"
+      },
+      {
+       "name": "no_invented_links",
+       "passed": true,
+       "detail": "every link comes from the provided material"
+      }
+     ],
+     "judge": {
+      "passed": true,
+      "feedback": ""
+     }
+    }
+   },
+   {
+    "id": "d36927e8-46f8-4760-9984-afe9425ac91e",
+    "taskId": "t4",
+    "attempt": 1,
+    "format": "markdown",
+    "content": "# Qahwa Lab Ramadan Landing Page Copy\n**Prepared by:** Sara Al-Qahtani, Marketing Director  \n**Designed by:** Omar Haddad, Brand Designer  \n\n---\n\n## English Section\n\n### Hero Section\n* **Headline:** Your Post-Iftar Ritual\n* **Subheadline:** Elevate your Ramadan nights with Qahwa Lab's signature beans. Crafted in Riyadh for the moments that matter most after breaking the fast.\n* **Primary Call to Action (CTA):** Shop the Ramadan Blend\n\n### Offer Details Section\n* **Title:** Celebrate the Holy Month with Exclusive Rewards\n* **Bullet 1:** **20% Off the Ramadan Blend:** Enjoy our limited-edition seasonal roast featuring rich notes of cardamom, dark chocolate, and dates. Use code `RAMADAN20` at checkout. *(assumption)*\n* **Bullet 2:** **Free Nightly Delivery:** Get free delivery across Riyadh on all online orders placed during our post-iftar window (8:00 PM – 3:00 AM).\n\n### Brand & Quality Section\n* **Title:** Rooted in Tradition, Crafted for Today\n* **Body:** At Qahwa Lab, we honor the warmth of Saudi hospitality through the lens of modern specialty coffee. Whether you are gathering with family after Taraweeh or sharing a quiet cup late into the night, our beans are roasted locally to bring authentic flavor to your table.\n\n### Footer Call to Action\n* **Headline:** Ready to Brew Your Best Ramadan Nights?\n* **Button:** Order Now\n\n---\n\n## Arabic Section (قسم اللغة العربية)\n\n### قسم البانر الرئيسي (Hero Section)\n* **العنوان الرئيسي:** مذاق صيامك، بَدء فطورك\n* **العنوان الفرعي:** ارتقِ بأمسياتك الرمضانية مع حبوب القهوة الفاخرة من مختبر القهوة (قهوة لاب). محمصة في الرياض خصيصاً للّحظات التي تجمعنا بعد الإفطار.\n* **زر الإجراء الرئيسي (CTA):** تسوق خلطة رمضان\n\n### قسم تفاصيل العرض (Offer Details Section)\n* **العنوان:** احتفل بالشهر الفضيل مع مزايا حصرية\n* **النقطة الأولى:** **خصم 20% على خلطة رمضان:** استمتع بتحميصتنا الموسمية المحدودة بنكهات غنية من الهيل، الشوكولاتة الداكنة، والتمر. استخدم الرمز `RAMADAN20` عند اتمام الطلب. *(assumption)*\n* **النقطة الثانية:** **توصيل مجاني ليلي:** احصل على توصيل مجاني داخل الرياض لجميع الطلبات عبر الإنترنت خلال فترة ما بعد الإفطار (8:00 مساءً – 3:00 صباحاً).\n\n### قسم الجودة والهوية (Brand & Quality Section)\n* **العنوان:** جذور أصيلة، بروح معاصرة\n* **النص:** في مختبر القهوة، نحتفي بدفء الضيافة السعودية بلمسة من ثقافة القهوة المختصة الحديثة. وسواء كنت تجتمع مع العائلة بعد التراويح أو تستمتع بفنجان هادئ في ساعات الليل المتأخرة، فإن حبوب قهوتنا تُحمص محلياً لتضفي نكهة أصيلة على مائدتك.\n\n### قسم الختام والدعوة للشراء (Footer Call to Action)\n* **العنوان:** مستعد لتحضير أفضل قهوة في سهرات رمضان؟\n* **زر الإجراء:** اطلب الآن",
+    "model": "gemini-3.1-flash-lite",
+    "review": {
+     "passed": true,
+     "checks": [
+      {
+       "name": "length",
+       "passed": true,
+       "detail": "2586 characters (minimum 300)"
+      },
+      {
+       "name": "no_placeholders",
+       "passed": true,
+       "detail": "no placeholder text"
+      },
+      {
+       "name": "language",
+       "passed": true,
+       "detail": "arabic 43%, latin 57%, required both"
+      },
+      {
+       "name": "no_invented_links",
+       "passed": true,
+       "detail": "every link comes from the provided material"
+      }
+     ],
+     "judge": {
+      "passed": true,
+      "feedback": ""
+     }
+    }
+   },
+   {
+    "id": "97e52438-e40c-4ba3-bf67-38229ed17b95",
+    "taskId": "t2",
+    "attempt": 1,
+    "format": "markdown",
+    "content": "**Visual Assets Brief: Qahwa Lab Ramadan Campaign**\n\n**To:** Omar Haddad, Brand Designer  \n**From:** Sara Al-Qahtani, Marketing Director  \n**Date:** November 20 (assumption)  \n\n---\n\n### 1. Creative Direction & Tone\nFor our upcoming Ramadan campaign (\"Your Post-Iftar Ritual\"), all visual assets must reflect a warm, modern, and proudly Saudi identity. The design should bridge traditional Saudi hospitality (welcoming, communal, generous) with the clean, sophisticated aesthetics of contemporary specialty coffee culture. \n\n* **Visual Vibe:** Intimate, glowing, and sophisticated. Think warm ambient lighting (lantern glows, soft interior café lighting), deep textures (linen, dark roasted beans, ceramic cups), and minimalist framing.\n* **Brand Colors:** \n  * **Primary:** Deep Roast Espresso (`#2C1D11` - assumption)\n  * **Secondary:** Warm Sand / Desert Gold (`#D4AF37` or `#C5A059` - assumption)\n  * **Accent:** Midnight Blue / Night Sky (`#1A2530` - assumption) to represent Ramadan nights\n  * **Background / Neutral:** Clean Off-White / Cream (`#F9F6F0` - assumption) for readability and airiness\n\n---\n\n### 2. Landing Page Visual Requirements\nThe bilingual landing page requires a high-impact header and clean product sections to drive conversions for the 20% off Ramadan Blend and post-iftar free delivery.\n\n* **Hero Banner (Desktop):** \n  * *Format:* High-resolution JPEG / WebP\n  * *Dimensions:* 1920 x 1080 px\n  * *Content:* Lifestyle shot of a group gathered around a pour-over or traditional dallah setup post-iftar, featuring the Ramadan Blend packaging. Leave negative space on the left for bilingual typography and CTA (\"Shop the Ramadan Blend\").\n* **Hero Banner (Mobile):** \n  * *Format:* High-resolution JPEG / WebP\n  * *Dimensions:* 1080 x 1920 px (9:16 vertical format)\n  * *Content:* Cropped vertical adaptation of the desktop hero, optimized for mobile viewing.\n* **Product Badges / Icons:**\n  * *Format:* Transparent PNG / SVG\n  * *Dimensions:* 500 x 500 px (Square)\n  * *Content:* Custom minimal icons for \"20% Off Ramadan Blend\" and \"Free Delivery Post-Iftar (8 PM – 3 AM)\".\n\n---\n\n### 3. Social Media Visual Requirements\nThe two-week rollout requires a mix of static carousels, vertical video covers, and story graphics across Instagram, TikTok, and Twitter (X).\n\n* **Instagram / Facebook Feed & Carousel Posts (Square):**\n  * *Format:* JPEG / MP4 (for motion)\n  * *Dimensions:* 1080 x 1080 px (1:1 ratio)\n  * *Usage:* Week 1 Launch carousels, product spotlights (notes of cardamom, dark chocolate, and dates), and offer breakdowns.\n* **Instagram / TikTok Reels & Stories (Vertical):**\n  * *Format:* MP4 (Video) / JPEG (Stories)\n  * *Dimensions:* 1080 x 1920 px (9:16 ratio)\n  * *Usage:* 30-second hero campaign video cover frame, behind-the-scenes roasting in Riyadh, and daily story countdowns.\n* **Twitter (X) In-Stream Images:**\n  * *Format:* JPEG\n  * *Dimensions:* 1200 x 675 px (16:9 ratio)\n  * *Usage:* Promotional text-card images highlighting the discount code (RAMADAN20) and free delivery times.\n\n---\n\n### 4. Deliverables & Next Steps\nPlease prepare the initial batch of landing page assets and Week 1 social templates for review. You will provide the final source files and exported assets. \n\nThank you,  \nSara Al-Qahtani  \nMarketing Director, Qahwa Lab",
+    "model": "gemini-3.1-flash-lite",
+    "review": {
+     "passed": true,
+     "checks": [
+      {
+       "name": "length",
+       "passed": true,
+       "detail": "3289 characters (minimum 300)"
+      },
+      {
+       "name": "no_placeholders",
+       "passed": true,
+       "detail": "no placeholder text"
+      },
+      {
+       "name": "language",
+       "passed": true,
+       "detail": "arabic 0%, latin 100%, required en"
+      },
+      {
+       "name": "no_invented_links",
+       "passed": true,
+       "detail": "every link comes from the provided material"
+      }
+     ],
+     "judge": {
+      "passed": true,
+      "feedback": ""
+     }
+    }
+   }
+  ],
+  "events": [
+   {
+    "seq": 0,
+    "hour": 0,
+    "actor": "client",
+    "kind": "observed",
+    "type": "objective",
+    "summary": "New objective: Launch the Ramadan campaign for our specialty coffee brand Qahwa Lab by November 20: a bilingual landing page, a launch email sequence and a two-week social plan.",
+    "taskId": null
+   },
+   {
+    "seq": 1,
+    "hour": 0,
+    "actor": "planner",
+    "kind": "acted",
+    "type": "planning",
+    "summary": "Drafting the plan: tasks, dependencies and acceptance criteria",
+    "taskId": null
+   },
+   {
+    "seq": 2,
+    "hour": 0,
+    "actor": "planner",
+    "kind": "decided",
+    "type": "planned",
+    "summary": "Planned 8 tasks within 10 working days",
+    "taskId": null
+   },
+   {
+    "seq": 3,
+    "hour": 0,
+    "actor": "router",
+    "kind": "acted",
+    "type": "routing",
+    "summary": "Deciding which tasks agents can do and which need a person",
+    "taskId": null
+   },
+   {
+    "seq": 4,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "routed",
+    "summary": "6 tasks to agents, 1 prepared by agents for a person, 1 need a person",
+    "taskId": null
+   },
+   {
+    "seq": 5,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Design Visual Assets\" → Omar Haddad (physical): Producing actual graphic design assets requires a human designer.",
+    "taskId": "t3"
+   },
+   {
+    "seq": 6,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Review and Approve Campaign Materials\" → Sara Al-Qahtani (authority): Final approval requires human authority after AI gathers deliverables.",
+    "taskId": "t8"
+   },
+   {
+    "seq": 7,
+    "hour": 0,
+    "actor": "agent:analyst",
+    "kind": "acted",
+    "type": "working",
+    "summary": "Started \"Campaign Strategy and Outline\"",
+    "taskId": "t1"
+   },
+   {
+    "seq": 8,
+    "hour": 0,
+    "actor": "reviewer",
+    "kind": "decided",
+    "type": "approved",
+    "summary": "Approved \"Campaign Strategy and Outline\"",
+    "taskId": "t1"
+   },
+   {
+    "seq": 9,
+    "hour": 0.5,
+    "actor": "scheduler",
+    "kind": "observed",
+    "type": "task_done",
+    "summary": "\"Campaign Strategy and Outline\" is done",
+    "taskId": "t1"
+   },
+   {
+    "seq": 10,
+    "hour": 0.5,
+    "actor": "agent:writer",
+    "kind": "acted",
+    "type": "working",
+    "summary": "Started \"Visual Assets Brief\"",
+    "taskId": "t2"
+   },
+   {
+    "seq": 11,
+    "hour": 0.5,
+    "actor": "agent:writer",
+    "kind": "acted",
+    "type": "working",
+    "summary": "Started \"Draft Landing Page Copy\"",
+    "taskId": "t4"
+   },
+   {
+    "seq": 12,
+    "hour": 0.5,
+    "actor": "agent:writer",
+    "kind": "acted",
+    "type": "working",
+    "summary": "Started \"Draft Email Sequence\"",
+    "taskId": "t6"
+   },
+   {
+    "seq": 13,
+    "hour": 0.5,
+    "actor": "reviewer",
+    "kind": "decided",
+    "type": "approved",
+    "summary": "Approved \"Draft Landing Page Copy\"",
+    "taskId": "t4"
+   },
+   {
+    "seq": 14,
+    "hour": 0.5,
+    "actor": "reviewer",
+    "kind": "decided",
+    "type": "approved",
+    "summary": "Approved \"Visual Assets Brief\"",
+    "taskId": "t2"
+   },
+   {
+    "seq": 15,
+    "hour": 0.5,
+    "actor": "lead",
+    "kind": "observed",
+    "type": "stopped",
+    "summary": "Run stopped: gemini-3.5-flash-lite returned 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/",
+    "taskId": null
+   }
+  ],
+  "calls": [
+   {
+    "purpose": "planner",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 694,
+    "cachedTokens": 0,
+    "outputTokens": 800,
+    "thinkingTokens": 0,
+    "latencyMs": 7414,
+    "costUsd": 0.0022082,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "router",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 876,
+    "cachedTokens": 0,
+    "outputTokens": 530,
+    "thinkingTokens": 0,
+    "latencyMs": 1748,
+    "costUsd": 0.0015877999999999999,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "worker:analyst",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 461,
+    "cachedTokens": 0,
+    "outputTokens": 1522,
+    "thinkingTokens": 0,
+    "latencyMs": 5357,
+    "costUsd": 0.0039433,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "reviewer",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 1865,
+    "cachedTokens": 0,
+    "outputTokens": 56,
+    "thinkingTokens": 0,
+    "latencyMs": 2951,
+    "costUsd": 0.0006995,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "worker:writer",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 1134,
+    "cachedTokens": 0,
+    "outputTokens": 902,
+    "thinkingTokens": 0,
+    "latencyMs": 3791,
+    "costUsd": 0.0025951999999999998,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "worker:writer",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 1138,
+    "cachedTokens": 0,
+    "outputTokens": 766,
+    "thinkingTokens": 0,
+    "latencyMs": 5949,
+    "costUsd": 0.0022564,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "reviewer",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 1116,
+    "cachedTokens": 0,
+    "outputTokens": 60,
+    "thinkingTokens": 0,
+    "latencyMs": 988,
+    "costUsd": 0.0004848,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "reviewer",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 1250,
+    "cachedTokens": 0,
+    "outputTokens": 51,
+    "thinkingTokens": 0,
+    "latencyMs": 3672,
+    "costUsd": 0.0005025,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "worker:writer",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 1133,
+    "cachedTokens": 0,
+    "outputTokens": 2212,
+    "thinkingTokens": 0,
+    "latencyMs": 7816,
+    "costUsd": 0.0058699,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "reviewer",
+    "model": "gemini-3.1-flash-lite",
+    "inputTokens": 0,
+    "cachedTokens": 0,
+    "outputTokens": 0,
+    "thinkingTokens": 0,
+    "latencyMs": 0,
+    "costUsd": 0,
+    "ok": false,
+    "replayed": false
+   }
+  ],
+  "report": null,
+  "stopReason": "gemini-3.5-flash-lite returned 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/"
+ }
+}

@@ -2,10 +2,11 @@ import { z } from 'zod';
 import type { ModelTiers } from '../config';
 import type { Run } from '../models/run';
 import type { LlmSession } from './llm/llmSession';
+import { LlmError } from './llm/types';
 import { buildReportPrompt, buildSupervisorPrompt, REPORT_SYSTEM, SUPERVISOR_SYSTEM } from './prompts/lead.prompt';
 
 const reportSchema = z.object({ en: z.string().min(40).max(2_500), ar: z.string().min(40).max(2_500) });
-const supervisorSchema = z.object({ intervene: z.boolean(), note: z.string().max(300) });
+const supervisorSchema = z.object({ intervene: z.boolean(), note: z.string().max(1_000) });
 const REPORT_OUTPUT_TOKENS = 2_500;
 const SUPERVISOR_OUTPUT_TOKENS = 200;
 
@@ -32,8 +33,19 @@ export class LeadService {
     });
   }
 
-  /** Baseline behaviour for the ablation: re-read everything after every event. */
+  /**
+   * Baseline behaviour for the ablation: re-read everything after every event. Its cost is
+   * what is being measured, so a malformed answer is ignored rather than stopping the run.
+   */
   async supervise(run: Run): Promise<void> {
+    try {
+      await this.supervisorCall(run);
+    } catch (error: unknown) {
+      if (error instanceof LlmError && error.code === 'budget_exhausted') throw error;
+    }
+  }
+
+  private async supervisorCall(run: Run): Promise<void> {
     await this.llm.json({
       purpose: 'lead:supervise',
       model: this.models.fast,

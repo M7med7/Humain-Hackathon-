@@ -1,7 +1,7 @@
 import type { PlanTask } from '../../models/plan';
 import { DATA_RULE, asData } from './shared';
 
-export const REVIEWER_PROMPT_VERSION = 'reviewer-v4';
+export const REVIEWER_PROMPT_VERSION = 'reviewer-v5';
 
 export const REVIEWER_SYSTEM = `You review deliverables produced by AI agents before a business client sees them.
 Pass a deliverable only if it meets every acceptance criterion and is usable as delivered.
@@ -25,6 +25,8 @@ export interface ReviewInput {
   personFinishes: boolean;
   /** The client's objective and background, so provided facts are not mistaken for invented ones. */
   provided: string;
+  /** Titles of the plan's other tasks: their work is out of scope for this review. */
+  otherTasks: readonly string[];
 }
 
 export function buildReviewerPrompt(input: ReviewInput): string {
@@ -34,6 +36,7 @@ export function buildReviewerPrompt(input: ReviewInput): string {
     `Acceptance criteria:\n${criteria}`,
     ...(input.personFinishes ? [PERSON_FINISHES] : []),
     ...(input.isHtml ? [HTML_NOTE] : []),
+    ...(input.otherTasks.length ? [`Other tasks in this plan deliver their own work; do not require it here: ${input.otherTasks.join('; ')}.`] : []),
     asData('client_material', input.provided),
     asData('deliverable', input.deliverableText),
   ].join('\n\n');

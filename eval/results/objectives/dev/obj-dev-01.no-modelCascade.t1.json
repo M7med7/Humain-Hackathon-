@@ -1,0 +1,632 @@
+{
+ "case": "obj-dev-01",
+ "variant": "no-modelCascade",
+ "trial": 1,
+ "metrics": {
+  "completed": false,
+  "tasks": 7,
+  "agentTasks": 0,
+  "hybridTasks": 0,
+  "humanTasks": 7,
+  "agentShare": 0,
+  "humanTouches": 5,
+  "firstPassRate": 0,
+  "rework": 0,
+  "personDaysByAgents": 0,
+  "deliveryDay": 1,
+  "deadlineDays": 10,
+  "onTime": false,
+  "humanStepCoverage": 0.3333333333333333,
+  "inventedLinkDeliverables": 0,
+  "perturbationsHandled": 0,
+  "perturbationsTotal": 1,
+  "calls": 3,
+  "tokens": 1422,
+  "costUsd": 0.0020282,
+  "costPerDeliveredTask": 0.00050705,
+  "latencyMs": 3371
+ },
+ "run": {
+  "id": "8c709766-2a3d-4add-af7d-4fbcca1a850d",
+  "startedAt": "2026-10-30T16:03:09.551Z",
+  "title": "Qahwa Lab Ramadan Campaign",
+  "objective": "Launch the Ramadan campaign for our specialty coffee brand Qahwa Lab by November 20: a bilingual landing page, a launch email sequence and a two-week social plan.",
+  "deadlineDays": 10,
+  "lang": "en",
+  "summary": "Launch the Ramadan campaign for Qahwa Lab with a bilingual landing page, email sequence, and social media plan by November 20.",
+  "status": "stopped",
+  "tasks": [
+   {
+    "id": "t1",
+    "title": "Research campaign requirements and offers",
+    "description": "Gather all details regarding the Ramadan 20% discount offer, free delivery conditions, and brand voice guidelines.",
+    "acceptanceCriteria": [
+     "Document lists offer terms and key brand messaging points."
+    ],
+    "dependsOn": [],
+    "estimatedDays": 1,
+    "priority": "high",
+    "language": "en",
+    "owner": null,
+    "routing": {
+     "taskId": "t1",
+     "executor": "human",
+     "reason": "authority",
+     "action": "approve",
+     "role": null,
+     "rationale": "Routing unavailable; a person confirms this task."
+    },
+    "status": "done",
+    "attempts": 0,
+    "assignee": "Sara Al-Qahtani",
+    "deliverableId": null,
+    "finishedAtHour": 1.5,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t2",
+    "title": "Draft bilingual landing page copy",
+    "description": "Write compelling copy for the Ramadan landing page highlighting the specialty coffee blend and offers in Arabic and English.",
+    "acceptanceCriteria": [
+     "Landing page copy is provided in both Arabic and English.",
+     "Includes clear call to action and offer terms."
+    ],
+    "dependsOn": [
+     "t1"
+    ],
+    "estimatedDays": 2,
+    "priority": "high",
+    "language": "both",
+    "owner": null,
+    "routing": {
+     "taskId": "t2",
+     "executor": "human",
+     "reason": "authority",
+     "action": "approve",
+     "role": null,
+     "rationale": "Routing unavailable; a person confirms this task."
+    },
+    "status": "done",
+    "attempts": 0,
+    "assignee": "Sara Al-Qahtani",
+    "deliverableId": null,
+    "finishedAtHour": 3.5,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t3",
+    "title": "Design landing page wireframe and assets",
+    "description": "Create visual concepts and wireframes for the bilingual landing page matching the Qahwa Lab brand identity.",
+    "acceptanceCriteria": [
+     "Visual layouts and design assets are delivered."
+    ],
+    "dependsOn": [
+     "t1"
+    ],
+    "estimatedDays": 2,
+    "priority": "high",
+    "language": "en",
+    "owner": "Omar Haddad",
+    "routing": {
+     "taskId": "t3",
+     "executor": "human",
+     "reason": "authority",
+     "action": "approve",
+     "role": null,
+     "rationale": "Routing unavailable; a person confirms this task."
+    },
+    "status": "needs_person",
+    "attempts": 0,
+    "assignee": "Omar Haddad",
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t4",
+    "title": "Draft launch email sequence",
+    "description": "Write a three-part email sequence announcing the Ramadan special offer to existing customers in Arabic and English.",
+    "acceptanceCriteria": [
+     "Three email drafts covering announcement, reminder, and last chance are complete."
+    ],
+    "dependsOn": [
+     "t1"
+    ],
+    "estimatedDays": 2,
+    "priority": "medium",
+    "language": "both",
+    "owner": null,
+    "routing": {
+     "taskId": "t4",
+     "executor": "human",
+     "reason": "authority",
+     "action": "approve",
+     "role": null,
+     "rationale": "Routing unavailable; a person confirms this task."
+    },
+    "status": "done",
+    "attempts": 0,
+    "assignee": "Sara Al-Qahtani",
+    "deliverableId": null,
+    "finishedAtHour": 3.5,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t5",
+    "title": "Create two-week social media plan",
+    "description": "Develop a content calendar and post copy for two weeks of Ramadan social media promotion across platforms.",
+    "acceptanceCriteria": [
+     "Content calendar lists post dates, visuals needed, and bilingual captions."
+    ],
+    "dependsOn": [
+     "t1"
+    ],
+    "estimatedDays": 2,
+    "priority": "high",
+    "language": "both",
+    "owner": "Sara Al-Qahtani",
+    "routing": {
+     "taskId": "t5",
+     "executor": "human",
+     "reason": "authority",
+     "action": "approve",
+     "role": null,
+     "rationale": "Routing unavailable; a person confirms this task."
+    },
+    "status": "done",
+    "attempts": 0,
+    "assignee": "Sara Al-Qahtani",
+    "deliverableId": null,
+    "finishedAtHour": 5,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t6",
+    "title": "Review and approve campaign materials",
+    "description": "Sara Al-Qahtani and Omar Haddad review all copy, designs, emails, and social plans for final sign-off.",
+    "acceptanceCriteria": [
+     "All campaign assets are formally approved by the marketing team."
+    ],
+    "dependsOn": [
+     "t2",
+     "t3",
+     "t4",
+     "t5"
+    ],
+    "estimatedDays": 1,
+    "priority": "high",
+    "language": "both",
+    "owner": "Sara Al-Qahtani",
+    "routing": {
+     "taskId": "t6",
+     "executor": "human",
+     "reason": "authority",
+     "action": "approve",
+     "role": null,
+     "rationale": "Routing unavailable; a person confirms this task."
+    },
+    "status": "waiting",
+    "attempts": 0,
+    "assignee": "Sara Al-Qahtani",
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   },
+   {
+    "id": "t7",
+    "title": "Publish landing page and schedule emails",
+    "description": "Set up and publish the landing page and load the email sequence into the marketing platform for the November 20 launch.",
+    "acceptanceCriteria": [
+     "Landing page is live online.",
+     "Email sequence is scheduled correctly."
+    ],
+    "dependsOn": [
+     "t6"
+    ],
+    "estimatedDays": 1,
+    "priority": "high",
+    "language": "both",
+    "owner": "Sara Al-Qahtani",
+    "routing": {
+     "taskId": "t7",
+     "executor": "human",
+     "reason": "authority",
+     "action": "approve",
+     "role": null,
+     "rationale": "Routing unavailable; a person confirms this task."
+    },
+    "status": "waiting",
+    "attempts": 0,
+    "assignee": "Sara Al-Qahtani",
+    "deliverableId": null,
+    "finishedAtHour": null,
+    "feedback": null,
+    "origin": "plan"
+   }
+  ],
+  "requests": [
+   {
+    "id": "547cc0ed-5273-4f8b-b800-1aa081bdfebc",
+    "taskId": "t1",
+    "kind": "approve",
+    "assignee": "Sara Al-Qahtani",
+    "title": "Research campaign requirements and offers",
+    "prompt": "Review and approve \"Research campaign requirements and offers\".",
+    "options": [
+     "Approve",
+     "Decline"
+    ],
+    "openedAtHour": 0,
+    "status": "answered",
+    "response": "Approve",
+    "reminders": 0,
+    "reassigned": false,
+    "effortHours": 0
+   },
+   {
+    "id": "7e3a4500-c93c-4be0-9a97-c9da40295c80",
+    "taskId": "t2",
+    "kind": "approve",
+    "assignee": "Sara Al-Qahtani",
+    "title": "Draft bilingual landing page copy",
+    "prompt": "Review and approve \"Draft bilingual landing page copy\".",
+    "options": [
+     "Approve",
+     "Decline"
+    ],
+    "openedAtHour": 1.5,
+    "status": "answered",
+    "response": "Approve",
+    "reminders": 0,
+    "reassigned": false,
+    "effortHours": 0
+   },
+   {
+    "id": "67386bf2-819b-476c-bb5f-ca16368f11fa",
+    "taskId": "t3",
+    "kind": "approve",
+    "assignee": "Omar Haddad",
+    "title": "Design landing page wireframe and assets",
+    "prompt": "Review and approve \"Design landing page wireframe and assets\".",
+    "options": [
+     "Approve",
+     "Decline"
+    ],
+    "openedAtHour": 1.5,
+    "status": "open",
+    "response": null,
+    "reminders": 0,
+    "reassigned": false,
+    "effortHours": 0
+   },
+   {
+    "id": "d48d845e-19bf-43f8-add5-02506a1df20d",
+    "taskId": "t4",
+    "kind": "approve",
+    "assignee": "Sara Al-Qahtani",
+    "title": "Draft launch email sequence",
+    "prompt": "Review and approve \"Draft launch email sequence\".",
+    "options": [
+     "Approve",
+     "Decline"
+    ],
+    "openedAtHour": 1.5,
+    "status": "answered",
+    "response": "Approve",
+    "reminders": 0,
+    "reassigned": false,
+    "effortHours": 0
+   },
+   {
+    "id": "c123264e-a5a9-4c79-88d5-db41643cf64a",
+    "taskId": "t5",
+    "kind": "approve",
+    "assignee": "Sara Al-Qahtani",
+    "title": "Create two-week social media plan",
+    "prompt": "Review and approve \"Create two-week social media plan\".",
+    "options": [
+     "Approve",
+     "Decline"
+    ],
+    "openedAtHour": 1.5,
+    "status": "answered",
+    "response": "Approve",
+    "reminders": 0,
+    "reassigned": false,
+    "effortHours": 0
+   }
+  ],
+  "deliverables": [],
+  "events": [
+   {
+    "seq": 0,
+    "hour": 0,
+    "actor": "client",
+    "kind": "observed",
+    "type": "objective",
+    "summary": "New objective: Launch the Ramadan campaign for our specialty coffee brand Qahwa Lab by November 20: a bilingual landing page, a launch email sequence and a two-week social plan.",
+    "taskId": null
+   },
+   {
+    "seq": 1,
+    "hour": 0,
+    "actor": "planner",
+    "kind": "acted",
+    "type": "planning",
+    "summary": "Drafting the plan: tasks, dependencies and acceptance criteria",
+    "taskId": null
+   },
+   {
+    "seq": 2,
+    "hour": 0,
+    "actor": "planner",
+    "kind": "decided",
+    "type": "planned",
+    "summary": "Planned 7 tasks within 10 working days",
+    "taskId": null
+   },
+   {
+    "seq": 3,
+    "hour": 0,
+    "actor": "router",
+    "kind": "acted",
+    "type": "routing",
+    "summary": "Deciding which tasks agents can do and which need a person",
+    "taskId": null
+   },
+   {
+    "seq": 4,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "routed",
+    "summary": "0 tasks to agents, 0 prepared by agents for a person, 7 need a person",
+    "taskId": null
+   },
+   {
+    "seq": 5,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Research campaign requirements and offers\" → Sara Al-Qahtani (authority): Routing unavailable; a person confirms this task.",
+    "taskId": "t1"
+   },
+   {
+    "seq": 6,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Draft bilingual landing page copy\" → Sara Al-Qahtani (authority): Routing unavailable; a person confirms this task.",
+    "taskId": "t2"
+   },
+   {
+    "seq": 7,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Design landing page wireframe and assets\" → Omar Haddad (authority): Routing unavailable; a person confirms this task.",
+    "taskId": "t3"
+   },
+   {
+    "seq": 8,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Draft launch email sequence\" → Sara Al-Qahtani (authority): Routing unavailable; a person confirms this task.",
+    "taskId": "t4"
+   },
+   {
+    "seq": 9,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Create two-week social media plan\" → Sara Al-Qahtani (authority): Routing unavailable; a person confirms this task.",
+    "taskId": "t5"
+   },
+   {
+    "seq": 10,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Review and approve campaign materials\" → Sara Al-Qahtani (authority): Routing unavailable; a person confirms this task.",
+    "taskId": "t6"
+   },
+   {
+    "seq": 11,
+    "hour": 0,
+    "actor": "router",
+    "kind": "decided",
+    "type": "needs_person",
+    "summary": "\"Publish landing page and schedule emails\" → Sara Al-Qahtani (authority): Routing unavailable; a person confirms this task.",
+    "taskId": "t7"
+   },
+   {
+    "seq": 12,
+    "hour": 0,
+    "actor": "lead",
+    "kind": "acted",
+    "type": "asked_person",
+    "summary": "Asked Sara Al-Qahtani to approve: \"Research campaign requirements and offers\"",
+    "taskId": "t1"
+   },
+   {
+    "seq": 13,
+    "hour": 1.5,
+    "actor": "person:Sara Al-Qahtani",
+    "kind": "observed",
+    "type": "answered",
+    "summary": "Sara Al-Qahtani: \"Approve\" on \"Research campaign requirements and offers\"",
+    "taskId": "t1"
+   },
+   {
+    "seq": 14,
+    "hour": 1.5,
+    "actor": "scheduler",
+    "kind": "observed",
+    "type": "task_done",
+    "summary": "\"Research campaign requirements and offers\" is done",
+    "taskId": "t1"
+   },
+   {
+    "seq": 15,
+    "hour": 1.5,
+    "actor": "lead",
+    "kind": "acted",
+    "type": "asked_person",
+    "summary": "Asked Sara Al-Qahtani to approve: \"Draft bilingual landing page copy\"",
+    "taskId": "t2"
+   },
+   {
+    "seq": 16,
+    "hour": 1.5,
+    "actor": "lead",
+    "kind": "acted",
+    "type": "asked_person",
+    "summary": "Asked Omar Haddad to approve: \"Design landing page wireframe and assets\"",
+    "taskId": "t3"
+   },
+   {
+    "seq": 17,
+    "hour": 1.5,
+    "actor": "lead",
+    "kind": "acted",
+    "type": "asked_person",
+    "summary": "Asked Sara Al-Qahtani to approve: \"Draft launch email sequence\"",
+    "taskId": "t4"
+   },
+   {
+    "seq": 18,
+    "hour": 1.5,
+    "actor": "lead",
+    "kind": "acted",
+    "type": "asked_person",
+    "summary": "Asked Sara Al-Qahtani to approve: \"Create two-week social media plan\"",
+    "taskId": "t5"
+   },
+   {
+    "seq": 19,
+    "hour": 3.5,
+    "actor": "person:Sara Al-Qahtani",
+    "kind": "observed",
+    "type": "answered",
+    "summary": "Sara Al-Qahtani: \"Approve\" on \"Draft bilingual landing page copy\"",
+    "taskId": "t2"
+   },
+   {
+    "seq": 20,
+    "hour": 3.5,
+    "actor": "person:Sara Al-Qahtani",
+    "kind": "observed",
+    "type": "answered",
+    "summary": "Sara Al-Qahtani: \"Approve\" on \"Draft launch email sequence\"",
+    "taskId": "t4"
+   },
+   {
+    "seq": 21,
+    "hour": 3.5,
+    "actor": "scheduler",
+    "kind": "observed",
+    "type": "task_done",
+    "summary": "\"Draft bilingual landing page copy\" is done",
+    "taskId": "t2"
+   },
+   {
+    "seq": 22,
+    "hour": 3.5,
+    "actor": "scheduler",
+    "kind": "observed",
+    "type": "task_done",
+    "summary": "\"Draft launch email sequence\" is done",
+    "taskId": "t4"
+   },
+   {
+    "seq": 23,
+    "hour": 5,
+    "actor": "person:Sara Al-Qahtani",
+    "kind": "observed",
+    "type": "answered",
+    "summary": "Sara Al-Qahtani: \"Approve\" on \"Create two-week social media plan\"",
+    "taskId": "t5"
+   },
+   {
+    "seq": 24,
+    "hour": 5,
+    "actor": "scheduler",
+    "kind": "observed",
+    "type": "task_done",
+    "summary": "\"Create two-week social media plan\" is done",
+    "taskId": "t5"
+   },
+   {
+    "seq": 25,
+    "hour": 5,
+    "actor": "client",
+    "kind": "observed",
+    "type": "client_message",
+    "summary": "Client: we also need a 15-second Reel script for Instagram, same deadline.",
+    "taskId": null
+   },
+   {
+    "seq": 26,
+    "hour": 5,
+    "actor": "lead",
+    "kind": "observed",
+    "type": "stopped",
+    "summary": "Run stopped: gemini-3.1-flash-lite returned 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/",
+    "taskId": null
+   }
+  ],
+  "calls": [
+   {
+    "purpose": "planner",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 694,
+    "cachedTokens": 0,
+    "outputTokens": 728,
+    "thinkingTokens": 0,
+    "latencyMs": 3371,
+    "costUsd": 0.0020282,
+    "ok": true,
+    "replayed": false
+   },
+   {
+    "purpose": "router",
+    "model": "gemini-3.1-flash-lite",
+    "inputTokens": 0,
+    "cachedTokens": 0,
+    "outputTokens": 0,
+    "thinkingTokens": 0,
+    "latencyMs": 0,
+    "costUsd": 0,
+    "ok": false,
+    "replayed": false
+   },
+   {
+    "purpose": "planner:scope-change",
+    "model": "gemini-3.5-flash-lite",
+    "inputTokens": 0,
+    "cachedTokens": 0,
+    "outputTokens": 0,
+    "thinkingTokens": 0,
+    "latencyMs": 0,
+    "costUsd": 0,
+    "ok": false,
+    "replayed": false
+   }
+  ],
+  "report": null,
+  "stopReason": "gemini-3.1-flash-lite returned 429: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/"
+ }
+}

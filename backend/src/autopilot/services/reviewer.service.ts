@@ -13,6 +13,17 @@ export interface ReviewerOptions {
 
 export type Review = NonNullable<Deliverable['review']>;
 
+export interface ReviewContext {
+  /** A person does the final step after review (hybrid tasks). */
+  personFinishes: boolean;
+  /** Everything the agent was given; links outside it count as invented. */
+  sources: string;
+  /** The client's objective and background. */
+  provided: string;
+  /** Titles of the plan's other tasks. */
+  otherTasks: readonly string[];
+}
+
 const JUDGE_INPUT_CHARS = 12_000;
 const PROVIDED_CHARS = 4_000;
 const JUDGE_OUTPUT_TOKENS = 400;
@@ -29,9 +40,8 @@ export class ReviewerService {
     private readonly options: ReviewerOptions,
   ) {}
 
-  /** `sources` is everything the agent was given; links outside it count as invented. */
-  async review(task: PlanTask, content: string, format: Deliverable['format'], personFinishes: boolean, sources: string, provided: string): Promise<Review> {
-    const checks = runChecks(content, format, task, sources);
+  async review(task: PlanTask, content: string, format: Deliverable['format'], context: ReviewContext): Promise<Review> {
+    const checks = runChecks(content, format, task, context.sources);
     const checksPassed = checks.every((check) => check.passed);
     if (this.options.tiered && !checksPassed) return { passed: false, checks, judge: null };
     if (this.options.tiered && task.priority === 'low') return { passed: true, checks, judge: null };
@@ -40,7 +50,14 @@ export class ReviewerService {
       purpose: 'reviewer',
       model: this.options.model,
       system: REVIEWER_SYSTEM,
-      prompt: buildReviewerPrompt({ task, deliverableText: toJudgeText(content, format), isHtml: format === 'html', personFinishes, provided: provided.slice(0, PROVIDED_CHARS) }),
+      prompt: buildReviewerPrompt({
+        task,
+        deliverableText: toJudgeText(content, format),
+        isHtml: format === 'html',
+        personFinishes: context.personFinishes,
+        provided: context.provided.slice(0, PROVIDED_CHARS),
+        otherTasks: context.otherTasks,
+      }),
       schema: judgeSchema,
       temperature: 0,
       thinking: 'minimal',

@@ -55,3 +55,22 @@ What this run taught us:
 - **Cost fell** on the campaign launch (−55%) once generated pages were repaired in code instead of regenerated.
 - **The first-pass metric was unfair to the system.** With few agent tasks, the deliberately corrupted one dominated the rate (onboarding could not exceed 67%). Corrupted tasks are now excluded from first-pass and scored only under perturbation handling.
 - **Single runs are noisy.** Human-checkpoint coverage on the identical campaign config moved 67% → 0%. The plan did route "Schedule emails and social posts" to a person, but the keyword metric only accepts "publish" or "ad account". Two consequences: final results use repeated trials (pass^k), and the keyword coverage metric is reported with this known false-negative limitation. Held-out keywords stay frozen.
+
+## Free-tier configuration and user testing (commit 4b938b7 → ceeda2c)
+
+- **Models:** routing and review moved to Gemini 3.1 Flash-Lite after a dev comparison with 3.5 Flash-Lite (same 97.5% accuracy, 0 missed human tasks, 39% cheaper, 2× faster); planning and writing use 3.5 Flash-Lite. Each falls back to the other, spreading work over two daily quotas.
+- **Fabrication found in user testing (not in the datasets):** on a software objective, the reviewer asked for a repository link and an iOS build, and the agent's retry invented both. Fixes: honesty rules for workers (worker-v3), a code check that rejects links absent from the provided material, and a reviewer that fails fabricated claims and never asks agents for what only a person can provide (reviewer-v3/v4). Dev check afterwards: 0 invented links, first-pass 75%.
+- **Held-out evaluation** ran at commit ceeda2c. Five held-out runs made before the fabrication fix were set aside unread in `objectives/heldout-v1/`; they are used only to compare invented-link counts.
+
+## Held-out evaluation (ceeda2c): see RESULTS.md
+
+10 of 10 runs finished on time; pass^2 = 5 of 5 objectives; 16 of 16 injected problems handled; 76% of tasks done or prepared by agents; $0.035 per project. Main limitation: tasks that need data nobody provided (for example company contact details) bounce between "invented" and "incomplete" in review.
+
+## After the evaluation (not reflected in held-out numbers)
+
+Found while reviewing a live run inside ZeroOne:
+- reviewer-v5: the judge sees the plan's other tasks and does not require their work (a strategy outline was rejected twice for lacking the email sequence, which is a separate task);
+- worker-v4: agents never present a deliverable as written or approved by a person (an outline said "Prepared by: Reem");
+- the polling-supervisor ablation baseline ignores its own malformed answers instead of stopping the run.
+
+Ablations stopped by the free-tier quota are re-run after the daily reset with this final code, together with a fresh full baseline.

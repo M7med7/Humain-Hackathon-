@@ -286,7 +286,12 @@ export class AutopilotEngine {
       this.updateTask(task.id, { status: 'review' });
       this.changed();
       const sources = [input?.objective, input?.context, ...(input?.inputs.map((item) => item.content) ?? [])].join('\n');
-      const review = await this.services.reviewer.review(task, content, result.format, task.routing.executor === 'hybrid', sources, `${objective.objective}\n${objective.context}`);
+      const review = await this.services.reviewer.review(task, content, result.format, {
+        personFinishes: task.routing.executor === 'hybrid',
+        sources,
+        provided: `${objective.objective}\n${objective.context}`,
+        otherTasks: this.run.tasks.filter((other) => other.id !== task.id).map((other) => other.title),
+      });
       const deliverable: Deliverable = { id: randomUUID(), taskId: task.id, attempt, format: result.format, content, model: result.model, review };
       this.run = { ...this.run, deliverables: [...this.run.deliverables, deliverable] };
       this.updateTask(task.id, { deliverableId: deliverable.id, feedback: null });
