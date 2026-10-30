@@ -1,6 +1,12 @@
 node_modules/
-.env
 dist/
+
+# Secrets: only the placeholder template is tracked
+.env
+.env.*
+!.env.example
+*.pem
+*.key
 .DS_Store
 .claude/
 .code-graph/
