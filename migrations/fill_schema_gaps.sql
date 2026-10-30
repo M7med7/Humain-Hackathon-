@@ -11,6 +11,7 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS github_url TEXT;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS linkedin_url TEXT;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS x_url TEXT;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS job_title TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS phone TEXT;
 
 ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS external_source TEXT;
 ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS external_id TEXT;

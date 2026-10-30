@@ -26,7 +26,8 @@
     "member": "Team member",
     "outside": "Outside person",
     "addOutside": "Add outside person",
-    "peopleHint": "Team members get their tasks in ZeroOne. Add outside people (a supplier, a client contact) by name."
+    "peopleHint": "Pick team members: their tasks land on them in ZeroOne. Add outside people (a supplier, a client contact) by name.",
+    "fromTeam": "From your team"
   },
   "status": {
     "planning": "Planning",

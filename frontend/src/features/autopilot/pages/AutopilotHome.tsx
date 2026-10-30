@@ -96,7 +96,7 @@ export function AutopilotHome() {
               <label htmlFor="ap-objective" className="text-[17px] font-semibold">
                 {t('home.objective')}
               </label>
-              <button type="button" onClick={() => setForm({ ...EXAMPLE, people: [...members, ...EXAMPLE_OUTSIDE_PEOPLE] })} className="flex items-center gap-1 text-[13px] text-(--ap-link)">
+              <button type="button" onClick={() => setForm({ ...EXAMPLE, people: members.length > 1 ? members : [...members, ...EXAMPLE_OUTSIDE_PEOPLE] })} className="flex items-center gap-1 text-[13px] text-(--ap-link)">
                 <Sparkles className="w-4 h-4" aria-hidden /> {t('home.example')}
               </button>
             </div>
@@ -131,7 +131,7 @@ export function AutopilotHome() {
               </div>
             </div>
 
-            <PeopleField people={form.people} onChange={(people) => update('people', people)} />
+            <PeopleField members={members} people={form.people} onChange={(people) => update('people', people)} />
           </div>
 
           <details>
