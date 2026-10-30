@@ -15,6 +15,8 @@ export const planTaskSchema = z.object({
   priority: z.enum(PRIORITIES),
   /** Output language the deliverable must be written in. */
   language: z.enum(['en', 'ar', 'both']),
+  /** The listed person best placed to handle any human step, or null. */
+  owner: z.string().nullable(),
 });
 
 export type PlanTask = z.infer<typeof planTaskSchema>;

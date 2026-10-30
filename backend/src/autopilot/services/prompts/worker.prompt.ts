@@ -1,0 +1,55 @@
+import type { AgentRole } from '../../models/routing';
+import type { PlanTask } from '../../models/plan';
+import { DATA_RULE, asData } from './shared';
+
+export const WORKER_PROMPT_VERSION = 'worker-v1';
+
+const ROLE_BRIEFS: Record<AgentRole, string> = {
+  researcher: 'You are the research agent. You gather and summarize the information a business team needs, stating assumptions clearly.',
+  writer: 'You are the writing agent. You write clear, professional business copy, emails and documents, and translate between Arabic and English natively.',
+  analyst: 'You are the analysis agent. You build plans, schedules, comparisons, scorecards and metrics that people can act on immediately.',
+  builder: 'You are the build agent. You produce complete single-file HTML pages.',
+};
+
+const MARKDOWN_RULES = `Output rules:
+- Return only the deliverable, in Markdown, ready to use. No preamble, no closing remarks.
+- Be specific and complete. Never leave placeholders such as [insert], TBD or lorem ipsum.
+- When information is missing, make a reasonable professional assumption and mark it "(assumption)".
+- Arabic text is Modern Standard Arabic suited to Saudi business readers.`;
+
+const HTML_RULES = `Output rules:
+- Return one complete HTML document starting with <!doctype html>, with all CSS inline in a <style> tag.
+- No <script> tags, no external resources, no forms that submit anywhere.
+- Responsive layout. Use dir="rtl" and lang="ar" for Arabic sections.
+- Never leave placeholders such as [insert] or lorem ipsum.`;
+
+export function workerSystem(role: AgentRole): string {
+  return `${ROLE_BRIEFS[role]}\n\n${role === 'builder' ? HTML_RULES : MARKDOWN_RULES}\n${DATA_RULE}`;
+}
+
+export interface WorkerInput {
+  objective: string;
+  context: string;
+  task: PlanTask;
+  /** Deliverables this task builds on: direct dependencies only when context is scoped. */
+  inputs: ReadonlyArray<{ title: string; content: string }>;
+  /** Reviewer feedback from the previous attempt, when retrying. */
+  feedback: string | null;
+}
+
+const LANGUAGE_NOTE = { en: 'Write in English.', ar: 'Write in Arabic.', both: 'Write it fully in both Arabic and English.' } as const;
+
+export function buildWorkerPrompt(input: WorkerInput): string {
+  const criteria = input.task.acceptanceCriteria.map((criterion) => `- ${criterion}`).join('\n');
+  const parts = [
+    `Task: ${input.task.title}`,
+    input.task.description,
+    `It must meet:\n${criteria}`,
+    LANGUAGE_NOTE[input.task.language],
+    asData('objective', input.objective),
+    asData('context', input.context),
+    ...input.inputs.map((item) => asData(`input: ${item.title}`, item.content)),
+  ];
+  if (input.feedback) parts.push(`The previous attempt was rejected. Fix this:\n${input.feedback}`);
+  return parts.join('\n\n');
+}

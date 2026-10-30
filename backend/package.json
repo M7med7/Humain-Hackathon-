@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --config jest.config.js",
     "dev": "nodemon --exec ts-node src/index.ts",
-    "eval:routing": "ts-node src/autopilot/eval/runRoutingEval.ts"
+    "eval:routing": "ts-node src/autopilot/eval/runRoutingEval.ts",
+    "eval:objectives": "ts-node src/autopilot/eval/runObjectiveEval.ts"
   },
   "keywords": [],
   "author": "",

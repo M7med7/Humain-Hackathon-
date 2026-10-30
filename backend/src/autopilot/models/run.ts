@@ -7,6 +7,7 @@ export type TaskStatus =
   | 'review' // the reviewer is checking it
   | 'needs_person' // waiting on a human request
   | 'done'
+  | 'cancelled' // dropped by a client decision
   | 'failed';
 
 export interface RunTask extends PlanTask {
@@ -19,6 +20,8 @@ export interface RunTask extends PlanTask {
   deliverableId: string | null;
   /** Simulated working hours since run start when the task finished. */
   finishedAtHour: number | null;
+  /** Changes a person asked for; the next agent attempt must address them. */
+  feedback: string | null;
 }
 
 export type ReviewCheck = { name: string; passed: boolean; detail: string };
@@ -54,6 +57,8 @@ export interface HumanRequest {
   status: 'open' | 'answered' | 'expired';
   response: string | null;
   reminders: number;
+  /** True once the lead moved the request to a backup person. */
+  reassigned: boolean;
 }
 
 export type EventActor = 'lead' | 'router' | 'planner' | 'reviewer' | 'scheduler' | 'client' | `agent:${string}` | `person:${string}`;
