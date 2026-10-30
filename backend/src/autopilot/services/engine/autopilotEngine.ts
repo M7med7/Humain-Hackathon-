@@ -92,7 +92,7 @@ export class AutopilotEngine {
       const plan = await this.services.planner.plan(objective);
       this.emit('planner', 'decided', 'planned', `Planned ${plan.tasks.length} tasks within ${objective.deadlineDays} working days`);
       const decisions = await this.services.router.route(plan.tasks);
-      this.run = { ...this.run, summary: plan.summary, status: 'running', tasks: this.toRunTasks(plan.tasks, decisions) };
+      this.run = { ...this.run, summary: plan.summary, status: 'running', tasks: this.toRunTasks(plan.tasks, decisions, 'plan') };
       this.announceRouting(this.run.tasks);
       this.queueReady();
       await this.drain();
@@ -239,7 +239,7 @@ export class AutopilotEngine {
       return;
     }
     const decisions = await this.services.router.route(added);
-    const newTasks = this.toRunTasks(added, decisions);
+    const newTasks = this.toRunTasks(added, decisions, 'scope_change');
     this.run = { ...this.run, tasks: [...this.run.tasks, ...newTasks] };
     this.emit('lead', 'decided', 'scope_added', `Added ${newTasks.length} task(s): ${newTasks.map((task) => task.title).join('; ')}`);
     this.announceRouting(newTasks);
@@ -403,11 +403,11 @@ export class AutopilotEngine {
     });
   }
 
-  private toRunTasks(tasks: readonly PlanTask[], decisions: readonly RoutingDecision[]): RunTask[] {
+  private toRunTasks(tasks: readonly PlanTask[], decisions: readonly RoutingDecision[], origin: RunTask['origin']): RunTask[] {
     const byId = new Map(decisions.map((decision) => [decision.taskId, decision]));
     return tasks.map((task) => {
       const routing = byId.get(task.id) ?? { taskId: task.id, executor: 'human', reason: 'authority', action: 'approve', role: null, rationale: 'No routing decision' };
-      return { ...task, routing, status: 'waiting', attempts: 0, assignee: routing.executor === 'ai' ? null : task.owner ?? this.sponsor(), deliverableId: null, finishedAtHour: null, feedback: null };
+      return { ...task, routing, status: 'waiting', attempts: 0, assignee: routing.executor === 'ai' ? null : task.owner ?? this.sponsor(), deliverableId: null, finishedAtHour: null, feedback: null, origin };
     });
   }
 

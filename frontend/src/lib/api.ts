@@ -761,7 +761,7 @@ export interface ImportAnalysis {
   recommendations: string[];
 }
 
-const BASE_URL = `${import.meta.env.VITE_API_URL ?? 'http://localhost:5001'}/api`;
+export const BASE_URL = `${import.meta.env.VITE_API_URL ?? 'http://localhost:5001'}/api`;
 
 // Every request runs inside the active space; SpaceGate sets this before any page loads.
 let activeSpaceId: string | null = null;

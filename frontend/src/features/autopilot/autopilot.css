@@ -1,0 +1,165 @@
+/*
+ * Autopilot design tokens, after the Apple design system (Open Design "apple"):
+ * pale neutral canvas, near-black ink, one blue accent, thin chrome, large radii.
+ * Scoped to .ap so the rest of the app keeps its own look.
+ */
+.ap {
+  --ap-canvas: #f5f5f7;
+  --ap-surface: #ffffff;
+  --ap-surface-2: #fafafc;
+  --ap-ink: #1d1d1f;
+  --ap-muted: #6e6e73;
+  --ap-border: #d2d2d7;
+  --ap-accent: #0071e3;
+  --ap-accent-ink: #ffffff;
+  --ap-link: #0066cc;
+  --ap-ai: #0071e3;
+  --ap-hybrid: #5e5ce6;
+  --ap-human: #86868b;
+  --ap-good: #248a3d;
+  --ap-warn: #b25000;
+  --ap-bad: #d70015;
+  --ap-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--ap-ink);
+  letter-spacing: -0.01em;
+}
+
+.theme-dark .ap {
+  --ap-canvas: #000000;
+  --ap-surface: #1c1c1e;
+  --ap-surface-2: #272729;
+  --ap-ink: #f5f5f7;
+  --ap-muted: #a1a1a6;
+  --ap-border: #38383d;
+  --ap-accent: #2997ff;
+  --ap-link: #2997ff;
+  --ap-ai: #2997ff;
+  --ap-hybrid: #7d7aff;
+  --ap-human: #98989d;
+  --ap-good: #30d158;
+  --ap-warn: #ff9f0a;
+  --ap-bad: #ff453a;
+  --ap-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.ap-display {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+.ap-card {
+  background: var(--ap-surface);
+  border-radius: 18px;
+  box-shadow: var(--ap-shadow);
+}
+
+.ap-pill {
+  border-radius: 980px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.ap-pill:active {
+  transform: scale(0.97);
+}
+
+.ap-pill:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ap-pill-primary {
+  background: var(--ap-accent);
+  color: var(--ap-accent-ink);
+}
+
+.ap-pill-quiet {
+  background: transparent;
+  color: var(--ap-link);
+  border: 1px solid var(--ap-border);
+}
+
+.ap-field {
+  width: 100%;
+  background: var(--ap-surface-2);
+  border: 1px solid var(--ap-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: var(--ap-ink);
+}
+
+.ap-field:focus {
+  outline: 2px solid var(--ap-accent);
+  outline-offset: 1px;
+}
+
+.ap-live {
+  animation: ap-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ap-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ap-live {
+    animation: none;
+  }
+}
+
+/* Deliverable text: readable document typography for model-written Markdown. */
+.ap-prose {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.ap-prose h1,
+.ap-prose h2,
+.ap-prose h3 {
+  font-weight: 600;
+  margin: 1.2em 0 0.4em;
+}
+.ap-prose h1 {
+  font-size: 22px;
+}
+.ap-prose h2 {
+  font-size: 19px;
+}
+.ap-prose h3 {
+  font-size: 16px;
+}
+.ap-prose p,
+.ap-prose ul,
+.ap-prose ol {
+  margin: 0.5em 0;
+}
+.ap-prose ul {
+  list-style: disc;
+  padding-inline-start: 1.4em;
+}
+.ap-prose ol {
+  list-style: decimal;
+  padding-inline-start: 1.4em;
+}
+.ap-prose table {
+  border-collapse: collapse;
+  margin: 0.8em 0;
+  font-size: 14px;
+}
+.ap-prose th,
+.ap-prose td {
+  border: 1px solid var(--ap-border);
+  padding: 6px 10px;
+  text-align: start;
+}
+.ap-prose a {
+  color: var(--ap-link);
+}

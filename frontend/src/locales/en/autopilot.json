@@ -1,0 +1,114 @@
+{
+  "nav": "Autopilot",
+  "home": {
+    "eyebrow": "ZeroOne Autopilot",
+    "title": "Tell us the outcome.\nYour AI team does the work.",
+    "subtitle": "Agents plan, deliver and check the work. People are asked only for what truly needs a person.",
+    "objective": "What should be achieved?",
+    "objectivePlaceholder": "Launch our Ramadan campaign by November 20: a bilingual landing page, launch emails and a two-week social plan.",
+    "deadline": "Deadline",
+    "days": "working days",
+    "people": "People who can approve or act",
+    "name": "Name",
+    "role": "Role",
+    "addPerson": "Add person",
+    "remove": "Remove",
+    "details": "Background and documents",
+    "detailsPlaceholder": "Facts the team should know: offer, budget, brand voice, policy excerpts…",
+    "language": "Client language",
+    "simulateTeam": "Simulate my team’s replies",
+    "simulateHint": "Your team’s routine answers are simulated; decisions addressed to you wait for you.",
+    "start": "Start",
+    "starting": "Starting…",
+    "recent": "Recent runs",
+    "empty": "No runs yet. Your first objective takes about two minutes.",
+    "example": "Try an example"
+  },
+  "status": {
+    "planning": "Planning",
+    "running": "Working",
+    "waiting_on_people": "Waiting on you",
+    "completed": "Delivered",
+    "stopped": "Stopped"
+  },
+  "run": {
+    "back": "All runs",
+    "day": "Day",
+    "dayOf": "Day {{day}} of {{total}}",
+    "byAgents": "Done by agents",
+    "needsYou": "Needs you",
+    "delivery": "Delivery",
+    "projected": "projected",
+    "cost": "Model cost",
+    "tasksOf": "{{done}} of {{total}} tasks",
+    "noneWaiting": "Nothing waiting",
+    "stoppedReason": "This run stopped: {{reason}}",
+    "loading": "Loading run…"
+  },
+  "needsYou": {
+    "title": "Needs you",
+    "decision": "Decision",
+    "for": "For {{name}}",
+    "approve": "Approval",
+    "provide": "Information",
+    "perform": "Action",
+    "answerPlaceholder": "Type the information here",
+    "send": "Send",
+    "markDone": "Mark done"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "deadline": "Deadline",
+    "added": "Added",
+    "planned": "Original plan: {{count}} tasks",
+    "now": "now {{count}}",
+    "legendAi": "Agents",
+    "legendHybrid": "Agents + person",
+    "legendHuman": "Person"
+  },
+  "executor": {
+    "ai": "Agents",
+    "hybrid": "Agents + person",
+    "human": "Person"
+  },
+  "taskStatus": {
+    "waiting": "Waiting",
+    "working": "In progress",
+    "review": "In review",
+    "needs_person": "With a person",
+    "done": "Done",
+    "cancelled": "Cancelled",
+    "failed": "Declined"
+  },
+  "deliverables": {
+    "title": "Deliverables",
+    "empty": "Deliverables appear here as agents finish them.",
+    "attempts_one": "Accepted first time",
+    "attempts_other": "Accepted after {{count}} attempts",
+    "checks": "{{passed}} checks passed",
+    "aiReview": "AI review",
+    "codeOnly": "Code checks",
+    "close": "Close",
+    "page": "Page preview (scripts disabled)"
+  },
+  "report": {
+    "title": "Report",
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "activity": {
+    "title": "How the agents worked",
+    "observed": "Saw",
+    "decided": "Decided",
+    "acted": "Did",
+    "show": "Show activity",
+    "hide": "Hide activity"
+  },
+  "efficiency": {
+    "title": "Compute",
+    "calls": "Model calls",
+    "tokens": "Tokens",
+    "lite": "On the cheapest model",
+    "perTask": "Per delivered task"
+  }
+}

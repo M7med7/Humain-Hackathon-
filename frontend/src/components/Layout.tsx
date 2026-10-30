@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, Users, FolderOpen, Plus, LogOut, Pencil, X, Check, Bell, Settings, ArrowLeftRight, Map, Search, Menu, Moon, Sun, Languages } from "lucide-react";
+import { Calendar, Users, FolderOpen, Plus, LogOut, Pencil, X, Check, Bell, Settings, ArrowLeftRight, Map, Search, Menu, Moon, Sun, Languages, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Logo } from "./Logo";
 import { SpaceSwitcher } from "./SpaceSwitcher";
@@ -573,6 +573,18 @@ export function Layout() {
               <div className="absolute inset-0 rounded-lg bg-(--app-sidebar-active) opacity-0 scale-95 transition duration-300 ease-out group-hover:opacity-100 group-hover:scale-100" />
               <Users className="w-4 h-4 relative z-10 group-hover:text-white transition-colors duration-200" />
               <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:team")}</span>
+            </NavLink>
+
+            <NavLink
+              to="/autopilot"
+              className={({ isActive }) =>
+                `relative flex items-center gap-3 px-4 py-2.5 rounded-lg overflow-hidden group transition-colors ${isActive ? "sidebar-active" : "sidebar-item"
+                }`
+              }
+            >
+              <div className="absolute inset-0 rounded-lg bg-(--app-sidebar-active) opacity-0 scale-95 transition duration-300 ease-out group-hover:opacity-100 group-hover:scale-100" />
+              <Sparkles className="w-4 h-4 relative z-10 group-hover:text-white transition-colors duration-200" />
+              <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:autopilot")}</span>
             </NavLink>
 
             <NavLink

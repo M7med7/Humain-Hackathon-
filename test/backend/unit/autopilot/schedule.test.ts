@@ -27,6 +27,7 @@ function task(id: string, overrides: Partial<RunTask> = {}): RunTask {
     deliverableId: null,
     finishedAtHour: null,
     feedback: null,
+    origin: 'plan',
     ...overrides,
   };
 }

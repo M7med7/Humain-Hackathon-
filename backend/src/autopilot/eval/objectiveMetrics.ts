@@ -12,7 +12,7 @@ export interface ObjectiveMetrics {
   agentShare: number;
   /** Requests that reached a person (approvals, inputs, actions, escalations). */
   humanTouches: number;
-  /** Agent tasks accepted on their first attempt. */
+  /** Agent tasks accepted on their first attempt, excluding tasks the scenario corrupted. */
   firstPassRate: number;
   rework: number;
   /** Person-days of estimated effort delivered by agents. */
@@ -37,7 +37,10 @@ const byPerson = (task: RunTask): boolean => task.routing.executor !== 'ai';
 export function computeObjectiveMetrics(testCase: ObjectiveCase, run: Run, corruptedTaskIds: readonly string[]): ObjectiveMetrics {
   const agentWork = run.tasks.filter((task) => task.routing.executor !== 'human');
   const delivered = run.tasks.filter((task) => task.status === 'done');
-  const firstPass = agentWork.filter((task) => task.status === 'done' && task.attempts === 1).length;
+  // Tasks the scenario corrupted on purpose cannot pass first time; they are scored by perturbation handling instead.
+  const corrupted = new Set(corruptedTaskIds);
+  const scoredWork = agentWork.filter((task) => !corrupted.has(task.id));
+  const firstPass = scoredWork.filter((task) => task.status === 'done' && task.attempts === 1).length;
   const tokens = run.calls.reduce((sum, call) => sum + call.inputTokens + call.outputTokens + call.thinkingTokens, 0);
   const costUsd = run.calls.reduce((sum, call) => sum + call.costUsd, 0);
   const day = deliveryDay(run.tasks);
@@ -50,7 +53,7 @@ export function computeObjectiveMetrics(testCase: ObjectiveCase, run: Run, corru
     humanTasks: run.tasks.filter((task) => task.routing.executor === 'human').length,
     agentShare: ratio(agentWork.length, run.tasks.length),
     humanTouches: run.requests.length,
-    firstPassRate: ratio(firstPass, agentWork.length),
+    firstPassRate: ratio(firstPass, scoredWork.length),
     rework: agentWork.reduce((sum, task) => sum + Math.max(0, task.attempts - 1), 0),
     personDaysByAgents: run.tasks.filter((task) => task.routing.executor === 'ai' && task.status === 'done').reduce((sum, task) => sum + task.estimatedDays, 0),
     deliveryDay: day,

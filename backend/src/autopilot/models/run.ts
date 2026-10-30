@@ -22,6 +22,8 @@ export interface RunTask extends PlanTask {
   finishedAtHour: number | null;
   /** Changes a person asked for; the next agent attempt must address them. */
   feedback: string | null;
+  /** Where the task came from: the first plan or a later scope change. */
+  origin: 'plan' | 'scope_change';
 }
 
 export type ReviewCheck = { name: string; passed: boolean; detail: string };

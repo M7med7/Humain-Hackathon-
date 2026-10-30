@@ -1,0 +1,104 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CheckCircle2, FileText, Hand, Scale } from 'lucide-react';
+import type { HumanRequest } from '../types';
+
+interface NeedsYouProps {
+  requests: HumanRequest[];
+  onAnswer: (requestId: string, response: string) => Promise<void>;
+}
+
+const KIND_ICON = { approve: CheckCircle2, provide: FileText, perform: Hand } as const;
+
+/** The client's inbox: only the things a person must decide or do. */
+export function NeedsYou({ requests, onAnswer }: NeedsYouProps) {
+  const { t } = useTranslation('autopilot');
+  const open = [...requests].filter((request) => request.status === 'open').sort((a, b) => Number(a.taskId !== null) - Number(b.taskId !== null));
+  if (open.length === 0) return null;
+
+  return (
+    <section aria-labelledby="ap-needs-you" className="space-y-3">
+      <h2 id="ap-needs-you" className="ap-display text-[21px]">
+        {t('needsYou.title')} <span className="text-(--ap-muted) font-normal">· {open.length}</span>
+      </h2>
+      {open.map((request) => (
+        <RequestCard key={request.id} request={request} onAnswer={onAnswer} />
+      ))}
+    </section>
+  );
+}
+
+function RequestCard({ request, onAnswer }: { request: HumanRequest; onAnswer: NeedsYouProps['onAnswer'] }) {
+  const { t } = useTranslation('autopilot');
+  const [busy, setBusy] = useState(false);
+  const [text, setText] = useState('');
+  const isDecision = request.taskId === null;
+  const Icon = isDecision ? Scale : KIND_ICON[request.kind];
+
+  const submit = async (response: string): Promise<void> => {
+    setBusy(true);
+    try {
+      await onAnswer(request.id, response);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <article
+      className={`ap-card p-5 border-s-4 ${isDecision ? 'border-(--ap-accent)' : 'border-(--ap-border)'}`}
+      aria-label={request.title}
+    >
+      <div className="flex items-start gap-3">
+        <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${isDecision ? 'text-(--ap-accent)' : 'text-(--ap-muted)'}`} aria-hidden />
+        <div className="min-w-0 flex-1">
+          <p className="text-[12px] uppercase tracking-wide text-(--ap-muted)">
+            {isDecision ? t('needsYou.decision') : t(`needsYou.${request.kind}`)} · {t('needsYou.for', { name: request.assignee })}
+          </p>
+          <h3 className="text-[17px] font-semibold mt-1" dir="auto">
+            {request.title}
+          </h3>
+          <p className="text-[15px] text-(--ap-muted) mt-1" dir="auto">
+            {request.prompt}
+          </p>
+
+          {request.options.length > 0 ? (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {request.options.map((option, index) => (
+                <button
+                  key={option}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void submit(option)}
+                  className={`ap-pill ${index === 0 ? 'ap-pill-primary' : 'ap-pill-quiet'}`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <form
+              className="flex gap-2 mt-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (text.trim()) void submit(text.trim());
+              }}
+            >
+              <input
+                className="ap-field"
+                value={text}
+                maxLength={500}
+                placeholder={t('needsYou.answerPlaceholder')}
+                aria-label={t('needsYou.answerPlaceholder')}
+                onChange={(event) => setText(event.target.value)}
+              />
+              <button type="submit" disabled={busy || !text.trim()} className="ap-pill ap-pill-primary shrink-0">
+                {t('needsYou.send')}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
