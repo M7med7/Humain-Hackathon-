@@ -1,6 +1,7 @@
 import type { Run, RunTask } from '../../../../backend/src/autopilot/models/run';
 import type { LlmSession } from '../../../../backend/src/autopilot/services/llm/llmSession';
 import { reportFacts } from '../../../../backend/src/autopilot/services/lead.service';
+import { buildReviewerPrompt } from '../../../../backend/src/autopilot/services/prompts/reviewer.prompt';
 import { ReviewerService } from '../../../../backend/src/autopilot/services/reviewer.service';
 
 function task(id: string, overrides: Partial<RunTask> = {}): RunTask {
@@ -72,5 +73,25 @@ describe('ReviewerService', () => {
     expect(review.passed).toBe(true);
     expect(prompt).toContain('### 40. Creature 40');
     expect(prompt).not.toContain('Only the first');
+  });
+});
+
+describe('buildReviewerPrompt', () => {
+  const input = {
+    task: { title: 'Publish the store page', acceptanceCriteria: ['Store page copy in English and Arabic', 'Steam fee paid'] },
+    deliverableText: 'Store page copy',
+    fullLength: null,
+    isHtml: false,
+    provided: 'Objective',
+    otherTasks: [],
+  };
+
+  it('frames criteria as preparation when a person finishes the step', () => {
+    const prompt = buildReviewerPrompt({ ...input, personFinishes: true });
+    expect(prompt).toContain('2. Prepares everything the person needs so that: Steam fee paid');
+  });
+
+  it('keeps criteria as written when agents finish the step', () => {
+    expect(buildReviewerPrompt({ ...input, personFinishes: false })).toContain('2. Steam fee paid');
   });
 });

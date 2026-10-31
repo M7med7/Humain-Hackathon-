@@ -1,7 +1,7 @@
 import type { PlanTask } from '../../models/plan';
 import { DATA_RULE, asData } from './shared';
 
-export const REVIEWER_PROMPT_VERSION = 'reviewer-v6';
+export const REVIEWER_PROMPT_VERSION = 'reviewer-v7';
 
 export const REVIEWER_SYSTEM = `You review deliverables produced by AI agents before a business client sees them.
 Pass a deliverable only if it meets every acceptance criterion and is usable as delivered.
@@ -32,7 +32,10 @@ export interface ReviewInput {
 }
 
 export function buildReviewerPrompt(input: ReviewInput): string {
-  const criteria = input.task.acceptanceCriteria.map((criterion, index) => `${index + 1}. ${criterion}`).join('\n');
+  // When a person finishes the step, criteria like "fee paid" describe their action. Framed as
+  // preparation, the judge checks what the agent can deliver instead of rejecting every attempt.
+  const frame = (criterion: string): string => (input.personFinishes ? `Prepares everything the person needs so that: ${criterion}` : criterion);
+  const criteria = input.task.acceptanceCriteria.map((criterion, index) => `${index + 1}. ${frame(criterion)}`).join('\n');
   return [
     `Task: ${input.task.title}`,
     `Acceptance criteria:\n${criteria}`,

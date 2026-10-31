@@ -73,4 +73,8 @@ Found while reviewing a live run inside ZeroOne:
 - worker-v4: agents never present a deliverable as written or approved by a person (an outline said "Prepared by: Reem");
 - the polling-supervisor ablation baseline ignores its own malformed answers instead of stopping the run.
 
+Found while rehearsing the game demo (2D sandbox game in Unity):
+- reviewer-v7: on steps a person finishes, each criterion is shown to the judge as preparation ("Prepares everything the person needs so that: …"). Before, both such steps were rejected three times for criteria only the person could meet (Steam fee paid, build uploaded), then escalated.
+- worker-v5: the agent is told when a person does the final step and prepares a hand-off (material plus a checklist) against the same framed criteria. Before, its first draft claimed the store page was already live.
+
 Ablations stopped by the free-tier quota are re-run after the daily reset with this final code, together with a fresh full baseline.

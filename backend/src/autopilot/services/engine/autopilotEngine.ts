@@ -423,7 +423,7 @@ export class AutopilotEngine {
       let result;
       let input: WorkerInput | undefined;
       try {
-        input = { objective: objective.objective, context: objective.context, task, inputs: this.inputsFor(task), feedback, people: objective.people, sender: task.assignee ?? task.owner ?? this.sponsor() };
+        input = { objective: objective.objective, context: objective.context, task, inputs: this.inputsFor(task), feedback, people: objective.people, sender: task.assignee ?? task.owner ?? this.sponsor(), personFinishes: task.routing.executor === 'hybrid' };
         result = await this.services.worker.produce(role, input, attempt - task.attempts);
       } catch (error: unknown) {
         if (error instanceof LlmError && error.code === 'budget_exhausted') throw error;

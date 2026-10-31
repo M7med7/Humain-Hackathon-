@@ -28,7 +28,8 @@
     "outside": "Outside person",
     "addOutside": "Add outside person",
     "peopleHint": "Pick team members: their tasks land on them in ZeroOne. Add outside people (a supplier, a client contact) by name.",
-    "fromTeam": "From your team"
+    "fromTeam": "From your team",
+    "exampleGame": "Game example"
   },
   "status": {
     "planning": "Planning",

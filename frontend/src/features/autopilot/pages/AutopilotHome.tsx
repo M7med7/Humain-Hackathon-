@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles } from 'lucide-react';
+import { Gamepad2, Sparkles } from 'lucide-react';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useSpaces } from '../../../contexts/SpaceContext';
@@ -30,6 +30,19 @@ const EXAMPLE_OUTSIDE_PEOPLE: Person[] = [
   { name: 'Omar Haddad', role: 'Brand Designer', userId: null },
 ];
 
+/** A game studio scenario: agents prepare design and launch material, people build, approve and publish. */
+const GAME_OBJECTIVE =
+  'Get Sandstorm Depths, our original 2D side-scrolling sandbox survival game built in Unity, to a playable Steam demo within 30 working days. Agents prepare the game design document, the item and crafting table, enemy and boss design with stats, C# architecture notes for each gameplay system, the Steam store page and the Next Fest launch plan; our team builds the game, draws the art, tests it and publishes.';
+
+const gameContext = (director: string): string =>
+  `${director} is the game director: they sign off the game design document and the store page before they are used. Khalid Al-Mutairi (Unity developer) builds the game in Unity 6 (C#, 2D URP) and Nora Al-Qahtani (pixel artist) draws the 16x16 pixel art. QA, spending approval and publishing go to the matching people on the team. World: an original desert setting with buried cities and creatures from Arabian folklore (ghouls, djinn, the Sand Wyrm boss); the genre is 2D sandbox survival in the spirit of Terraria. Demo scope: one biome, about 25 items, 8 enemy types, one boss, 20 to 30 minutes of play, a day-night cycle with enemy waves. Platform: PC on Steam, English and Arabic. Budget: 80,000 SAR.`;
+
+const GAME_TEAM: Person[] = [
+  { name: 'Khalid Al-Mutairi', role: 'Unity Developer', userId: null },
+  { name: 'Nora Al-Qahtani', role: 'Pixel Artist', userId: null },
+];
+const MAX_PEOPLE = 8;
+
 const EMPTY: NewRun = { objective: '', deadlineDays: 10, people: [], context: '', lang: 'en', simulateTeam: true };
 
 function isValid(form: NewRun): boolean {
@@ -49,7 +62,7 @@ export function AutopilotHome() {
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<Person[]>([]);
   const { activeSpace } = useSpaces();
-  const { isJudge } = useAuth();
+  const { isJudge, session } = useAuth();
 
   useEffect(() => {
     autopilotApi.listRuns().then(setRuns).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)));
@@ -67,6 +80,12 @@ export function AutopilotHome() {
       })
       .catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)));
   }, [activeSpace]);
+
+  const fillGameExample = (): void => {
+    const director = members.find((member) => member.userId === session?.user.id)?.name ?? members[0]?.name ?? 'The project lead';
+    const team = [...members.slice(0, MAX_PEOPLE - GAME_TEAM.length), ...GAME_TEAM];
+    setForm({ objective: GAME_OBJECTIVE, deadlineDays: 30, people: team, context: gameContext(director), lang: 'en', simulateTeam: true });
+  };
 
   const update = <K extends keyof NewRun>(key: K, value: NewRun[K]): void => setForm((current) => ({ ...current, [key]: value }));
 
@@ -102,9 +121,14 @@ export function AutopilotHome() {
               <label htmlFor="ap-objective" className="text-[17px] font-semibold">
                 {t('home.objective')}
               </label>
-              <button type="button" onClick={() => setForm({ ...EXAMPLE, people: members.length > 1 ? members : [...members, ...EXAMPLE_OUTSIDE_PEOPLE] })} className="flex items-center gap-1 text-[13px] text-(--ap-link)">
-                <Sparkles className="w-4 h-4" aria-hidden /> {t('home.example')}
-              </button>
+              <div className="flex items-center gap-4">
+                <button type="button" onClick={fillGameExample} className="flex items-center gap-1 text-[13px] text-(--ap-link)">
+                  <Gamepad2 className="w-4 h-4" aria-hidden /> {t('home.exampleGame')}
+                </button>
+                <button type="button" onClick={() => setForm({ ...EXAMPLE, people: members.length > 1 ? members : [...members, ...EXAMPLE_OUTSIDE_PEOPLE] })} className="flex items-center gap-1 text-[13px] text-(--ap-link)">
+                  <Sparkles className="w-4 h-4" aria-hidden /> {t('home.example')}
+                </button>
+              </div>
             </div>
             <textarea
               id="ap-objective"

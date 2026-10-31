@@ -2,7 +2,7 @@ import type { AgentRole } from '../../models/routing';
 import type { PlanTask } from '../../models/plan';
 import { DATA_RULE, asData } from './shared';
 
-export const WORKER_PROMPT_VERSION = 'worker-v4';
+export const WORKER_PROMPT_VERSION = 'worker-v5';
 
 const ROLE_BRIEFS: Record<AgentRole, string> = {
   researcher: 'You are the research agent. You gather and summarize the information a business team needs, stating assumptions clearly.',
@@ -45,16 +45,24 @@ export interface WorkerInput {
   /** People on the project, and who signs anything sent on this task. */
   people: ReadonlyArray<{ name: string; role: string }>;
   sender: string;
+  /** A person does the final step (publishing, uploading, paying); the agent prepares the hand-off. */
+  personFinishes?: boolean;
 }
+
+const HAND_OFF =
+  'A person does the final step of this task after you (for example publishing, uploading or paying). Prepare the hand-off: the finished material they will use and a short checklist of what they do. Never say the step is done.';
 
 const LANGUAGE_NOTE = { en: 'Write in English.', ar: 'Write in Arabic.', both: 'Write it fully in both Arabic and English.' } as const;
 
 export function buildWorkerPrompt(input: WorkerInput): string {
-  const criteria = input.task.acceptanceCriteria.map((criterion) => `- ${criterion}`).join('\n');
+  // The same framing the reviewer uses, so the agent aims at what it will be judged on.
+  const frame = (criterion: string): string => (input.personFinishes ? `Prepares everything the person needs so that: ${criterion}` : criterion);
+  const criteria = input.task.acceptanceCriteria.map((criterion) => `- ${frame(criterion)}`).join('\n');
   const parts = [
     `Task: ${input.task.title}`,
     input.task.description,
     `It must meet:\n${criteria}`,
+    ...(input.personFinishes ? [HAND_OFF] : []),
     LANGUAGE_NOTE[input.task.language],
     `People on this project: ${input.people.map((person) => `${person.name} (${person.role})`).join('; ')}. Sender: ${input.sender}.`,
     asData('objective', input.objective),
