@@ -64,7 +64,8 @@
     "answerPlaceholder": "Type the information here",
     "send": "Send",
     "markDone": "Mark done",
-    "viewDraft": "View the draft (attempt {{attempt}})"
+    "viewDraft": "View the draft (attempt {{attempt}})",
+    "viewOnly": "View only. Create an account to approve."
   },
   "timeline": {
     "title": "Timeline",
@@ -164,6 +165,47 @@
       "builder": "Builder",
       "reviewer": "Reviewer",
       "lead": "Lead"
+    },
+    "doneHint": "Finished its work"
+  },
+  "workflow": {
+    "title": "Workflow",
+    "hint": "Click a step to see why it was routed, the agents’ work and any approval.",
+    "objective": "Objective",
+    "report": "Client report",
+    "reportDone": "Delivered",
+    "reportPending": "Written when every step is done",
+    "added": "Added",
+    "needsPerson": "Needs a person",
+    "decision": "Client decision",
+    "why": "Why this route",
+    "criteria": "Done when",
+    "owner": "Owner: {{name}}",
+    "attempt": "attempt {{attempt}}",
+    "close": "Close"
+  },
+  "judgeGuide": {
+    "title": "Start here",
+    "intro": "A two-minute tour of one finished run: what the agents did, where people stepped in, and what was delivered.",
+    "open": "Open the showcase run",
+    "strip": "How to read this run",
+    "steps": {
+      "agents": {
+        "title": "Agents at work",
+        "body": "Which agent is busy, on what, and which are asleep to save compute."
+      },
+      "workflow": {
+        "title": "Workflow",
+        "body": "Every step and who does it. Click a step to see why it was routed and its approval."
+      },
+      "activity": {
+        "title": "How the agents worked",
+        "body": "What they saw, decided and did, in order."
+      },
+      "results": {
+        "title": "Results",
+        "body": "The reviewed deliverables and the client report in English and Arabic."
+      }
     }
   }
 }

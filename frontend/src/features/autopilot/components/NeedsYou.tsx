@@ -9,12 +9,14 @@ interface NeedsYouProps {
   onAnswer: (requestId: string, response: string) => Promise<void>;
   /** Opens the agents' latest work for the task the request is about. */
   onView: (deliverable: Deliverable) => void;
+  /** Judges see requests but cannot answer them. */
+  readOnly?: boolean;
 }
 
 const KIND_ICON = { approve: CheckCircle2, provide: FileText, perform: Hand } as const;
 
 /** The client's inbox: only the things a person must decide or do. */
-export function NeedsYou({ requests, deliverables, onAnswer, onView }: NeedsYouProps) {
+export function NeedsYou({ requests, deliverables, onAnswer, onView, readOnly = false }: NeedsYouProps) {
   const { t } = useTranslation('autopilot');
   const open = [...requests].filter((request) => request.status === 'open').sort((a, b) => Number(a.taskId !== null) - Number(b.taskId !== null));
   if (open.length === 0) return null;
@@ -31,6 +33,7 @@ export function NeedsYou({ requests, deliverables, onAnswer, onView }: NeedsYouP
           draft={request.taskId ? [...deliverables].reverse().find((deliverable) => deliverable.taskId === request.taskId) : undefined}
           onAnswer={onAnswer}
           onView={onView}
+          readOnly={readOnly}
         />
       ))}
     </section>
@@ -42,9 +45,10 @@ interface RequestCardProps {
   draft: Deliverable | undefined;
   onAnswer: NeedsYouProps['onAnswer'];
   onView: NeedsYouProps['onView'];
+  readOnly?: boolean;
 }
 
-function RequestCard({ request, draft, onAnswer, onView }: RequestCardProps) {
+export function RequestCard({ request, draft, onAnswer, onView, readOnly = false }: RequestCardProps) {
   const { t } = useTranslation('autopilot');
   const [busy, setBusy] = useState(false);
   const [text, setText] = useState('');
@@ -83,7 +87,9 @@ function RequestCard({ request, draft, onAnswer, onView }: RequestCardProps) {
             </button>
           )}
 
-          {request.options.length > 0 ? (
+          {readOnly ? (
+            <p className="text-[13px] text-(--ap-muted) mt-3">{t('needsYou.viewOnly')}</p>
+          ) : request.options.length > 0 ? (
             <div className="flex flex-wrap gap-2 mt-4">
               {request.options.map((option, index) => (
                 <button

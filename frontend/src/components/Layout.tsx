@@ -527,6 +527,8 @@ export function Layout() {
               <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:projects")}</span>
           </NavLink>
 
+          {!isJudge && (
+
           <NavLink
             to="/search"
             className={({ isActive }) =>
@@ -539,6 +541,10 @@ export function Layout() {
             <Search className="w-4 h-4 relative z-10 group-hover:text-white transition-colors duration-200" />
             <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:search")}</span>
           </NavLink>
+
+          )}
+
+          {!isJudge && (
 
           <NavLink
             to="/roadmap"
@@ -553,6 +559,10 @@ export function Layout() {
             <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:roadmap")}</span>
           </NavLink>
 
+          )}
+
+          {!isJudge && (
+
           <NavLink
             to="/board"
             className={({ isActive }) =>
@@ -565,6 +575,10 @@ export function Layout() {
               <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:board")}</span>
             </NavLink>
 
+          )}
+
+            {!isJudge && (
+
             <NavLink
               to="/team"
               className={({ isActive }) =>
@@ -576,6 +590,8 @@ export function Layout() {
               <Users className="w-4 h-4 relative z-10 group-hover:text-white transition-colors duration-200" />
               <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:team")}</span>
             </NavLink>
+
+            )}
 
             <NavLink
               to="/autopilot"
@@ -603,6 +619,8 @@ export function Layout() {
               </NavLink>
             )}
 
+            {!isJudge && (
+
             <NavLink
               to="/migrate"
               className={({ isActive }) =>
@@ -615,6 +633,10 @@ export function Layout() {
               <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:migration")}</span>
             </NavLink>
 
+            )}
+
+            {!isJudge && (
+
             <NavLink
               to="/space"
               className={({ isActive }) =>
@@ -626,6 +648,8 @@ export function Layout() {
               <Settings className="w-4 h-4 relative z-10 group-hover:text-white transition-colors duration-200" />
               <span className="text-sm relative z-10 group-hover:text-white transition-colors duration-200">{t("navigation:space")}</span>
             </NavLink>
+
+            )}
           </nav>
         </aside>
 
@@ -650,6 +674,8 @@ export function Layout() {
             <span className="text-[10px]">{t("navigation:projects")}</span>
           </NavLink>
 
+          {!isJudge && (
+
           <NavLink
             to="/board"
             className={({ isActive }) =>
@@ -659,6 +685,8 @@ export function Layout() {
             <Calendar className="h-5 w-5" />
             <span className="text-[10px]">{t("navigation:board")}</span>
           </NavLink>
+
+          )}
 
           {/* Centre action — Create */}
           {!isJudge && (

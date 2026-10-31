@@ -6,6 +6,7 @@ import { api } from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useSpaces } from '../../../contexts/SpaceContext';
 import { autopilotApi } from '../api';
+import { JudgeStart } from '../components/JudgeGuide';
 import { PeopleField } from '../components/PeopleField';
 import { StatusPill } from '../components/StatusPill';
 import type { NewRun, Person, RunSummary } from '../types';
@@ -93,7 +94,7 @@ export function AutopilotHome() {
         </header>
 
         {isJudge ? (
-          <p className="ap-card mt-10 p-5 sm:p-7 text-[15px] text-(--ap-muted)">{t('home.judgeNote')}</p>
+          <JudgeStart runs={runs} />
         ) : (
         <form onSubmit={(event) => void submit(event)} className="ap-card mt-10 p-5 sm:p-7 space-y-6">
           <div>

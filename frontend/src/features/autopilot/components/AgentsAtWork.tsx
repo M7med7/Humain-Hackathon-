@@ -74,7 +74,7 @@ function AgentTile({ card }: { card: AgentCard }) {
           {detail}
         </p>
       )}
-      {!isActive && !detail && <p className="text-[13px] mt-3 text-(--ap-muted)">{t('agents.asleepHint')}</p>}
+      {!isActive && !detail && <p className="text-[13px] mt-3 text-(--ap-muted)">{card.state === 'done' ? t('agents.doneHint') : t('agents.asleepHint')}</p>}
       <p className="text-[12px] text-(--ap-muted) mt-2">
         {card.attempt && card.attempt > 1 ? t('agents.attempt', { attempt: card.attempt }) : card.finished > 0 ? t('agents.finished', { count: card.finished }) : ' '}
       </p>

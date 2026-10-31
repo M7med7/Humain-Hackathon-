@@ -8,8 +8,10 @@ import { ActivityPanel } from '../components/ActivityPanel';
 import { AgentsAtWork } from '../components/AgentsAtWork';
 import { ClientMessage } from '../components/ClientMessage';
 import { DeliverableViewer, Deliverables } from '../components/Deliverables';
+import { JudgeGuideStrip } from '../components/JudgeGuide';
 import { NeedsYou } from '../components/NeedsYou';
 import { StatusPill } from '../components/StatusPill';
+import { WorkflowCanvas } from '../components/WorkflowCanvas';
 import { EfficiencyCard, ReportCard, StatTiles } from '../components/Summary';
 import { Timeline } from '../components/Timeline';
 import type { Deliverable } from '../types';
@@ -80,8 +82,10 @@ export function AutopilotRun() {
           )}
         </header>
 
+        {isJudge && <JudgeGuideStrip />}
         <StatTiles run={run} />
         {run.tasks.length > 0 || live ? <AgentsAtWork run={run} /> : null}
+        {run.tasks.length > 0 && <WorkflowCanvas run={run} onAnswer={answer} onView={setViewing} readOnly={isJudge} />}
 
         {run.stopReason && (
           <p role="alert" className="ap-card p-4 text-[14px] text-(--ap-bad)">
@@ -96,7 +100,7 @@ export function AutopilotRun() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="space-y-6 min-w-0">
-            <NeedsYou requests={run.requests} deliverables={run.deliverables} onAnswer={answer} onView={setViewing} />
+            <NeedsYou requests={run.requests} deliverables={run.deliverables} onAnswer={answer} onView={setViewing} readOnly={isJudge} />
             {acceptsMessages && <ClientMessage onSend={sendMessage} />}
             <Timeline run={run} />
             {run.report && <ReportCard report={run.report} preferred={run.lang} />}

@@ -24,7 +24,8 @@ export function LoginPage() {
     setJudgeLoading(true);
     try {
       await signInAsJudge();
-      navigate('/');
+      // Judges start on the agent work, not the full project tool.
+      navigate('/autopilot');
     } catch {
       setJudgeOpen(false);
       setError(t('judge.unavailable'));
