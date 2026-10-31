@@ -63,7 +63,8 @@
     "perform": "Action",
     "answerPlaceholder": "Type the information here",
     "send": "Send",
-    "markDone": "Mark done"
+    "markDone": "Mark done",
+    "viewDraft": "View the draft (attempt {{attempt}})"
   },
   "timeline": {
     "title": "Timeline",
@@ -132,5 +133,37 @@
     "send": "Send",
     "sending": "Sending…",
     "sent": "Sent. The lead agent is reviewing the change; watch the timeline and activity."
+  },
+  "agents": {
+    "title": "Agents at work",
+    "summary": "{{active}} working · {{sleeping}} asleep",
+    "allDone": "All agents finished",
+    "asleepHint": "Asleep: no model calls until it is needed",
+    "attempt": "Attempt {{attempt}}",
+    "finished_one": "{{count}} approved",
+    "finished_other": "{{count}} approved",
+    "state": {
+      "active": "Working",
+      "sleeping": "Asleep",
+      "done": "Done"
+    },
+    "doing": {
+      "planning": "Drafting the plan",
+      "replanning": "Re-planning for the client's message",
+      "routing": "Deciding who does each task",
+      "working": "Working on",
+      "reviewing": "Checking",
+      "reporting": "Writing the client report"
+    },
+    "names": {
+      "planner": "Planner",
+      "router": "Router",
+      "researcher": "Researcher",
+      "writer": "Writer",
+      "analyst": "Analyst",
+      "builder": "Builder",
+      "reviewer": "Reviewer",
+      "lead": "Lead"
+    }
   }
 }

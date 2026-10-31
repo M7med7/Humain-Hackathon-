@@ -35,15 +35,19 @@ export class SimulatedPeople implements PeopleChannel {
 }
 
 /**
- * Demo mode: a simulated team handles task requests so the run keeps moving,
- * while decisions addressed to the client (deadline and scope trade-offs) wait
- * for the real user in the app.
+ * Demo mode: a simulated team handles its own task requests so the run keeps moving,
+ * while decisions addressed to the client (deadline and scope trade-offs) and every
+ * request addressed to the signed-in user wait for them in the app.
  */
 export class DemoTeam implements PeopleChannel {
   private readonly team = new SimulatedPeople();
 
+  /** @param realPeople names of people using the app, whose requests are never answered for them */
+  constructor(private readonly realPeople: ReadonlySet<string> = new Set()) {}
+
   deliver(request: HumanRequest, openedIndex: number): ScheduledAnswer | null {
-    return request.taskId === null ? null : this.team.deliver(request, openedIndex);
+    if (request.taskId === null || this.realPeople.has(request.assignee)) return null;
+    return this.team.deliver(request, openedIndex);
   }
 }
 

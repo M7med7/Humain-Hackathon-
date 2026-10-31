@@ -5,12 +5,14 @@ import { ArrowUpRight, ChevronLeft, Timer } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { autopilotApi } from '../api';
 import { ActivityPanel } from '../components/ActivityPanel';
+import { AgentsAtWork } from '../components/AgentsAtWork';
 import { ClientMessage } from '../components/ClientMessage';
-import { Deliverables } from '../components/Deliverables';
+import { DeliverableViewer, Deliverables } from '../components/Deliverables';
 import { NeedsYou } from '../components/NeedsYou';
 import { StatusPill } from '../components/StatusPill';
 import { EfficiencyCard, ReportCard, StatTiles } from '../components/Summary';
 import { Timeline } from '../components/Timeline';
+import type { Deliverable } from '../types';
 import { useRunStream } from '../useRunStream';
 import '../autopilot.css';
 
@@ -20,6 +22,7 @@ export function AutopilotRun() {
   const { run, error, replace } = useRunStream(runId);
   const { isJudge } = useAuth();
   const [answerError, setAnswerError] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<Deliverable | null>(null);
 
   // Progress arrives on the live stream; the request only hands the message to the lead agent.
   const sendMessage = async (message: string): Promise<void> => {
@@ -78,6 +81,7 @@ export function AutopilotRun() {
         </header>
 
         <StatTiles run={run} />
+        {run.tasks.length > 0 || live ? <AgentsAtWork run={run} /> : null}
 
         {run.stopReason && (
           <p role="alert" className="ap-card p-4 text-[14px] text-(--ap-bad)">
@@ -92,7 +96,7 @@ export function AutopilotRun() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="space-y-6 min-w-0">
-            <NeedsYou requests={run.requests} onAnswer={answer} />
+            <NeedsYou requests={run.requests} deliverables={run.deliverables} onAnswer={answer} onView={setViewing} />
             {acceptsMessages && <ClientMessage onSend={sendMessage} />}
             <Timeline run={run} />
             {run.report && <ReportCard report={run.report} preferred={run.lang} />}
@@ -103,6 +107,13 @@ export function AutopilotRun() {
             <EfficiencyCard run={run} />
           </aside>
         </div>
+        {viewing && (
+          <DeliverableViewer
+            title={run.tasks.find((task) => task.id === viewing.taskId)?.title ?? ''}
+            deliverable={viewing}
+            onClose={() => setViewing(null)}
+          />
+        )}
       </div>
     </div>
   );

@@ -72,8 +72,10 @@ export class RunService {
       throw new RunServiceError(429, 'This space already has runs in progress. Wait for one to finish.');
     }
     const id = randomUUID();
+    // The simulated team never answers for the person who started the run.
+    const ownerNames = new Set(objective.people.filter((person) => person.userId === owner.userId).map((person) => person.name));
     const engine = this.deps.createEngine(this.config, {
-      people: simulateTeam ? new DemoTeam() : manualPeople,
+      people: simulateTeam ? new DemoTeam(ownerNames) : manualPeople,
       simulateTimeouts: false,
       onChange: (run) => this.onChange(id, run),
     });

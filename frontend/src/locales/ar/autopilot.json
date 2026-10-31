@@ -63,7 +63,8 @@
     "perform": "إجراء",
     "answerPlaceholder": "اكتب المعلومة هنا",
     "send": "إرسال",
-    "markDone": "تم"
+    "markDone": "تم",
+    "viewDraft": "عرض المسودة (المحاولة {{attempt}})"
   },
   "timeline": {
     "title": "الجدول الزمني",
@@ -132,5 +133,37 @@
     "send": "إرسال",
     "sending": "جارٍ الإرسال…",
     "sent": "تم الإرسال. يراجع الوكيل القائد التغيير؛ تابع الجدول الزمني والنشاط."
+  },
+  "agents": {
+    "title": "الوكلاء أثناء العمل",
+    "summary": "{{active}} يعمل · {{sleeping}} في وضع السكون",
+    "allDone": "أنهى جميع الوكلاء عملهم",
+    "asleepHint": "في وضع السكون: لا استدعاءات للنموذج حتى يلزم",
+    "attempt": "المحاولة {{attempt}}",
+    "finished_one": "{{count}} معتمد",
+    "finished_other": "{{count}} معتمد",
+    "state": {
+      "active": "يعمل",
+      "sleeping": "سكون",
+      "done": "انتهى"
+    },
+    "doing": {
+      "planning": "يصوغ الخطة",
+      "replanning": "يعيد التخطيط بناءً على رسالة العميل",
+      "routing": "يقرر من ينفّذ كل مهمة",
+      "working": "يعمل على",
+      "reviewing": "يراجع",
+      "reporting": "يكتب تقرير العميل"
+    },
+    "names": {
+      "planner": "المخطِّط",
+      "router": "الموجِّه",
+      "researcher": "الباحث",
+      "writer": "الكاتب",
+      "analyst": "المحلِّل",
+      "builder": "المنفِّذ",
+      "reviewer": "المراجِع",
+      "lead": "القائد"
+    }
   }
 }

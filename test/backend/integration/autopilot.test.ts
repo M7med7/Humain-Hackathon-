@@ -187,6 +187,37 @@ describe('Autopilot API', () => {
     expect(changed.events.some((event) => event.type === 'scope_added')).toBe(true);
   });
 
+  it('lets the simulated team answer for teammates but never for the signed-in user', async () => {
+    const twoPeople = (): EngineServices => {
+      const base = stubServices();
+      const plan: Plan = {
+        title: 'Spring launch',
+        summary: 'Launch plan',
+        tasks: [{ ...planTask('t1', 'Approve the budget'), owner: 'Mohammed' }, { ...planTask('t2', 'Book the venue'), owner: 'Sara' }],
+      };
+      const decisions: RoutingDecision[] = [
+        { taskId: 't1', executor: 'human', reason: 'authority', action: 'approve', role: null, rationale: 'spending' },
+        { taskId: 't2', executor: 'human', reason: 'physical', action: 'perform', role: null, rationale: 'venue' },
+      ];
+      return { ...base, planner: { ...base.planner, plan: async () => plan }, router: { route: async () => decisions } } as unknown as EngineServices;
+    };
+    const app = buildApp(twoPeople);
+    const created = await request(app)
+      .post('/api/autopilot/runs')
+      .send({
+        ...validBody,
+        simulateTeam: true,
+        people: [
+          { name: 'Mohammed', role: 'Project Manager', userId: '11111111-1111-4111-8111-111111111111' },
+          { name: 'Sara', role: 'Marketing Director' },
+        ],
+      });
+    const settled = await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people' && run.tasks.find((task) => task.id === 't2')?.status === 'done');
+    const mine = settled.requests.find((item) => item.assignee === 'Mohammed');
+    expect(mine?.status).toBe('open');
+    expect(settled.tasks.find((task) => task.id === 't1')?.status).toBe('needs_person');
+  });
+
   it('rejects messages for runs that are no longer active', async () => {
     const app = buildApp();
     const created = await request(app).post('/api/autopilot/runs').send(validBody);

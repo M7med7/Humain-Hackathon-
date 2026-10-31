@@ -64,7 +64,7 @@ export function Deliverables({ run }: { run: Run }) {
   );
 }
 
-function DeliverableViewer({ title, deliverable, onClose }: { title: string; deliverable: Deliverable; onClose: () => void }) {
+export function DeliverableViewer({ title, deliverable, onClose }: { title: string; deliverable: Deliverable; onClose: () => void }) {
   const { t } = useTranslation('autopilot');
   const closeRef = useRef<HTMLButtonElement>(null);
 

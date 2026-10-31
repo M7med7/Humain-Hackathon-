@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, FileText, Hand, Scale } from 'lucide-react';
-import type { HumanRequest } from '../types';
+import { CheckCircle2, Eye, FileText, Hand, Scale } from 'lucide-react';
+import type { Deliverable, HumanRequest } from '../types';
 
 interface NeedsYouProps {
   requests: HumanRequest[];
+  deliverables: Deliverable[];
   onAnswer: (requestId: string, response: string) => Promise<void>;
+  /** Opens the agents' latest work for the task the request is about. */
+  onView: (deliverable: Deliverable) => void;
 }
 
 const KIND_ICON = { approve: CheckCircle2, provide: FileText, perform: Hand } as const;
 
 /** The client's inbox: only the things a person must decide or do. */
-export function NeedsYou({ requests, onAnswer }: NeedsYouProps) {
+export function NeedsYou({ requests, deliverables, onAnswer, onView }: NeedsYouProps) {
   const { t } = useTranslation('autopilot');
   const open = [...requests].filter((request) => request.status === 'open').sort((a, b) => Number(a.taskId !== null) - Number(b.taskId !== null));
   if (open.length === 0) return null;
@@ -22,13 +25,26 @@ export function NeedsYou({ requests, onAnswer }: NeedsYouProps) {
         {t('needsYou.title')} <span className="text-(--ap-muted) font-normal">· {open.length}</span>
       </h2>
       {open.map((request) => (
-        <RequestCard key={request.id} request={request} onAnswer={onAnswer} />
+        <RequestCard
+          key={request.id}
+          request={request}
+          draft={request.taskId ? [...deliverables].reverse().find((deliverable) => deliverable.taskId === request.taskId) : undefined}
+          onAnswer={onAnswer}
+          onView={onView}
+        />
       ))}
     </section>
   );
 }
 
-function RequestCard({ request, onAnswer }: { request: HumanRequest; onAnswer: NeedsYouProps['onAnswer'] }) {
+interface RequestCardProps {
+  request: HumanRequest;
+  draft: Deliverable | undefined;
+  onAnswer: NeedsYouProps['onAnswer'];
+  onView: NeedsYouProps['onView'];
+}
+
+function RequestCard({ request, draft, onAnswer, onView }: RequestCardProps) {
   const { t } = useTranslation('autopilot');
   const [busy, setBusy] = useState(false);
   const [text, setText] = useState('');
@@ -61,6 +77,11 @@ function RequestCard({ request, onAnswer }: { request: HumanRequest; onAnswer: N
           <p className="text-[15px] text-(--ap-muted) mt-1" dir="auto">
             {request.prompt}
           </p>
+          {draft && (
+            <button type="button" onClick={() => onView(draft)} className="inline-flex items-center gap-1.5 mt-2 text-[14px] text-(--ap-link)">
+              <Eye className="w-4 h-4" aria-hidden /> {t('needsYou.viewDraft', { attempt: draft.attempt })}
+            </button>
+          )}
 
           {request.options.length > 0 ? (
             <div className="flex flex-wrap gap-2 mt-4">
