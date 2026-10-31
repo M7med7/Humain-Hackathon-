@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
 import { api } from '../../../lib/api';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useSpaces } from '../../../contexts/SpaceContext';
 import { autopilotApi } from '../api';
 import { PeopleField } from '../components/PeopleField';
@@ -47,6 +48,7 @@ export function AutopilotHome() {
   const [error, setError] = useState<string | null>(null);
   const [members, setMembers] = useState<Person[]>([]);
   const { activeSpace } = useSpaces();
+  const { isJudge } = useAuth();
 
   useEffect(() => {
     autopilotApi.listRuns().then(setRuns).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)));
@@ -90,6 +92,9 @@ export function AutopilotHome() {
           <p className="text-[17px] text-(--ap-muted) mt-4 leading-relaxed">{t('home.subtitle')}</p>
         </header>
 
+        {isJudge ? (
+          <p className="ap-card mt-10 p-5 sm:p-7 text-[15px] text-(--ap-muted)">{t('home.judgeNote')}</p>
+        ) : (
         <form onSubmit={(event) => void submit(event)} className="ap-card mt-10 p-5 sm:p-7 space-y-6">
           <div>
             <div className="flex items-center justify-between gap-3">
@@ -163,6 +168,7 @@ export function AutopilotHome() {
             </p>
           )}
         </form>
+        )}
 
         <section aria-labelledby="ap-recent" className="mt-12">
           <h2 id="ap-recent" className="ap-display text-[21px]">

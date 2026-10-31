@@ -183,7 +183,7 @@ function ConfirmDeleteModal({
 export function ProjectsDashboard() {
   const { t, i18n } = useTranslation(["projects", "common"]);
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const { session, isJudge } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -239,7 +239,7 @@ export function ProjectsDashboard() {
           <h2 className="text-2xl md:text-3xl mb-1 font-light">{t("projects:title")}</h2>
           <p className="text-gray-500 text-sm">{t("projects:count", { count: projects.length })} · {t("projects:aiExecution")}</p>
         </div>
-        <Button onClick={() => navigate("/create")} className="shrink-0 whitespace-nowrap">+ {t("projects:newProject")}</Button>
+        {!isJudge && <Button onClick={() => navigate("/create")} className="shrink-0 whitespace-nowrap">+ {t("projects:newProject")}</Button>}
       </div>
 
       {error && (
@@ -468,13 +468,13 @@ export function ProjectsDashboard() {
                         </button>
                       </div>
 
-                      <button
+                      {!isJudge && <button
                         onClick={() => setConfirmId(project.id)}
                         className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/8 text-gray-600 hover:border-red-500/40 hover:bg-red-900/20 hover:text-red-400 transition-colors"
                         aria-label={t("projects:delete.ariaLabel", { name: project.name })}
                       >
                         <Trash2 className="h-3 w-3" />
-                      </button>
+                      </button>}
                     </div>
                   </div>
                 </motion.div>

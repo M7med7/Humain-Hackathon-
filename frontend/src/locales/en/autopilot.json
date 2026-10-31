@@ -23,6 +23,7 @@
     "recent": "Recent runs",
     "empty": "No runs yet. Your first objective takes about two minutes.",
     "example": "Try an example",
+    "judgeNote": "You are in judge view. Open a run below to see how the agents planned, worked and reported. Create an account to start your own run.",
     "member": "Team member",
     "outside": "Outside person",
     "addOutside": "Add outside person",
