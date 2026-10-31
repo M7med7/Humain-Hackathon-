@@ -1,4 +1,4 @@
-import type { PlanTask } from './plan';
+import type { Objective, PlanTask } from './plan';
 import type { RoutingDecision } from './routing';
 
 export type TaskStatus =
@@ -122,4 +122,7 @@ export interface Run {
   stopReason: string | null;
   /** True when a simulated team answered routine requests, so simulated time ran ahead of real time. */
   simulatedTeam?: boolean;
+  /** Kept from the objective so a finished run can be reopened and changed. Missing on runs saved before this field. */
+  people?: Objective['people'];
+  context?: string;
 }

@@ -6,7 +6,7 @@ import { api } from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useSpaces } from '../../../contexts/SpaceContext';
 import { autopilotApi } from '../api';
-import { JudgeStart } from '../components/JudgeGuide';
+import { StartHere } from '../components/Guide';
 import { PeopleField } from '../components/PeopleField';
 import { StatusPill } from '../components/StatusPill';
 import type { NewRun, Person, RunSummary } from '../types';
@@ -94,7 +94,7 @@ export function AutopilotHome() {
         </header>
 
         {isJudge ? (
-          <JudgeStart runs={runs} />
+          <StartHere runs={runs} showEvidence />
         ) : (
         <form onSubmit={(event) => void submit(event)} className="ap-card mt-10 p-5 sm:p-7 space-y-6">
           <div>
@@ -170,6 +170,7 @@ export function AutopilotHome() {
           )}
         </form>
         )}
+        {!isJudge && <StartHere runs={runs} showEvidence={false} />}
 
         <section aria-labelledby="ap-recent" className="mt-12">
           <h2 id="ap-recent" className="ap-display text-[21px]">

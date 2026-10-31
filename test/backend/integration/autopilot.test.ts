@@ -11,6 +11,7 @@ import { MemoryRunRepository } from '../../../backend/src/autopilot/repositories
 import { autopilotRoutes } from '../../../backend/src/autopilot/routes/autopilot.routes';
 import { AutopilotEngine, type EngineServices } from '../../../backend/src/autopilot/services/engine/autopilotEngine';
 import { LlmSession } from '../../../backend/src/autopilot/services/llm/llmSession';
+import type { Revision } from '../../../backend/src/autopilot/services/planner.service';
 import { RunService } from '../../../backend/src/autopilot/services/runService';
 
 const config: AutopilotConfig = {
@@ -49,7 +50,7 @@ function stubServices(): EngineServices {
   ];
   return {
     llm: new LlmSession({ complete: async () => Promise.reject(new Error('not used')) }, 1_000),
-    planner: { plan: async () => plan, extend: async () => [] },
+    planner: { plan: async () => plan, extend: async () => [], revise: async (): Promise<Revision> => ({ reply: 'Nothing needed to change.', update: [], remove: [], add: [] }) },
     router: { route: async (tasks: PlanTask[]) => decisions.filter((decision) => tasks.some((task) => task.id === decision.taskId)) },
     worker: { produce: async () => ({ content: 'A complete launch email. '.repeat(20), format: 'markdown', model: 'fast' }) },
     reviewer: { review: async () => ({ passed: true, checks: [], judge: null }) },
@@ -57,10 +58,10 @@ function stubServices(): EngineServices {
   } as unknown as EngineServices;
 }
 
-function buildApp(services: () => EngineServices = stubServices): express.Express {
+function buildApp(services: () => EngineServices = stubServices, repository = new MemoryRunRepository()): express.Express {
   const factory = (cfg: AutopilotConfig, deps: EngineDeps): AutopilotEngine =>
     new AutopilotEngine(services(), { optimizations: cfg.optimizations, maxConcurrentWorkers: 1, people: deps.people, simulateTimeouts: false, ...(deps.onChange && { onChange: deps.onChange }) });
-  const service = new RunService(config, { repository: new MemoryRunRepository(), mirror: noMirror, createEngine: factory, verifyMembers: async () => undefined });
+  const service = new RunService(config, { repository, mirror: noMirror, createEngine: factory, verifyMembers: async () => undefined });
   const app = express();
   app.use(express.json());
   // Stands in for requireAuth + requireSpace, which are tested separately.
@@ -218,7 +219,7 @@ describe('Autopilot API', () => {
     expect(settled.tasks.find((task) => task.id === 't1')?.status).toBe('needs_person');
   });
 
-  it('rejects messages for runs that are no longer active', async () => {
+  it('rejects client messages once a run has finished', async () => {
     const app = buildApp();
     const created = await request(app).post('/api/autopilot/runs').send(validBody);
     const waiting = await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
@@ -226,7 +227,87 @@ describe('Autopilot API', () => {
     await request(app).post(`/api/autopilot/runs/${created.body.id}/requests/${open?.id}/answer`).send({ response: 'Approve' });
     await waitFor(app, created.body.id, (run) => run.status === 'completed');
     const late = await request(app).post(`/api/autopilot/runs/${created.body.id}/messages`).send({ message: 'One more thing for the launch' });
-    expect(late.status).toBe(404);
+    expect(late.status).toBe(400);
+    expect(late.body.error).toContain('already finished');
+  });
+
+  it('redoes a step a person changes from its node, reopening the finished run', async () => {
+    const reviseFirstStep = (): EngineServices => {
+      const base = stubServices();
+      const revise = async (): Promise<Revision> => ({ reply: 'Shortened the email.', update: [{ id: 't1', patch: { title: 'Write a short launch email' }, redo: true }], remove: [], add: [] });
+      return { ...base, planner: { ...base.planner, revise } } as unknown as EngineServices;
+    };
+    const app = buildApp(reviseFirstStep);
+    const created = await request(app).post('/api/autopilot/runs').send(validBody);
+    const runUrl = `/api/autopilot/runs/${created.body.id}`;
+    const waiting = await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
+    const open = waiting.requests.find((item) => item.status === 'open');
+    await request(app).post(`${runUrl}/requests/${open?.id}/answer`).send({ response: 'Approve' });
+    const finished = await waitFor(app, created.body.id, (run) => run.status === 'completed');
+
+    expect((await request(app).post(`${runUrl}/changes`).send({ instruction: 'x' })).status).toBe(400);
+    expect((await request(app).post(`${runUrl}/changes`).set('x-test-role', 'Member').send({ instruction: 'Make it shorter', taskId: 't1' })).status).toBe(403);
+    const sent = await request(app).post(`${runUrl}/changes`).send({ instruction: 'Make it shorter', taskId: 't1' });
+    expect(sent.status).toBe(202);
+
+    const redone = await waitFor(app, created.body.id, (run) => run.status === 'completed' && run.events.some((event) => event.type === 'workflow_changed'));
+    const t1 = redone.tasks.find((task) => task.id === 't1');
+    expect(t1?.title).toBe('Write a short launch email');
+    expect(t1?.attempts).toBe(2);
+    expect(redone.deliverables.length).toBe(finished.deliverables.length + 1);
+    expect(redone.events.some((event) => event.type === 'reopened')).toBe(true);
+    expect(redone.events.find((event) => event.type === 'workflow_changed')?.taskId).toBe('t1');
+  });
+
+  it('removes a step without a model call and lets later steps continue', async () => {
+    const app = buildApp();
+    const created = await request(app).post('/api/autopilot/runs').send(validBody);
+    const runUrl = `/api/autopilot/runs/${created.body.id}`;
+    await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
+
+    expect((await request(app).delete(`${runUrl}/tasks/not-a-step`)).status).toBe(400);
+    expect((await request(app).delete(`${runUrl}/tasks/t9`)).body.error).toBe('Step not found.');
+    expect((await request(app).delete(`${runUrl}/tasks/t2`)).status).toBe(202);
+
+    const finished = await waitFor(app, created.body.id, (run) => run.status === 'completed');
+    expect(finished.tasks.map((task) => task.status)).toEqual(['done', 'cancelled', 'done']);
+    expect(finished.requests.find((item) => item.taskId === 't2')?.status).toBe('expired');
+    expect(finished.events.some((event) => event.type === 'step_removed')).toBe(true);
+    expect((await request(app).delete(`${runUrl}/tasks/t2`)).body.error).toBe('This step was already removed.');
+  });
+
+  it('adds steps from a change to the whole workflow', async () => {
+    const addStep = (): EngineServices => {
+      const base = stubServices();
+      const revise = async (): Promise<Revision> => ({ reply: 'Added a thank-you email.', update: [], remove: [], add: [planTask('t4', 'Write the thank-you email', ['t1'])] });
+      const route = async (tasks: PlanTask[]): Promise<RoutingDecision[]> =>
+        tasks.map((task) => ({ taskId: task.id, executor: task.id === 't2' ? 'human' : 'ai', reason: task.id === 't2' ? 'authority' : null, action: task.id === 't2' ? 'approve' : null, role: task.id === 't2' ? null : 'writer', rationale: 'stub' }));
+      return { ...base, planner: { ...base.planner, revise }, router: { route } } as unknown as EngineServices;
+    };
+    const app = buildApp(addStep);
+    const created = await request(app).post('/api/autopilot/runs').send(validBody);
+    await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
+    expect((await request(app).post(`/api/autopilot/runs/${created.body.id}/changes`).send({ instruction: 'Also thank everyone who signs up' })).status).toBe(202);
+    const changed = await waitFor(app, created.body.id, (run) => run.tasks.find((task) => task.id === 't4')?.status === 'done');
+    expect(changed.tasks.find((task) => task.id === 't4')?.origin).toBe('scope_change');
+    expect(changed.events.some((event) => event.type === 'workflow_applied' && event.summary.includes('added "Write the thank-you email"'))).toBe(true);
+  });
+
+  it('picks a run back up after a restart', async () => {
+    const repository = new MemoryRunRepository();
+    const before = buildApp(stubServices, repository);
+    const created = await request(before).post('/api/autopilot/runs').send(validBody);
+    const waiting = await waitFor(before, created.body.id, (run) => run.status === 'waiting_on_people');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const open = waiting.requests.find((item) => item.status === 'open');
+
+    // A new service with the same database stands in for the server after a deploy.
+    const after = buildApp(stubServices, repository);
+    const answered = await request(after).post(`/api/autopilot/runs/${created.body.id}/requests/${open?.id}/answer`).send({ response: 'Approve' });
+    expect(answered.status).toBe(200);
+    const finished = await waitFor(after, created.body.id, (run) => run.status === 'completed');
+    expect(finished.tasks.map((task) => task.status)).toEqual(['done', 'done', 'done']);
+    expect(finished.people?.[0]?.name).toBe('Sara');
   });
 
   it('never shows a run to another space', async () => {

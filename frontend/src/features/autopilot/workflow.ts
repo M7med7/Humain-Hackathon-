@@ -19,7 +19,7 @@ export interface WorkflowEdge {
 
 export const OBJECTIVE_ID = 'objective';
 export const REPORT_ID = 'report';
-const COLUMN_WIDTH = 320;
+export const COLUMN_WIDTH = 320;
 const ROW_HEIGHT = 150;
 const ACTIVE = new Set<RunTask['status']>(['working', 'review']);
 

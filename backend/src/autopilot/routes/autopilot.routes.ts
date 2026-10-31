@@ -14,5 +14,7 @@ export function autopilotRoutes(controller: AutopilotController): Router {
   router.get('/runs/:runId/stream', controller.stream);
   router.post('/runs/:runId/requests/:requestId/answer', rateLimit({ limit: 60, windowMs: MINUTE_MS }), controller.answer);
   router.post('/runs/:runId/messages', rateLimit({ limit: 20, windowMs: HOUR_MS }), controller.message);
+  router.post('/runs/:runId/changes', rateLimit({ limit: 30, windowMs: HOUR_MS }), controller.change);
+  router.delete('/runs/:runId/tasks/:taskId', rateLimit({ limit: 60, windowMs: HOUR_MS }), controller.removeStep);
   return router;
 }

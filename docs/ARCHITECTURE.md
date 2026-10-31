@@ -27,6 +27,15 @@ eval/                              datasets and the evaluation runner
 
 Dependencies point one way: routes → controllers → services → repositories/models. Services receive their dependencies through constructors, so the same code runs against Supabase in the app and against memory in the evaluation harness.
 
+## Changing a workflow after it starts
+
+Runs are live in memory while they work, and every change is saved as a snapshot. People can change a run at any time from the workflow canvas:
+
+- `POST /api/autopilot/runs/:id/changes` takes an instruction, optionally about one step. One planner call returns a checked revision: steps to update (and redo), steps to remove, and new steps (routed like the original plan). Steps an agent is working on cannot be changed.
+- `DELETE /api/autopilot/runs/:id/tasks/:taskId` removes a step without a model call. It stays visible as removed, and later steps stop waiting for it.
+
+A finished run reopens for the change and writes its report again when every step is done. A run that a server restart cut off is loaded from its snapshot when someone next answers or changes it: interrupted agent work starts again and open requests go back to people.
+
 ## Security
 
 - **Secrets** live only in ignored `.env` files; configuration is validated at startup and the process refuses to start when a required value is missing. A pre-commit hook (`scripts/check-secrets.sh`) blocks credentials and env files.

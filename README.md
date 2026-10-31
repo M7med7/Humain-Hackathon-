@@ -4,7 +4,7 @@
 
 Submission for the AI Builders Hackathon (HUMAIN × Misk), Challenge 3: Autonomous Enterprise.
 
-- **Live app:** https://zeroone-autopilot.vercel.app — choose **Enter as a judge** on the sign-in page. Judges land on Autopilot with a four-step guide (agents at work, the live workflow, how the agents worked, results) and a link to the showcase run. The tour is view-only; creating runs requires an account.
+- **Live app:** https://zeroone-autopilot.vercel.app — choose **Enter as a judge** on the sign-in page. Judges land on Autopilot with a four-step guide, a link to the showcase run (press **Replay** on its workflow to watch it build) and links to the test results and code. The tour is view-only; creating or changing runs requires an account.
 - **Evaluation results:** [`eval/RESULTS.md`](eval/RESULTS.md) · iteration log: [`eval/ITERATIONS.md`](eval/ITERATIONS.md) · test design: [`eval/README.md`](eval/README.md)
 - **Architecture:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
@@ -20,7 +20,7 @@ A project manager writes one objective, a deadline and the people who can approv
 2. **Routes every task** to agents, to agents plus a person, or to a person, and records the reason.
 3. **Does the agent work**, and a reviewer checks every deliverable before it is accepted.
 4. **Asks people only for real-world steps** (approve, provide information, perform an action) through a single "Needs you" list.
-5. **Adapts** when things change (a client scope change, a silent teammate, broken agent output) by re-planning, reassigning or escalating the trade-off.
+5. **Adapts** when things change (a client scope change, a silent teammate, broken agent output) by re-planning, reassigning or escalating the trade-off. People can also change the workflow at any time, even after it finished: ask the AI to change a step, or add and remove steps, and the agents carry on.
 6. **Reports** the outcome in English and Arabic, built only from what actually happened, and mirrors the project into ZeroOne's board.
 
 ## How it works
@@ -57,7 +57,7 @@ Held-out test data was written and committed before any agent code existed ([`ev
 
 ## What we tested and what we learned
 
-**Tested:** routing on 40 held-out tasks (a third in Arabic, with look-alike pairs such as "design the printed banner" vs "collect the printed banners"); 5 held-out business processes run end to end twice each, with problems injected mid-run (client scope changes, corrupted agent output, a teammate who never answers); ablations that switch each optimization off; and 234 automated tests. Every change was made on the dev split; the held-out split was run only with the final configuration.
+**Tested:** routing on 40 held-out tasks (a third in Arabic, with look-alike pairs such as "design the printed banner" vs "collect the printed banners"); 5 held-out business processes run end to end twice each, with problems injected mid-run (client scope changes, corrupted agent output, a teammate who never answers); ablations that switch each optimization off; and 243 automated tests. Every change was made on the dev split; the held-out split was run only with the final configuration.
 
 **Learned** (full log with evidence in [`eval/ITERATIONS.md`](eval/ITERATIONS.md)):
 
@@ -121,15 +121,15 @@ Autopilot is a new module built for the hackathon on top of ZeroOne Manager, an 
    cd frontend && npm install && npm run dev
    ```
 
-5. Open http://localhost:5173, sign up, choose **Autopilot**, and use **Try an example**. Keep **Simulate my team's replies** on to watch a full run in about two minutes: simulated teammates answer their own requests, while anything addressed to you or needing your decision waits in **Needs you**. **Agents at work** shows which agents are working, on what, and which are asleep. **Workflow** draws the plan as a live graph: steps light up while an agent works on them, and clicking a step shows why it was routed that way, its acceptance criteria, its draft and any approval waiting on it. While the run is active, use **Message from the client** to change the scope and watch the lead agent re-plan.
+5. Open http://localhost:5173, sign up, choose **Autopilot**, and use **Try an example**. Keep **Simulate my team's replies** on to watch a full run in about two minutes: simulated teammates answer their own requests, while anything addressed to you or needing your decision waits in **Needs you**. **Agents at work** shows which agents are working, on what, and which are asleep. **Workflow** draws the plan as a live graph: boxes appear as the plan is made, steps light up while an agent works on them, and clicking a step shows why it was routed that way, its acceptance criteria, its draft and any approval waiting on it. In the same panel, ask the AI to change the step or remove it; **Change the workflow** adds or removes steps for the whole run, and **Replay** plays a run back from its activity log. While the run is active, use **Message from the client** to change the scope and watch the lead agent re-plan.
 
 Never commit `.env` files or expose the service-role key to the browser. [`scripts/check-secrets.sh`](scripts/check-secrets.sh) scans for credentials and is used as a pre-commit hook.
 
 ## Test it
 
 ```bash
-cd backend && npm test     # 160 tests: engine, routing, reviewer, lead, auth, API
-cd frontend && npm test    # 74 tests: Autopilot views, workflow graph, plan diff, page loading, utilities
+cd backend && npm test     # 165 tests: engine, routing, reviewer, lead, workflow changes, auth, API
+cd frontend && npm test    # 78 tests: Autopilot views, workflow graph and replay, plan diff, page loading, utilities
 ```
 
 **Reproduce the routing evaluation without an API key.** Model responses are recorded, so the held-out routing numbers replay offline (any 20+ character placeholder satisfies the key check):

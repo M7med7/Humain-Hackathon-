@@ -54,6 +54,7 @@ const FINISHED = new Set<Run['status']>(['completed', 'stopped']);
  */
 export class RunService {
   private readonly live = new Map<string, LiveRun>();
+  private readonly revivals = new Map<string, Promise<LiveRun>>();
 
   constructor(
     private readonly config: AutopilotConfig,
@@ -67,19 +68,9 @@ export class RunService {
     } catch {
       throw new RunServiceError(400, 'Everyone picked from the team must be a member of this space.');
     }
-    const active = [...this.live.values()].filter((entry) => entry.owner.spaceId === owner.spaceId && entry.latest && ACTIVE.has(entry.latest.status));
-    if (active.length >= MAX_ACTIVE_RUNS_PER_SPACE) {
-      throw new RunServiceError(429, 'This space already has runs in progress. Wait for one to finish.');
-    }
+    this.assertCapacity(owner.spaceId);
     const id = randomUUID();
-    // The simulated team never answers for the person who started the run.
-    const ownerNames = new Set(objective.people.filter((person) => person.userId === owner.userId).map((person) => person.name));
-    const engine = this.deps.createEngine(this.config, {
-      people: simulateTeam ? new DemoTeam(ownerNames) : manualPeople,
-      simulateTimeouts: false,
-      onChange: (run) => this.onChange(id, run),
-    });
-    this.live.set(id, { engine, owner, people: objective.people, simulateTeam, latest: null, listeners: new Set(), pendingSave: null, saving: false });
+    const engine = this.register(id, owner, objective.people, simulateTeam);
     logger.info('run started', { runId: id, spaceId: owner.spaceId });
     engine.start(objective, id).catch((error: unknown) => logger.error('run crashed', { runId: id, error: errorMessage(error) }));
     return id;
@@ -97,25 +88,30 @@ export class RunService {
     return this.deps.repository.list(spaceId, LIST_LIMIT);
   }
 
-  async answer(id: string, spaceId: string, requestId: string, response: string, by: string): Promise<Run> {
-    const entry = this.live.get(id);
-    if (!entry || entry.owner.spaceId !== spaceId) throw new RunServiceError(404, 'This run is no longer active.');
+  async answer(id: string, caller: RunOwner, requestId: string, response: string): Promise<Run> {
+    const entry = await this.activate(id, caller);
     try {
-      return await entry.engine.answer(requestId, response, by);
+      return await entry.engine.answer(requestId, response, caller.userId);
     } catch (error: unknown) {
       throw new RunServiceError(400, errorMessage(error));
     }
   }
 
   /** A message from the client during the run; the lead decides whether it changes the scope. */
-  message(id: string, spaceId: string, text: string): void {
-    const entry = this.live.get(id);
-    if (!entry || entry.owner.spaceId !== spaceId) throw new RunServiceError(404, 'This run is no longer active.');
-    try {
-      entry.engine.message(text);
-    } catch (error: unknown) {
-      throw new RunServiceError(400, errorMessage(error));
-    }
+  async message(id: string, caller: RunOwner, text: string): Promise<void> {
+    const entry = await this.activate(id, caller);
+    this.apply(() => entry.engine.message(text));
+  }
+
+  /** A person's change to the workflow, about one step or the whole run. Also reopens finished runs. */
+  async change(id: string, caller: RunOwner, instruction: string, taskId: string | null): Promise<void> {
+    const entry = await this.activate(id, caller);
+    this.apply(() => entry.engine.change(instruction, taskId));
+  }
+
+  async removeStep(id: string, caller: RunOwner, taskId: string): Promise<void> {
+    const entry = await this.activate(id, caller);
+    this.apply(() => entry.engine.removeStep(taskId));
   }
 
   /** Returns an unsubscribe function, or null when the run is not live in this space. */
@@ -124,6 +120,65 @@ export class RunService {
     if (!entry || entry.owner.spaceId !== spaceId) return null;
     entry.listeners.add(listener);
     return () => entry.listeners.delete(listener);
+  }
+
+  private apply(action: () => void): void {
+    try {
+      action();
+    } catch (error: unknown) {
+      throw new RunServiceError(400, errorMessage(error));
+    }
+  }
+
+  private assertCapacity(spaceId: string): void {
+    const active = [...this.live.values()].filter((entry) => entry.owner.spaceId === spaceId && entry.latest && ACTIVE.has(entry.latest.status));
+    if (active.length >= MAX_ACTIVE_RUNS_PER_SPACE) {
+      throw new RunServiceError(429, 'This space already has runs in progress. Wait for one to finish.');
+    }
+  }
+
+  private register(id: string, owner: RunOwner, people: Objective['people'], simulateTeam: boolean): AutopilotEngine {
+    // The simulated team never answers for the person who started the run.
+    const ownerNames = new Set(people.filter((person) => person.userId === owner.userId).map((person) => person.name));
+    const engine = this.deps.createEngine(this.config, {
+      people: simulateTeam ? new DemoTeam(ownerNames) : manualPeople,
+      simulateTimeouts: false,
+      onChange: (run) => this.onChange(id, run),
+    });
+    this.live.set(id, { engine, owner, people, simulateTeam, latest: null, listeners: new Set(), pendingSave: null, saving: false });
+    return engine;
+  }
+
+  /** The live run, reopening a stored one (finished, or cut off by a restart) when needed. */
+  private async activate(id: string, caller: RunOwner): Promise<LiveRun> {
+    const pending = this.live.get(id) ?? (await this.reviving(id, caller));
+    if (pending.owner.spaceId !== caller.spaceId) throw new RunServiceError(404, 'Run not found.');
+    return pending;
+  }
+
+  /** One reopen per run even when requests arrive together. */
+  private reviving(id: string, caller: RunOwner): Promise<LiveRun> {
+    const existing = this.revivals.get(id);
+    if (existing) return existing;
+    const revival = this.revive(id, caller).finally(() => this.revivals.delete(id));
+    this.revivals.set(id, revival);
+    return revival;
+  }
+
+  private async revive(id: string, caller: RunOwner): Promise<LiveRun> {
+    const stored = await this.deps.repository.load(id, caller.spaceId);
+    if (!stored) throw new RunServiceError(404, 'Run not found.');
+    if (stored.run.status === 'planning') throw new RunServiceError(400, 'This run was interrupted before its plan was ready. Start a new run.');
+    if (stored.run.status === 'stopped') throw new RunServiceError(400, 'This run stopped. Start a new run to continue.');
+    this.assertCapacity(caller.spaceId);
+    const owner = { spaceId: caller.spaceId, userId: stored.createdBy ?? caller.userId };
+    const people = stored.run.people ?? [];
+    const engine = this.register(id, owner, people, stored.run.simulatedTeam ?? false);
+    engine.resume(stored.run);
+    logger.info('run reopened', { runId: id, spaceId: caller.spaceId });
+    const entry = this.live.get(id);
+    if (!entry) throw new RunServiceError(500, 'Could not reopen the run.');
+    return entry;
   }
 
   private onChange(id: string, snapshot: Run): void {

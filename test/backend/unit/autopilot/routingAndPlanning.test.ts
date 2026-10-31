@@ -2,7 +2,7 @@ import { computeRoutingMetrics } from '../../../../backend/src/autopilot/eval/ro
 import type { RoutingCase } from '../../../../backend/src/autopilot/eval/datasets';
 import type { PlanTask } from '../../../../backend/src/autopilot/models/plan';
 import type { RoutingDecision } from '../../../../backend/src/autopilot/models/routing';
-import { sanitizeTasks } from '../../../../backend/src/autopilot/services/planner.service';
+import { PlannerService, sanitizeTasks } from '../../../../backend/src/autopilot/services/planner.service';
 import type { LlmSession } from '../../../../backend/src/autopilot/services/llm/llmSession';
 import { normalizeDecision, RouterService } from '../../../../backend/src/autopilot/services/router.service';
 
@@ -99,6 +99,33 @@ describe('sanitizeTasks', () => {
 
   it('allows new tasks to depend on existing ones during a scope change', () => {
     expect(sanitizeTasks([planTask('t5', ['t2'])], new Set(['t2']), new Set())[0]?.dependsOn).toEqual(['t2']);
+  });
+});
+
+describe('PlannerService.revise', () => {
+  const step = (id: string, status: string) => ({ id, title: `Step ${id}`, description: 'A step used in tests.', acceptanceCriteria: ['It exists'], dependsOn: [], status });
+  const newStep = (id: string, dependsOn: string[]): PlanTask => ({ ...step(id, 'waiting'), dependsOn, estimatedDays: 1, priority: 'medium', language: 'en', owner: null });
+
+  it('only changes steps that exist and are not in progress, and keeps new ids unique', async () => {
+    const llm = {
+      json: async () => ({
+        reply: 'Done.',
+        update: [
+          { id: 't1', title: 'Shorter step', description: null, acceptanceCriteria: null, redo: true },
+          { id: 't2', title: 'Busy step', description: null, acceptanceCriteria: null, redo: false },
+          { id: 't9', title: 'Unknown step', description: null, acceptanceCriteria: null, redo: false },
+          { id: 't3', title: null, description: null, acceptanceCriteria: null, redo: false },
+        ],
+        remove: ['t2', 't3', 't3', 't8'],
+        add: [newStep('t1', []), newStep('t4', ['t1', 't7'])],
+      }),
+    } as unknown as LlmSession;
+    const planner = new PlannerService(llm, { model: 'm', maxTasks: 12 });
+    const revision = await planner.revise([step('t1', 'done'), step('t2', 'working'), step('t3', 'waiting')], 'Make the first step shorter', 't1', []);
+
+    expect(revision.update).toEqual([{ id: 't1', patch: { title: 'Shorter step' }, redo: true }]);
+    expect(revision.remove).toEqual(['t3']);
+    expect(revision.add.map((task) => [task.id, task.dependsOn])).toEqual([['t4', ['t1']]]);
   });
 });
 

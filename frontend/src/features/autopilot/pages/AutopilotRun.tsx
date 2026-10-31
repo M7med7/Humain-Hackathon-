@@ -8,7 +8,7 @@ import { ActivityPanel } from '../components/ActivityPanel';
 import { AgentsAtWork } from '../components/AgentsAtWork';
 import { ClientMessage } from '../components/ClientMessage';
 import { DeliverableViewer, Deliverables } from '../components/Deliverables';
-import { JudgeGuideStrip } from '../components/JudgeGuide';
+import { RunGuide } from '../components/Guide';
 import { NeedsYou } from '../components/NeedsYou';
 import { StatusPill } from '../components/StatusPill';
 import { WorkflowCanvas } from '../components/WorkflowCanvas';
@@ -21,7 +21,7 @@ import '../autopilot.css';
 export function AutopilotRun() {
   const { runId = '' } = useParams();
   const { t } = useTranslation('autopilot');
-  const { run, error, replace } = useRunStream(runId);
+  const { run, error, replace, reconnect } = useRunStream(runId);
   const { isJudge } = useAuth();
   const [answerError, setAnswerError] = useState<string | null>(null);
   const [viewing, setViewing] = useState<Deliverable | null>(null);
@@ -29,6 +29,17 @@ export function AutopilotRun() {
   // Progress arrives on the live stream; the request only hands the message to the lead agent.
   const sendMessage = async (message: string): Promise<void> => {
     await autopilotApi.sendMessage(runId, message);
+  };
+
+  // A change can reopen a finished run, so the page listens for live updates again.
+  const changeWorkflow = async (instruction: string, taskId: string | null): Promise<void> => {
+    await autopilotApi.changeWorkflow(runId, instruction, taskId);
+    reconnect();
+  };
+
+  const removeStep = async (taskId: string): Promise<void> => {
+    await autopilotApi.removeStep(runId, taskId);
+    reconnect();
   };
 
   const answer = async (requestId: string, response: string): Promise<void> => {
@@ -82,10 +93,12 @@ export function AutopilotRun() {
           )}
         </header>
 
-        {isJudge && <JudgeGuideStrip />}
+        <RunGuide />
         <StatTiles run={run} />
         {run.tasks.length > 0 || live ? <AgentsAtWork run={run} /> : null}
-        {run.tasks.length > 0 && <WorkflowCanvas run={run} onAnswer={answer} onView={setViewing} readOnly={isJudge} />}
+        {(run.tasks.length > 0 || run.status === 'planning') && (
+          <WorkflowCanvas run={run} onAnswer={answer} onView={setViewing} onChange={changeWorkflow} onRemove={removeStep} readOnly={isJudge} />
+        )}
 
         {run.stopReason && (
           <p role="alert" className="ap-card p-4 text-[14px] text-(--ap-bad)">

@@ -23,6 +23,10 @@ export const autopilotApi = {
     call(`/runs/${runId}/requests/${requestId}/answer`, { method: 'POST', body: JSON.stringify({ response }) }),
   sendMessage: (runId: string, message: string): Promise<{ accepted: boolean }> =>
     call(`/runs/${runId}/messages`, { method: 'POST', body: JSON.stringify({ message }) }),
+  /** Asks the lead agent to change the workflow, about one step (taskId) or as a whole (null). */
+  changeWorkflow: (runId: string, instruction: string, taskId: string | null): Promise<{ accepted: boolean }> =>
+    call(`/runs/${runId}/changes`, { method: 'POST', body: JSON.stringify({ instruction, taskId }) }),
+  removeStep: (runId: string, taskId: string): Promise<{ accepted: boolean }> => call(`/runs/${runId}/tasks/${taskId}`, { method: 'DELETE' }),
 };
 
 /**

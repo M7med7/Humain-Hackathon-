@@ -6,7 +6,7 @@ import { isAccepted, type Deliverable, type EventActor, type HumanRequest, type 
 import type { LeadService } from '../lead.service';
 import type { LlmSession } from '../llm/llmSession';
 import { LlmError } from '../llm/types';
-import type { PlannerService } from '../planner.service';
+import type { PlannerService, StepUpdate } from '../planner.service';
 import { repairHtml } from '../review/repair';
 import { feedbackFrom, type ReviewerService } from '../reviewer.service';
 import type { RouterService } from '../router.service';
@@ -69,6 +69,8 @@ export class AutopilotEngine {
   private readonly firedMessages = new Set<number>();
   private readonly corrupted = new Set<string>();
   private draining = false;
+  /** Model calls recorded before this engine picked the run up, so cost reporting stays complete. */
+  private priorCalls: Run['calls'] = [];
 
   constructor(
     private readonly services: EngineServices,
@@ -83,12 +85,21 @@ export class AutopilotEngine {
   }
 
   snapshot(): Run {
-    return structuredClone({ ...this.run, calls: [...this.services.llm.calls] });
+    return structuredClone({ ...this.run, calls: [...this.priorCalls, ...this.services.llm.calls] });
   }
 
   async start(objective: Objective, runId: string = randomUUID()): Promise<Run> {
     this.objective = objective;
-    this.run = { ...emptyRun(), id: runId, startedAt: new Date().toISOString(), objective: objective.objective, deadlineDays: objective.deadlineDays, lang: objective.lang };
+    this.run = {
+      ...emptyRun(),
+      id: runId,
+      startedAt: new Date().toISOString(),
+      objective: objective.objective,
+      deadlineDays: objective.deadlineDays,
+      lang: objective.lang,
+      people: objective.people,
+      context: objective.context,
+    };
     this.emit('client', 'observed', 'objective', `New objective: ${objective.objective}`);
     this.emit('planner', 'acted', 'planning', 'Drafting the plan: tasks, dependencies and acceptance criteria');
     this.changed();
@@ -128,6 +139,64 @@ export class AutopilotEngine {
     if (this.run.status === 'completed' || this.run.status === 'stopped' || this.run.tasks.every(isTerminal)) throw new Error('This run has already finished.');
     this.queue.push(this.hour, { type: 'client_message', message: text });
     this.drain().catch((error: unknown) => this.stop(error));
+  }
+
+  /**
+   * Picks up a stored run, so people can keep changing it after it finished or after a
+   * restart. Work a restart cut off starts again; open requests go back to the people.
+   */
+  resume(stored: Run): void {
+    const people = stored.people ?? peopleNamedIn(stored.tasks);
+    this.objective = { objective: stored.objective, deadlineDays: stored.deadlineDays, people, context: stored.context ?? '', lang: stored.lang };
+    this.priorCalls = stored.calls;
+    this.hour = Math.max(0, ...stored.events.map((event) => event.hour));
+    this.eventSeq = (stored.events.at(-1)?.seq ?? -1) + 1;
+    this.run = { ...stored, people, calls: [] };
+    const accepted = new Set(stored.deliverables.filter(isAccepted).map((deliverable) => deliverable.id));
+    for (const task of stored.tasks) {
+      const hasOpenRequest = stored.requests.some((request) => request.taskId === task.id && request.status === 'open');
+      if (task.status === 'review' && task.deliverableId && accepted.has(task.deliverableId)) this.queue.push(this.hour, { type: 'complete', taskId: task.id });
+      else if (task.status === 'working' || task.status === 'review') this.updateTask(task.id, { status: 'waiting' });
+      else if (task.status === 'needs_person' && !hasOpenRequest) this.queue.push(this.hour, { type: 'complete', taskId: task.id });
+    }
+    for (const request of stored.requests) if (request.status === 'open') this.deliver(request);
+    this.queueReady();
+  }
+
+  /** A person asked to change the workflow, about one step or as a whole. Processed in the background. */
+  change(instruction: string, taskId: string | null): void {
+    this.assertChangeable(taskId);
+    this.reopen();
+    this.queue.push(this.hour, { type: 'change', instruction, taskId });
+    this.drain().catch((error: unknown) => this.stop(error));
+  }
+
+  /** Removes a step without a model call. Later steps no longer wait for it. */
+  removeStep(taskId: string): void {
+    this.assertChangeable(taskId);
+    if (this.task(taskId)?.status === 'cancelled') throw new Error('This step was already removed.');
+    this.reopen();
+    const removed = this.cancelStep(taskId);
+    if (removed) this.emit('client', 'decided', 'step_removed', `Removed "${removed.title}" from the workflow`, removed.id);
+    this.queueReady();
+    this.changed();
+    this.drain().catch((error: unknown) => this.stop(error));
+  }
+
+  private assertChangeable(taskId: string | null): void {
+    if (this.run.status === 'planning') throw new Error('Wait until the plan is ready.');
+    if (this.run.status === 'stopped') throw new Error('This run stopped. Start a new run to continue.');
+    if (taskId === null) return;
+    const task = this.task(taskId);
+    if (!task) throw new Error('Step not found.');
+    if (task.status === 'working' || task.status === 'review') throw new Error('An agent is working on this step. Try again when it finishes.');
+  }
+
+  /** A finished run goes back to work; its report is rewritten once every step is done again. */
+  private reopen(): void {
+    if (this.run.status !== 'completed') return;
+    this.run = { ...this.run, status: 'running' };
+    this.emit('lead', 'acted', 'reopened', 'Reopened the finished run to apply a change');
   }
 
   // ── Event loop ──────────────────────────────────────────────────────────────
@@ -174,6 +243,8 @@ export class AutopilotEngine {
         return this.onTimeout(event.requestId);
       case 'client_message':
         return this.onClientMessage(event.message);
+      case 'change':
+        return this.onChangeRequest(event.instruction, event.taskId);
     }
   }
 
@@ -279,6 +350,64 @@ export class AutopilotEngine {
     this.queueReady();
   }
 
+  private async onChangeRequest(instruction: string, taskId: string | null): Promise<void> {
+    const focus = taskId ? this.task(taskId) : undefined;
+    this.emit('client', 'observed', 'change_requested', instruction, focus?.id ?? null);
+    const objective = this.requireObjective();
+    const revision = await this.services.planner.revise(this.run.tasks, instruction, focus?.id ?? null, objective.people);
+
+    // The model call took time: steps an agent picked up meanwhile are left alone.
+    const idle = (id: string): boolean => {
+      const status = this.task(id)?.status;
+      return status !== undefined && status !== 'working' && status !== 'review';
+    };
+    const updated = revision.update.filter((item) => idle(item.id)).map((item) => this.updateStep(item.id, item.patch, item.redo, instruction));
+    const removed = revision.remove.filter(idle).flatMap((id) => this.cancelStep(id) ?? []);
+    let added: RunTask[] = [];
+    if (revision.add.length > 0) {
+      const decisions = await this.services.router.route(revision.add);
+      added = this.toRunTasks(revision.add, decisions, 'scope_change');
+      this.run = { ...this.run, tasks: [...this.run.tasks, ...added] };
+      this.announceRouting(added);
+    }
+
+    const changes = [
+      ...updated.map((task) => `changed "${task.title}"`),
+      ...removed.map((task) => `removed "${task.title}"`),
+      ...added.map((task) => `added "${task.title}"`),
+    ];
+    if (changes.length === 0) {
+      this.emit('lead', 'decided', 'scope_unchanged', revision.reply, focus?.id ?? null);
+      return;
+    }
+    this.emit('lead', 'decided', 'workflow_changed', revision.reply, focus?.id ?? null);
+    this.emit('lead', 'acted', 'workflow_applied', `Workflow updated: ${changes.join('; ')}`);
+    if (added.length > 0) this.checkDeadline(added);
+    this.queueReady();
+  }
+
+  /** Applies a revision to one step. A step whose work is finished or waiting on a person starts over when asked to redo. */
+  private updateStep(id: string, patch: StepUpdate['patch'], redo: boolean, instruction: string): RunTask {
+    const task = this.task(id) as RunTask;
+    const restart = redo || task.status === 'needs_person';
+    if (restart) this.expireRequests(id);
+    this.updateTask(id, { ...patch, ...(restart && { status: 'waiting', finishedAtHour: null, feedback: `Requested change: ${instruction}` }) });
+    return this.task(id) as RunTask;
+  }
+
+  /** Marks a step removed. It stays visible as removed, and later steps stop waiting for it. */
+  private cancelStep(id: string): RunTask | null {
+    const task = this.task(id);
+    if (!task || task.status === 'cancelled') return null;
+    this.expireRequests(id);
+    this.updateTask(id, { status: 'cancelled' });
+    return task;
+  }
+
+  private expireRequests(taskId: string): void {
+    for (const request of this.run.requests) if (request.taskId === taskId && request.status === 'open') this.updateRequest(request.id, { status: 'expired' });
+  }
+
   // ── Agent work ──────────────────────────────────────────────────────────────
 
   private async runAgentTask(task: RunTask): Promise<void> {
@@ -354,7 +483,7 @@ export class AutopilotEngine {
     const inputs = sources.flatMap((id) => {
       const deliverable = latest.get(id);
       const source = this.task(id);
-      if (!deliverable || !source) return [];
+      if (!deliverable || !source || source.status === 'cancelled') return [];
       return [{ title: source.title, content: scoped ? deliverable.content.slice(0, SCOPED_INPUT_CHARS) : deliverable.content }];
     });
     if (!scoped) inputs.push({ title: 'project history', content: this.run.events.map((event) => event.summary).join('\n') });
@@ -506,6 +635,12 @@ function instructionFor(task: RunTask): string {
   if (action === 'approve') return `Review and approve "${task.title}".`;
   if (action === 'provide') return `Provide what is needed for "${task.title}".`;
   return `Do "${task.title}" and mark it done.`;
+}
+
+/** Runs saved before people were stored: the names on their steps stand in, with no role. */
+function peopleNamedIn(tasks: readonly RunTask[]): Objective['people'] {
+  const names = new Set(tasks.flatMap((task) => [task.assignee, task.owner].filter((name): name is string => Boolean(name))));
+  return [...names].map((name) => ({ name, role: 'Team member', userId: null }));
 }
 
 function emptyRun(): Run {

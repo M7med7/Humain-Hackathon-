@@ -17,6 +17,8 @@ export interface RunSummary {
 export interface RunRepository {
   save(run: Run, owner: RunOwner): Promise<void>;
   get(id: string, spaceId: string): Promise<Run | null>;
+  /** The run with the user who started it, for reopening it later. */
+  load(id: string, spaceId: string): Promise<{ run: Run; createdBy: string | null } | null>;
   list(spaceId: string, limit: number): Promise<RunSummary[]>;
 }
 
@@ -39,6 +41,12 @@ export class SupabaseRunRepository implements RunRepository {
     const { data, error } = await this.db.from('autopilot_runs').select('snapshot').eq('id', id).eq('space_id', spaceId).maybeSingle();
     if (error) throw new Error(`Could not load run: ${error.message}`);
     return (data?.snapshot as Run | undefined) ?? null;
+  }
+
+  async load(id: string, spaceId: string): Promise<{ run: Run; createdBy: string | null } | null> {
+    const { data, error } = await this.db.from('autopilot_runs').select('snapshot, created_by').eq('id', id).eq('space_id', spaceId).maybeSingle();
+    if (error) throw new Error(`Could not load run: ${error.message}`);
+    return data ? { run: data.snapshot as Run, createdBy: (data.created_by as string | null) ?? null } : null;
   }
 
   async list(spaceId: string, limit: number): Promise<RunSummary[]> {
@@ -64,6 +72,11 @@ export class MemoryRunRepository implements RunRepository {
   async get(id: string, spaceId: string): Promise<Run | null> {
     const row = this.rows.get(id);
     return row && row.owner.spaceId === spaceId ? structuredClone(row.run) : null;
+  }
+
+  async load(id: string, spaceId: string): Promise<{ run: Run; createdBy: string | null } | null> {
+    const row = this.rows.get(id);
+    return row && row.owner.spaceId === spaceId ? { run: structuredClone(row.run), createdBy: row.owner.userId } : null;
   }
 
   async list(spaceId: string, limit: number): Promise<RunSummary[]> {

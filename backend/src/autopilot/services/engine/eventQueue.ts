@@ -4,7 +4,8 @@ export type EngineEvent =
   | { type: 'complete'; taskId: string }
   | { type: 'answer'; requestId: string; response: string; by: string }
   | { type: 'timeout'; requestId: string }
-  | { type: 'client_message'; message: string };
+  | { type: 'client_message'; message: string }
+  | { type: 'change'; instruction: string; taskId: string | null };
 
 interface Scheduled {
   hour: number;

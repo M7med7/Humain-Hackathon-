@@ -2,6 +2,7 @@ import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
+import { EVIDENCE_LINKS } from "../lib/projectLinks";
 
 /** Shown across the app while a judge looks around, so it is clear nothing can be changed. */
 export function JudgeBanner() {
@@ -21,6 +22,11 @@ export function JudgeBanner() {
         {t("judge.bannerTitle")}
       </span>
       <span className="text-white/85">{t("judge.bannerBody")}</span>
+      {EVIDENCE_LINKS.map((link) => (
+        <a key={link.key} href={link.href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-purple-100">
+          {t(`judge.evidence.${link.key}`)}
+        </a>
+      ))}
       <button type="button" onClick={() => void createAccount()} className="rounded-full bg-white px-3 py-0.5 font-semibold text-purple-800 hover:bg-purple-50">
         {t("judge.createAccount")}
       </button>

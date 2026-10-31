@@ -182,11 +182,49 @@
     "criteria": "Done when",
     "owner": "Owner: {{name}}",
     "attempt": "attempt {{attempt}}",
-    "close": "Close"
+    "close": "Close",
+    "hintEditable": "Click a step to see its work, approve it or ask the AI to change it.",
+    "change": "Change the workflow",
+    "changeHint": "Tell the lead agent what to add, remove or change. It updates the steps and the agents carry on, even after the run has finished.",
+    "planning": "The planner is drafting the steps…",
+    "replay": {
+      "start": "Replay",
+      "stop": "Back to live",
+      "play": "Play",
+      "pause": "Pause",
+      "progress": "Event {{current}} of {{total}}",
+      "client": "Client",
+      "scheduler": "Scheduler"
+    },
+    "chat": {
+      "stepTitle": "Ask the AI to change this step",
+      "workflowTitle": "Your request",
+      "stepPlaceholder": "e.g. Make it more formal, or add a step after this to send it to the team",
+      "workflowPlaceholder": "e.g. Add a WhatsApp message after the emails, or remove the printed flyers",
+      "restorePlaceholder": "Ask to bring this step back",
+      "send": "Send",
+      "thinking": "The lead agent is updating the workflow…",
+      "viewOnly": "View only: sign in with an account to change the workflow.",
+      "closed": "This run can't be changed right now.",
+      "busy": "An agent is working on this step. You can change it when it finishes.",
+      "suggest": {
+        "shorter": "Make it shorter and simpler",
+        "bilingual": "Write it in Arabic and English",
+        "detail": "Add more detail",
+        "after": "Add a step after this one to share it with the team"
+      },
+      "removeStep": "Remove this step",
+      "confirmRemove": "Remove this step from the workflow?",
+      "remove": "Remove",
+      "keep": "Keep it",
+      "removed": "Step removed from the workflow.",
+      "you": "You",
+      "lead": "Lead agent"
+    }
   },
-  "judgeGuide": {
+  "guide": {
     "title": "Start here",
-    "intro": "A two-minute tour of one finished run: what the agents did, where people stepped in, and what was delivered.",
+    "intro": "A two-minute tour of one finished run: press Replay on the workflow to watch it build, then see where people stepped in and what was delivered.",
     "open": "Open the showcase run",
     "strip": "How to read this run",
     "steps": {
@@ -196,7 +234,7 @@
       },
       "workflow": {
         "title": "Workflow",
-        "body": "Every step and who does it. Click a step to see why it was routed and its approval."
+        "body": "Every step and who does it. Press Replay to watch the run build; click a step to see its work or ask the AI to change it."
       },
       "activity": {
         "title": "How the agents worked",
@@ -206,6 +244,10 @@
         "title": "Results",
         "body": "The reviewed deliverables and the client report in English and Arabic."
       }
+    },
+    "evidence": {
+      "results": "Test results",
+      "code": "Source code"
     }
   }
 }

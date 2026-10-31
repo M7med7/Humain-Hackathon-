@@ -19,7 +19,12 @@ const createRunSchema = z.object({
 
 const answerSchema = z.object({ response: z.string().trim().min(1).max(500) });
 const messageSchema = z.object({ message: z.string().trim().min(5).max(1_000) });
+const changeSchema = z.object({
+  instruction: z.string().trim().min(3).max(1_000),
+  taskId: z.string().regex(/^t\d{1,3}$/).nullable().default(null),
+});
 const idSchema = z.uuid();
+const taskIdSchema = z.string().regex(/^t\d{1,3}$/);
 const STREAM_HEARTBEAT_MS = 15_000;
 
 interface Caller {
@@ -93,32 +98,63 @@ export class AutopilotController {
       return;
     }
     try {
-      const { spaceId, userId } = caller(res);
-      const run = await this.runs.answer(routeId(req, 'runId'), spaceId, routeId(req, 'requestId'), parsed.data.response, userId);
+      const run = await this.runs.answer(routeId(req, 'runId'), caller(res), routeId(req, 'requestId'), parsed.data.response);
       res.json(run);
     } catch (error: unknown) {
       fail(res, error);
     }
   };
 
-  message = (req: Request, res: Response): void => {
+  message = async (req: Request, res: Response): Promise<void> => {
     // New scope adds work and model calls, so it needs the same role as starting a run.
-    if (!canCreateProjects(res.locals.spaceRole as SpaceRole | undefined)) {
-      res.status(403).json({ error: 'Only admins and developers can change a run.' });
-      return;
-    }
+    if (!this.mayChange(res)) return;
     const parsed = messageSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'Write a message of at least 5 characters.' });
       return;
     }
     try {
-      this.runs.message(routeId(req, 'runId'), caller(res).spaceId, parsed.data.message);
+      await this.runs.message(routeId(req, 'runId'), caller(res), parsed.data.message);
       res.status(202).json({ accepted: true });
     } catch (error: unknown) {
       fail(res, error);
     }
   };
+
+  /** A change to the workflow, about one step or as a whole; progress arrives on the stream. */
+  change = async (req: Request, res: Response): Promise<void> => {
+    if (!this.mayChange(res)) return;
+    const parsed = changeSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Describe the change in at least 3 characters.' });
+      return;
+    }
+    try {
+      await this.runs.change(routeId(req, 'runId'), caller(res), parsed.data.instruction, parsed.data.taskId);
+      res.status(202).json({ accepted: true });
+    } catch (error: unknown) {
+      fail(res, error);
+    }
+  };
+
+  removeStep = async (req: Request, res: Response): Promise<void> => {
+    if (!this.mayChange(res)) return;
+    try {
+      const taskId = taskIdSchema.safeParse(req.params.taskId);
+      if (!taskId.success) throw new RunServiceError(400, 'Invalid taskId.');
+      await this.runs.removeStep(routeId(req, 'runId'), caller(res), taskId.data);
+      res.status(202).json({ accepted: true });
+    } catch (error: unknown) {
+      fail(res, error);
+    }
+  };
+
+  /** Changing a run adds work and model calls, so it needs the same role as starting one. */
+  private mayChange(res: Response): boolean {
+    if (canCreateProjects(res.locals.spaceRole as SpaceRole | undefined)) return true;
+    res.status(403).json({ error: 'Only admins and developers can change a run.' });
+    return false;
+  }
 
   /** Server-sent events: the current snapshot, then one message per change. */
   stream = async (req: Request, res: Response): Promise<void> => {

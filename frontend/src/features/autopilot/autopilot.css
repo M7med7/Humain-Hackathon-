@@ -110,8 +110,21 @@
   }
 }
 
+/* Workflow boxes appear as the plan is created or changed. */
+.ap-node-in {
+  animation: ap-node-in 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ap-node-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ap-live {
+  .ap-live,
+  .ap-node-in {
     animation: none;
   }
 }
