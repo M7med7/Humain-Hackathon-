@@ -18,6 +18,7 @@ const createRunSchema = z.object({
 });
 
 const answerSchema = z.object({ response: z.string().trim().min(1).max(500) });
+const messageSchema = z.object({ message: z.string().trim().min(5).max(1_000) });
 const idSchema = z.uuid();
 const STREAM_HEARTBEAT_MS = 15_000;
 
@@ -95,6 +96,25 @@ export class AutopilotController {
       const { spaceId, userId } = caller(res);
       const run = await this.runs.answer(routeId(req, 'runId'), spaceId, routeId(req, 'requestId'), parsed.data.response, userId);
       res.json(run);
+    } catch (error: unknown) {
+      fail(res, error);
+    }
+  };
+
+  message = (req: Request, res: Response): void => {
+    // New scope adds work and model calls, so it needs the same role as starting a run.
+    if (!canCreateProjects(res.locals.spaceRole as SpaceRole | undefined)) {
+      res.status(403).json({ error: 'Only admins and developers can change a run.' });
+      return;
+    }
+    const parsed = messageSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Write a message of at least 5 characters.' });
+      return;
+    }
+    try {
+      this.runs.message(routeId(req, 'runId'), caller(res).spaceId, parsed.data.message);
+      res.status(202).json({ accepted: true });
     } catch (error: unknown) {
       fail(res, error);
     }

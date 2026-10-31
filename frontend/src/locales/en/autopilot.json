@@ -122,5 +122,15 @@
     "tokens": "Tokens",
     "lite": "On the cheapest model",
     "perTask": "Per delivered task"
+  },
+  "clientMessage": {
+    "title": "Message from the client",
+    "hint": "Change the scope mid-run. The lead agent decides what it changes and asks you only if the deadline is at risk.",
+    "placeholder": "For example: the client also wants…",
+    "useExample": "Use an example",
+    "example": "The client also wants a short Instagram video ad for the launch.",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "Sent. The lead agent is reviewing the change; watch the timeline and activity."
   }
 }

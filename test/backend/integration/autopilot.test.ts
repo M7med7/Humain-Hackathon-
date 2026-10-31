@@ -154,6 +154,50 @@ describe('Autopilot API', () => {
     expect(accepted.deliverables.filter((deliverable) => deliverable.acceptedBy)).toHaveLength(1);
   });
 
+  it('adds work from a client message sent during the run', async () => {
+    const adText = 'Write the Instagram ad set';
+    const withScopeChange = (): EngineServices => {
+      const base = stubServices();
+      return {
+        ...base,
+        planner: { ...base.planner, extend: async () => [planTask('t4', adText)] },
+        router: {
+          route: async (tasks: PlanTask[]): Promise<RoutingDecision[]> =>
+            tasks.map((task) =>
+              task.id === 't4'
+                ? { taskId: 't4', executor: 'ai', reason: null, action: null, role: 'writer', rationale: 'writing' }
+                : { taskId: task.id, executor: task.id === 't2' ? 'human' : 'ai', reason: task.id === 't2' ? 'authority' : null, action: task.id === 't2' ? 'approve' : null, role: task.id === 't2' ? null : 'writer', rationale: 'stub' },
+            ),
+        },
+      } as unknown as EngineServices;
+    };
+    const app = buildApp(withScopeChange);
+    const created = await request(app).post('/api/autopilot/runs').send(validBody);
+    const runUrl = `/api/autopilot/runs/${created.body.id}`;
+    await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
+
+    expect((await request(app).post(`${runUrl}/messages`).send({ message: 'Hi' })).status).toBe(400);
+    expect((await request(app).post(`${runUrl}/messages`).set('x-test-role', 'Member').send({ message: 'Also add an Instagram ad set' })).status).toBe(403);
+
+    const sent = await request(app).post(`${runUrl}/messages`).send({ message: 'The client also wants an Instagram ad set' });
+    expect(sent.status).toBe(202);
+    const changed = await waitFor(app, created.body.id, (run) => run.tasks.find((task) => task.id === 't4')?.status === 'done');
+    expect(changed.tasks.find((task) => task.id === 't4')?.origin).toBe('scope_change');
+    expect(changed.events.some((event) => event.type === 'client_message')).toBe(true);
+    expect(changed.events.some((event) => event.type === 'scope_added')).toBe(true);
+  });
+
+  it('rejects messages for runs that are no longer active', async () => {
+    const app = buildApp();
+    const created = await request(app).post('/api/autopilot/runs').send(validBody);
+    const waiting = await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
+    const open = waiting.requests.find((item) => item.status === 'open');
+    await request(app).post(`/api/autopilot/runs/${created.body.id}/requests/${open?.id}/answer`).send({ response: 'Approve' });
+    await waitFor(app, created.body.id, (run) => run.status === 'completed');
+    const late = await request(app).post(`/api/autopilot/runs/${created.body.id}/messages`).send({ message: 'One more thing for the launch' });
+    expect(late.status).toBe(404);
+  });
+
   it('never shows a run to another space', async () => {
     const app = buildApp();
     const created = await request(app).post('/api/autopilot/runs').send(validBody);

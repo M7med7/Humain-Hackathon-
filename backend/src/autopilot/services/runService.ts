@@ -105,6 +105,17 @@ export class RunService {
     }
   }
 
+  /** A message from the client during the run; the lead decides whether it changes the scope. */
+  message(id: string, spaceId: string, text: string): void {
+    const entry = this.live.get(id);
+    if (!entry || entry.owner.spaceId !== spaceId) throw new RunServiceError(404, 'This run is no longer active.');
+    try {
+      entry.engine.message(text);
+    } catch (error: unknown) {
+      throw new RunServiceError(400, errorMessage(error));
+    }
+  }
+
   /** Returns an unsubscribe function, or null when the run is not live in this space. */
   subscribe(id: string, spaceId: string, listener: Listener): (() => void) | null {
     const entry = this.live.get(id);

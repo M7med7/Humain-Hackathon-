@@ -13,5 +13,6 @@ export function autopilotRoutes(controller: AutopilotController): Router {
   router.get('/runs/:runId', controller.get);
   router.get('/runs/:runId/stream', controller.stream);
   router.post('/runs/:runId/requests/:requestId/answer', rateLimit({ limit: 60, windowMs: MINUTE_MS }), controller.answer);
+  router.post('/runs/:runId/messages', rateLimit({ limit: 20, windowMs: HOUR_MS }), controller.message);
   return router;
 }

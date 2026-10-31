@@ -55,6 +55,19 @@ Held-out test data was written and committed before any agent code existed ([`ev
 | Fake links in accepted deliverables | 0 of 45 |
 | Tokens saved by event-driven agents (ablation) | 58–76% |
 
+## What we tested and what we learned
+
+**Tested:** routing on 40 held-out tasks (a third in Arabic, with look-alike pairs such as "design the printed banner" vs "collect the printed banners"); 5 held-out business processes run end to end twice each, with problems injected mid-run (client scope changes, corrupted agent output, a teammate who never answers); ablations that switch each optimization off; and 206 automated tests. Every change was made on the dev split; the held-out split was run only with the final configuration.
+
+**Learned** (full log with evidence in [`eval/ITERATIONS.md`](eval/ITERATIONS.md)):
+
+- **Plans stopped at documents.** The first planner covered 0% of the real-world checkpoints (budget approval, publishing, brand files). Planning through to the real outcome raised coverage to 67%.
+- **Optimizations can mislead the reviewer.** Stripping markup to save tokens made the judge reject a valid page as "plain text"; the judge is now told what was removed.
+- **Fix in code, not with another model call.** Repairing generated pages in code instead of regenerating them cut the campaign run's cost by 55%.
+- **Single runs are noisy.** The same configuration scored 67% and then 0% on one metric, so final results use repeated trials (pass^2).
+- **Fewer calls cost accuracy.** Batching routing into 2 calls instead of 40 lost 5 points of accuracy on held-out tasks.
+- **Missing inputs are the hardest case.** Most rejections (39 of 48) came from the review judge, typically when agents invented or omitted details nobody provided. This is the main next step.
+
 ## Tech stack
 
 | Layer | Technology |
@@ -108,15 +121,15 @@ Autopilot is a new module built for the hackathon on top of ZeroOne Manager, an 
    cd frontend && npm install && npm run dev
    ```
 
-5. Open http://localhost:5173, sign up, choose **Autopilot**, and use **Try an example**. Keep **Simulate my team's replies** on to watch a full run in about two minutes; decisions addressed to you still wait for your answer.
+5. Open http://localhost:5173, sign up, choose **Autopilot**, and use **Try an example**. Keep **Simulate my team's replies** on to watch a full run in about two minutes; decisions addressed to you still wait for your answer. While the run is active, use **Message from the client** to change the scope and watch the lead agent re-plan.
 
 Never commit `.env` files or expose the service-role key to the browser. [`scripts/check-secrets.sh`](scripts/check-secrets.sh) scans for credentials and is used as a pre-commit hook.
 
 ## Test it
 
 ```bash
-cd backend && npm test     # 157 tests: engine, routing, reviewer, lead, auth, API
-cd frontend && npm test    # 45 tests: Autopilot views, plan diff, utilities
+cd backend && npm test     # 159 tests: engine, routing, reviewer, lead, auth, API
+cd frontend && npm test    # 47 tests: Autopilot views, plan diff, utilities
 ```
 
 **Reproduce the routing evaluation without an API key.** Model responses are recorded, so the held-out routing numbers replay offline (any 20+ character placeholder satisfies the key check):
@@ -132,7 +145,6 @@ GEMINI_API_KEY=replay-only-placeholder-key npm run eval:routing -- --split heldo
 
 - **Missing inputs.** When a task needs information nobody provided, agents tend to invent it or leave it out, and the reviewer rejects the work. Next: detect missing information and ask a person before work starts.
 - **Simulated people.** End-to-end tests use simulated teammates on a compressed clock; delivery days measure the plan, not a live team. Next: pilot with a real team.
-- **Scope changes are injected by the test harness.** The engine handles client messages, but the app does not yet expose a way to send one mid-run.
 - **Reproducibility.** Routing replays offline. The end-to-end recordings predate the latest reviewer and report prompt fixes, so replaying them offline stops early; re-running end to end needs a key.
 - **Free-tier quota** (500 requests per model per day) stopped several ablation runs; they are reported as stopped, not counted.
 - **No external actions yet.** Email, Slack and calendar steps are routed to people. Next: connect them behind explicit approvals.

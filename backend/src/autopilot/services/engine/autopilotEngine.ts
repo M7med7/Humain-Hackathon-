@@ -68,6 +68,7 @@ export class AutopilotEngine {
   private startedJobs = 0;
   private readonly firedMessages = new Set<number>();
   private readonly corrupted = new Set<string>();
+  private draining = false;
 
   constructor(
     private readonly services: EngineServices,
@@ -121,20 +122,38 @@ export class AutopilotEngine {
     return this.snapshot();
   }
 
+  /** The client sent a message mid-run, such as a scope change. Processed in the background; progress streams as usual. */
+  message(text: string): void {
+    if (this.run.status === 'planning') throw new Error('Wait until the plan is ready.');
+    if (this.run.status === 'completed' || this.run.status === 'stopped' || this.run.tasks.every(isTerminal)) throw new Error('This run has already finished.');
+    this.queue.push(this.hour, { type: 'client_message', message: text });
+    this.drain().catch((error: unknown) => this.stop(error));
+  }
+
   // ── Event loop ──────────────────────────────────────────────────────────────
 
+  /** One loop per run: events that arrive while it is working join its queue instead of starting a second loop. */
   private async drain(): Promise<void> {
-    for (let due = this.queue.popEarliest(); due; due = this.queue.popEarliest()) {
-      const live = due.events.filter((event) => !this.isStale(event));
-      if (live.length === 0) continue;
-      this.hour = Math.max(this.hour, due.hour);
-      const jobs: RunTask[] = [];
-      for (const event of live) await this.handle(event, jobs);
-      await runPool(jobs, this.options.maxConcurrentWorkers, (task) => this.runAgentTask(task));
-      if (!this.options.optimizations.eventDrivenSupervision) await this.services.lead.supervise(this.run);
-      this.changed();
+    if (this.draining) return;
+    this.draining = true;
+    try {
+      do {
+        for (let due = this.queue.popEarliest(); due; due = this.queue.popEarliest()) {
+          const live = due.events.filter((event) => !this.isStale(event));
+          if (live.length === 0) continue;
+          this.hour = Math.max(this.hour, due.hour);
+          if (this.run.status === 'waiting_on_people') this.run = { ...this.run, status: 'running' };
+          const jobs: RunTask[] = [];
+          for (const event of live) await this.handle(event, jobs);
+          await runPool(jobs, this.options.maxConcurrentWorkers, (task) => this.runAgentTask(task));
+          if (!this.options.optimizations.eventDrivenSupervision) await this.services.lead.supervise(this.run);
+          this.changed();
+        }
+        await this.settle();
+      } while (this.queue.size > 0 && this.run.status !== 'stopped' && this.run.status !== 'completed');
+    } finally {
+      this.draining = false;
     }
-    await this.settle();
   }
 
   /** Timers and answers for requests that are no longer open: skipped without moving the clock. */

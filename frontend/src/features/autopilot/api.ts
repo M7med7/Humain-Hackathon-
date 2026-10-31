@@ -21,6 +21,8 @@ export const autopilotApi = {
   getRun: (id: string): Promise<Run> => call(`/runs/${id}`),
   answer: (runId: string, requestId: string, response: string): Promise<Run> =>
     call(`/runs/${runId}/requests/${requestId}/answer`, { method: 'POST', body: JSON.stringify({ response }) }),
+  sendMessage: (runId: string, message: string): Promise<{ accepted: boolean }> =>
+    call(`/runs/${runId}/messages`, { method: 'POST', body: JSON.stringify({ message }) }),
 };
 
 /**

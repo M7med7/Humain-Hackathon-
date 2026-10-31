@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowUpRight, ChevronLeft, Timer } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
 import { autopilotApi } from '../api';
 import { ActivityPanel } from '../components/ActivityPanel';
+import { ClientMessage } from '../components/ClientMessage';
 import { Deliverables } from '../components/Deliverables';
 import { NeedsYou } from '../components/NeedsYou';
 import { StatusPill } from '../components/StatusPill';
@@ -16,7 +18,13 @@ export function AutopilotRun() {
   const { runId = '' } = useParams();
   const { t } = useTranslation('autopilot');
   const { run, error, replace } = useRunStream(runId);
+  const { isJudge } = useAuth();
   const [answerError, setAnswerError] = useState<string | null>(null);
+
+  // Progress arrives on the live stream; the request only hands the message to the lead agent.
+  const sendMessage = async (message: string): Promise<void> => {
+    await autopilotApi.sendMessage(runId, message);
+  };
 
   const answer = async (requestId: string, response: string): Promise<void> => {
     setAnswerError(null);
@@ -36,6 +44,7 @@ export function AutopilotRun() {
   }
 
   const live = run.status === 'planning' || run.status === 'running';
+  const acceptsMessages = !isJudge && (run.status === 'running' || run.status === 'waiting_on_people');
 
   return (
     <div className="ap">
@@ -84,6 +93,7 @@ export function AutopilotRun() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="space-y-6 min-w-0">
             <NeedsYou requests={run.requests} onAnswer={answer} />
+            {acceptsMessages && <ClientMessage onSend={sendMessage} />}
             <Timeline run={run} />
             {run.report && <ReportCard report={run.report} preferred={run.lang} />}
             <Deliverables run={run} />
