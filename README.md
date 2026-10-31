@@ -1,213 +1,151 @@
-# 01 Manager
+# ZeroOne Autopilot
 
-01 Manager is an AI-assisted project management platform for planning software projects, assigning work, tracking delivery risk, and keeping teams and clients informed. It turns a project description into a reviewable task plan, recommends assignments from team skills and capacity, and then supports execution through boards, schedules, health dashboards, reports, notifications, and integrations.
+**Give it an objective. AI agents do the work. People step in only when they're truly needed.**
 
-The application is a TypeScript monorepo with a React frontend, an Express API, Supabase authentication and PostgreSQL storage, and optional Gemini-powered planning features.
+Submission for the AI Builders Hackathon (HUMAIN × Misk), Challenge 3: Autonomous Enterprise.
 
-## What the application does
+- **Live app:** https://zeroone-autopilot.vercel.app — choose **Enter as a judge** on the sign-in page for a view-only tour of the demo space (creating runs requires an account).
+- **Evaluation results:** [`eval/RESULTS.md`](eval/RESULTS.md) · iteration log: [`eval/ITERATIONS.md`](eval/ITERATIONS.md) · test design: [`eval/README.md`](eval/README.md)
+- **Architecture:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
-- **AI project planning:** generates project summaries, tasks, estimates, dependencies, acceptance criteria, definitions of done, and technology recommendations from a project brief.
-- **Plan review and refinement:** scores plan quality, identifies timeline and workload issues, previews changes, and supports conversational refinement before saving.
-- **Smart assignment:** recommends team members using skills, experience, availability, workload, and project requirements.
-- **Task execution:** provides project boards, task details, dependencies, schedules, checklists, comments, attachments, activity history, and time tracking.
-- **Delivery intelligence:** calculates project health, workload, blocked work, overdue tasks, risk signals, burndown data, achievements, and AI-generated summaries.
-- **Portfolio visibility:** displays a cross-project roadmap, workload information, milestones, and deadline conflicts.
-- **Team collaboration:** supports project roles, invitations, notifications, notification preferences, profiles, CV-based skill extraction, and local availability settings.
-- **Reporting and sharing:** creates editable weekly reports, sends reports to Slack, and exposes token-based read-only client project views with comments.
-- **Migration and export:** previews and imports CSV data, analyzes imports, exports project data, and supports Jira and Linear migration formats.
-- **Integrations:** connects projects and tasks to GitHub, Google Calendar, and Slack. Outlook Calendar is represented in the API but is not implemented yet.
-- **User experience:** includes authentication flows, responsive layouts, dark/light themes, and English/Arabic localization with RTL support.
+## The problem
 
-## Architecture
+Project tools are good at planning work, and then they wait for people: someone still chases status, reassigns tasks and writes the report. Much of the work itself (drafts, research, pages, plans, reports) can now be done by AI. The hard part is knowing which steps truly need a person: approvals, publishing, credentials, sign-off, or information only someone has.
 
-```text
-Browser
-  |
-  v
-React 19 + Vite frontend
-  |-- Supabase client -> authentication
-  |-- REST requests
-  v
-Express 5 API
-  |-- Supabase service client -> PostgreSQL data and storage
-  |-- Gemini API -> planning, refinement, analysis, and summaries
-  |-- GitHub API -> repositories and issues
-  |-- Google Calendar API -> task calendar events
-  `-- Slack webhooks -> notifications and reports
-```
+## What Autopilot does
 
-### Main directories
+A project manager writes one objective, a deadline and the people who can approve or act. Autopilot then:
 
-```text
-01Manager/
-├── frontend/                 React application, routes, UI, and API client
-│   └── src/
-│       ├── components/       Reusable project and task components
-│       ├── contexts/         Authentication, theme, and language state
-│       ├── lib/              API client, scheduling, risk, and export logic
-│       ├── locales/          English and Arabic translations
-│       └── pages/            Application screens
-├── backend/                  Express REST API
-│   └── src/
-│       ├── lib/              Permissions, notifications, integrations, and scoring
-│       ├── routes/           API endpoints grouped by feature
-│       └── services/         AI planning and capacity services
-├── test/                     Backend Jest and frontend Vitest tests
-├── schema.sql                Supabase/PostgreSQL schema, policies, and triggers
-├── render.yaml               Render backend deployment definition
-└── docs/                     Additional QA documentation
-```
+1. **Plans** the work and schedules it against the deadline.
+2. **Routes every task** to agents, to agents plus a person, or to a person, and records the reason.
+3. **Does the agent work**, and a reviewer checks every deliverable before it is accepted.
+4. **Asks people only for real-world steps** (approve, provide information, perform an action) through a single "Needs you" list.
+5. **Adapts** when things change (a client scope change, a silent teammate, broken agent output) by re-planning, reassigning or escalating the trade-off.
+6. **Reports** the outcome in English and Arabic, built only from what actually happened, and mirrors the project into ZeroOne's board.
 
-## Technology stack
+## How it works
+
+Six agent roles share one event-driven engine:
+
+| Role | Job | Model use |
+|---|---|---|
+| Planner | Turns the objective into tasks, dependencies and estimates | At kickoff, and again only when new scope arrives |
+| Router | Decides agents / agents + person / person for each task, with a reason | Small model, structured output |
+| Scheduler | Wakes an agent only when its inputs are ready; detects stalls | None (plain code) |
+| Workers | Produce deliverables (documents, emails, plans, HTML pages) | Cheapest model first; a stronger one only after a rejected attempt; each sees only its task and direct inputs |
+| Reviewer | Checks each deliverable | Code checks first; an AI judge only when needed |
+| Lead | Reacts to changes, reassigns silent people, escalates decisions, writes the report | Reminders and deadline checks are plain code; a model only for the report |
+
+**Compute choices:** agents cost nothing while idle (event-driven, no polling loop); cheap models first with escalation only after a failed review; scoped context per agent; deterministic checks before any model call; a hard token budget per run. Every optimization can be switched off to measure its effect (see ablations in [`eval/RESULTS.md`](eval/RESULTS.md)).
+
+**Safety choices:** agents have no tools that act outside the app, so anything external is routed to a person by design; client text is passed as delimited data; model output is schema-validated and generated HTML is shown in a sandboxed iframe with scripts disabled.
+
+## Results
+
+Held-out test data was written and committed before any agent code existed ([`eval/datasets/CHECKSUMS`](eval/datasets/CHECKSUMS)). Highlights from [`eval/RESULTS.md`](eval/RESULTS.md):
+
+| Measure | Result |
+|---|---|
+| Projects delivered on time (5 held-out objectives × 2 runs) | 10 / 10 |
+| Injected problems handled (scope changes, corrupted output, silent person) | 16 / 16 |
+| Routing accuracy on 40 held-out tasks (per-task router) | 95%, with 0% missed-person and 0% unnecessary-person errors |
+| Tasks done or prepared by agents | 76% on average |
+| First-pass review acceptance | 61% |
+| Model cost per project | $0.035 on average (22 calls) |
+| Fake links in accepted deliverables | 0 of 45 |
+| Tokens saved by event-driven agents (ablation) | 58–76% |
+
+## Tech stack
 
 | Layer | Technology |
-| --- | --- |
-| Frontend | React 19, TypeScript, Vite, React Router, Tailwind CSS, Motion |
-| Localization | i18next and react-i18next |
-| Backend | Node.js, Express 5, TypeScript, Zod |
-| Data and auth | Supabase, PostgreSQL, Supabase Auth and Storage |
-| AI | Google Gemini through `@google/generative-ai` |
-| Testing | Jest, Supertest, Vitest, Testing Library |
-| Deployment | Vercel for the frontend, Render for the backend |
+|---|---|
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS, i18next (English and Arabic, RTL) — deployed on Vercel |
+| Backend | Node.js, Express 5, TypeScript, Zod — deployed on Render |
+| Data and auth | Supabase (PostgreSQL, Auth, row-level security) |
+| AI | Google Gemini Flash-Lite model tiers |
+| Tests | Jest and Supertest (backend), Vitest and Testing Library (frontend) |
 
-## Prerequisites
+## What is new in this repository
 
-- Node.js 20 or newer
-- npm
-- A Supabase project
-- A Gemini API key if AI features are required
+Autopilot is a new module built for the hackathon on top of ZeroOne Manager, an existing project-management app that provides authentication, workspaces, the task board and dashboards. The hackathon work lives in:
 
-## Local setup
+- `backend/src/autopilot/` — the agent engine, services, prompts, controllers and evaluation runner
+- `frontend/src/features/autopilot/` — the Autopilot screens (objective, run view, timeline, deliverables, report)
+- `eval/` — datasets, recorded results and the iteration log
+- `migrations/add_autopilot_runs.sql`, `migrations/add_judge_access.sql` — the new tables and view-only judge access
 
-### 1. Create the database
+## Run it locally
 
-Create a Supabase project, open its SQL editor, and run [`schema.sql`](./schema.sql), then [`migrations/fill_schema_gaps.sql`](./migrations/fill_schema_gaps.sql), then [`migrations/add_spaces.sql`](./migrations/add_spaces.sql). Together they create the application tables, relationships, update triggers, and the trigger that copies new Supabase Auth users into `public.users`.
+**Prerequisites:** Node.js 20 or newer, a Supabase project, and a Gemini API key.
 
-`add_spaces.sql` adds spaces (each organization's isolated workspace, with Admin, Developer, Member and Guest roles) and locks down row-level security. Each space has a name, an optional description and a **space key**: a unique, permanent code such as `ZEROONE` (2–10 capital letters or digits, starting with a letter) reserved for API and MCP integrations. Existing data moves into a `ZeroOne` space with the key `ZEROONE`. With row-level security on, browsers can only manage their own `public.users` row, and all other data goes through the backend, which checks the signed-in user and their space on every request.
+1. **Database.** In the Supabase SQL editor run, in order: [`schema.sql`](schema.sql), [`migrations/fill_schema_gaps.sql`](migrations/fill_schema_gaps.sql), [`migrations/add_spaces.sql`](migrations/add_spaces.sql), [`migrations/add_autopilot_runs.sql`](migrations/add_autopilot_runs.sql), [`migrations/add_judge_access.sql`](migrations/add_judge_access.sql), [`migrations/default_assigned_tech.sql`](migrations/default_assigned_tech.sql).
 
-In Supabase **Authentication → URL Configuration**, add `<frontend URL>/set-password` to the redirect URLs so space invitation emails open the app.
+2. **Backend** — create `backend/.env` (see [`.env.example`](.env.example) for every option):
 
-### 2. Configure the backend
+   ```env
+   PORT=5001
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   GEMINI_API_KEY=your-gemini-api-key
+   ALLOWED_ORIGIN=http://localhost:5173
+   ```
 
-Create `backend/.env`:
+3. **Frontend** — create `frontend/.env`:
 
-```env
-PORT=5001
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-ALLOWED_ORIGIN=http://localhost:5173
-# Frontend URL used in space invitation emails (defaults to the first ALLOWED_ORIGIN)
-APP_URL=http://localhost:5173
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-publishable-key
+   VITE_API_URL=http://localhost:5001
+   ```
 
-# Required for AI planning, refinement, import analysis, and AI summaries
-GEMINI_API_KEY=your-gemini-api-key
-AI_MODEL=gemini-2.5-flash
+4. **Start both** (two terminals):
 
-# Optional integrations
-GITHUB_TOKEN=your-github-token
-GOOGLE_CALENDAR_CLIENT_ID=your-google-client-id
-GOOGLE_CALENDAR_CLIENT_SECRET=your-google-client-secret
-APP_URL=http://localhost:5173
+   ```bash
+   cd backend && npm install && npm run dev
+   ```
+
+   ```bash
+   cd frontend && npm install && npm run dev
+   ```
+
+5. Open http://localhost:5173, sign up, choose **Autopilot**, and use **Try an example**. Keep **Simulate my team's replies** on to watch a full run in about two minutes; decisions addressed to you still wait for your answer.
+
+Never commit `.env` files or expose the service-role key to the browser. [`scripts/check-secrets.sh`](scripts/check-secrets.sh) scans for credentials and is used as a pre-commit hook.
+
+## Test it
+
+```bash
+cd backend && npm test     # 157 tests: engine, routing, reviewer, lead, auth, API
+cd frontend && npm test    # 45 tests: Autopilot views, plan diff, utilities
 ```
 
-Never expose `SUPABASE_SERVICE_ROLE_KEY` in the frontend or commit either `.env` file.
+**Reproduce the routing evaluation without an API key.** Model responses are recorded, so the held-out routing numbers replay offline (any 20+ character placeholder satisfies the key check):
 
-### 3. Configure the frontend
-
-Create `frontend/.env`:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_API_URL=http://localhost:5001
+```bash
+cd backend
+GEMINI_API_KEY=replay-only-placeholder-key npm run eval:routing -- --split heldout --variant per-task --cache replay
 ```
 
-For Google Calendar, add this authorized redirect URI to the Google OAuth client:
+**Run the full evaluation** (needs a real Gemini key; free tier works but is slow): `scripts/run-evaluation.sh` runs routing, the held-out end-to-end objectives (two trials each) and the ablations, then `cd backend && npm run eval:summary` regenerates [`eval/RESULTS.md`](eval/RESULTS.md). Each end-to-end run is saved as JSON under [`eval/results/objectives/`](eval/results/objectives/).
+
+## Limitations and next steps
+
+- **Missing inputs.** When a task needs information nobody provided, agents tend to invent it or leave it out, and the reviewer rejects the work. Next: detect missing information and ask a person before work starts.
+- **Simulated people.** End-to-end tests use simulated teammates on a compressed clock; delivery days measure the plan, not a live team. Next: pilot with a real team.
+- **Scope changes are injected by the test harness.** The engine handles client messages, but the app does not yet expose a way to send one mid-run.
+- **Reproducibility.** Routing replays offline. The end-to-end recordings predate the latest reviewer and report prompt fixes, so replaying them offline stops early; re-running end to end needs a key.
+- **Free-tier quota** (500 requests per model per day) stopped several ablation runs; they are reported as stopped, not counted.
+- **No external actions yet.** Email, Slack and calendar steps are routed to people. Next: connect them behind explicit approvals.
+
+## Project structure
 
 ```text
-http://localhost:5173/calendar/callback
+backend/            Express API (existing app routes + src/autopilot/)
+frontend/           React app (existing pages + src/features/autopilot/)
+eval/               datasets, recorded results, RESULTS.md, ITERATIONS.md
+migrations/         SQL migrations, including Autopilot and judge access
+docs/               architecture notes
+scripts/            evaluation runner and secret check
+schema.sql          base database schema
+render.yaml         backend deployment definition
 ```
-
-### 4. Install dependencies and run both applications
-
-In one terminal:
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-In another terminal:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173). The API runs on port `5001`, and its health endpoint is available at [http://localhost:5001/health](http://localhost:5001/health).
-
-## Typical workflow
-
-1. Sign up and complete a profile with skills and availability.
-2. Add team members or invite existing users.
-3. Create a project from a description or template.
-4. Review the AI-generated plan, quality findings, dependencies, and assignment recommendations.
-5. Refine the plan, preview the diff, and save it.
-6. Manage delivery from the board, calendar, task detail, team capacity, and health views.
-7. Generate a weekly report or share a restricted client link.
-
-AI plan generation has an offline fallback when Gemini is unavailable, but generative summaries and deeper AI analysis require a valid Gemini key.
-
-## Available scripts
-
-### Frontend
-
-```bash
-cd frontend
-npm run dev       # start the Vite development server
-npm run build     # type-check and create a production build
-npm run lint      # run ESLint
-npm test          # run frontend tests once
-npm run preview   # serve the production build locally
-```
-
-### Backend
-
-```bash
-cd backend
-npm run dev       # start Express with nodemon and ts-node
-npm test          # run backend unit and integration tests
-```
-
-## Deployment
-
-### Backend on Render
-
-[`render.yaml`](./render.yaml) defines the backend web service. Configure its secret environment variables in Render. For production, set `ALLOWED_ORIGIN` to the deployed frontend URL (multiple origins can be supplied as a comma-separated list) and `APP_URL` to the frontend URL used in invitation emails.
-
-Optional production variables include `GITHUB_TOKEN`, the Google Calendar credentials, and `APP_URL`. Render supplies `RENDER_EXTERNAL_URL`, which the server currently uses for a periodic health ping.
-
-### Frontend on Vercel
-
-Deploy `frontend/` as the Vercel project root and configure the three `VITE_*` variables for the production Supabase project and API URL. [`frontend/vercel.json`](./frontend/vercel.json) rewrites application routes to `index.html` for client-side routing.
-
-Update Supabase Auth redirect URLs and the Google OAuth redirect URI to include the deployed frontend domain.
-
-## Security and current limitations
-
-- The Express API uses the Supabase service-role key but does not currently authenticate incoming API requests itself. CORS is not authorization. Add token verification and enforce project permissions server-side before a public production launch.
-- The SQL row-level security policies are broad development policies, not tenant-isolated production policies.
-- Client share links are bearer tokens. Treat them as secrets and revoke them when no longer needed.
-- Slack is connected through a webhook URL stored for the project. Store and expose integration credentials carefully.
-- File uploads are limited by the application routes, but production storage policies, malware scanning, retention, and quotas should be reviewed.
-- Outlook Calendar endpoints currently report that the integration is not implemented.
-
-## Project status
-
-The repository contains a substantial working application and automated coverage for core AI, assignment, capacity, health, project, achievement, and team utility behavior. It should still be treated as a pre-production system until API authentication, tenant-scoped authorization, database policy hardening, and production integration testing are completed.
-
-## Maintaining code context
-
-The repository includes Graphify output in `graphify-out/` and generated structural notes in `context-vault/`. After major structural changes, refresh the graph and regenerate the vault so those references do not drift from the source code.
