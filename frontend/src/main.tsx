@@ -11,6 +11,24 @@ if (configuredApiUrl) {
   fetch(`${configuredApiUrl}/health`).catch(() => {});
 }
 
+// A tab opened before a deploy asks for page files that no longer exist. Reload once to
+// pick up the new version; if it fails again within a minute, let the error show.
+const STALE_RELOAD_KEY = "zeroone:stale-file-reload";
+const STALE_RELOAD_WINDOW_MS = 60_000;
+
+window.addEventListener("vite:preloadError", (event) => {
+  try {
+    const lastReload = Number(sessionStorage.getItem(STALE_RELOAD_KEY)) || 0;
+    if (Date.now() - lastReload < STALE_RELOAD_WINDOW_MS) return;
+    sessionStorage.setItem(STALE_RELOAD_KEY, String(Date.now()));
+  } catch {
+    // Without storage a reload could repeat forever, so leave the error to the error page.
+    return;
+  }
+  event.preventDefault();
+  window.location.reload();
+});
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
