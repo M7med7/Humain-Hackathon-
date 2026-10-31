@@ -89,9 +89,9 @@ export function skillMatchScore(memberSkills: string[], taskTech: string[]): num
 }
 
 export function avgSkillMatch(memberSkills: string[], tasks: Task[], userId: string): number {
-  const assigned = tasks.filter((t) => t.assigned_to === userId && t.assigned_tech.length > 0);
+  const assigned = tasks.filter((t) => t.assigned_to === userId && (t.assigned_tech ?? []).length > 0);
   if (assigned.length === 0) return -1;
-  const total = assigned.reduce((sum, t) => sum + skillMatchScore(memberSkills, t.assigned_tech), 0);
+  const total = assigned.reduce((sum, t) => sum + skillMatchScore(memberSkills, t.assigned_tech ?? []), 0);
   return Math.round(total / assigned.length);
 }
 
@@ -104,7 +104,7 @@ export function skillGapDetection(
   tasks
     .filter((t) => t.status !== "Done")
     .forEach((t) =>
-      t.assigned_tech.forEach((tech) => {
+      (t.assigned_tech ?? []).forEach((tech) => {
         const key = tech.toLowerCase();
         if (!allSkills.has(key)) {
           const prev = gapMap.get(key) ?? [];
@@ -155,7 +155,7 @@ export function suggestOwner(
     .filter((m) => !m.isLocal && m.id !== task.assigned_to)
     .map((m) => {
       const eff = perMemberMaxSP[m.id] ?? maxSP;
-      const skillScore = skillMatchScore(m.skills, task.assigned_tech);
+      const skillScore = skillMatchScore(m.skills, task.assigned_tech ?? []);
       const capacityPct = Math.max(0, 100 - computeCapacity(m.storyPoints, eff));
       return { member: m, skillScore, capacityPct, score: skillScore * 0.6 + capacityPct * 0.4 };
     })

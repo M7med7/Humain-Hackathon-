@@ -1,4 +1,15 @@
-import { computeCapacity, getInitials, computeLevelInfo } from '../../../frontend/src/lib/teamUtils';
+import { computeCapacity, getInitials, computeLevelInfo, avgSkillMatch, skillGapDetection } from '../../../frontend/src/lib/teamUtils';
+import type { Task } from '../../../frontend/src/lib/api';
+
+// Tasks Autopilot wrote before assigned_tech had a default came back with NULL technologies.
+const taskWithoutTech = { id: 't1', title: 'Write the brief', status: 'To Do', assigned_to: 'u1', assigned_tech: null } as unknown as Task;
+
+describe('tasks without technologies', () => {
+  it('does not crash the skill match or skill gap checks', () => {
+    expect(avgSkillMatch(['React'], [taskWithoutTech], 'u1')).toBe(-1);
+    expect(skillGapDetection([{ skills: ['React'] }], [taskWithoutTech])).toEqual([]);
+  });
+});
 
 describe('computeCapacity', () => {
   it('returns correct percentage', () => {

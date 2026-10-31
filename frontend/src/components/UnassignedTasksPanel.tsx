@@ -72,7 +72,7 @@ export function UnassignedTasksPanel({
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-gray-200 truncate">{task.title}</div>
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      {task.assigned_tech.slice(0, 4).map((t) => (
+                      {(task.assigned_tech ?? []).slice(0, 4).map((t) => (
                         <span
                           key={t}
                           className="text-[10px] text-gray-500 bg-white/5 border border-white/10 rounded px-1.5 py-0.5"
@@ -80,7 +80,7 @@ export function UnassignedTasksPanel({
                           {t}
                         </span>
                       ))}
-                      {task.assigned_tech.length === 0 && (
+                      {(task.assigned_tech ?? []).length === 0 && (
                         <span className="text-[10px] text-gray-600 italic">{t("unassigned.noTech")}</span>
                       )}
                     </div>
