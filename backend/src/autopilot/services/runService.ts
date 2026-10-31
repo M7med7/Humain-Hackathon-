@@ -8,6 +8,7 @@ import type { RunOwner, RunRepository, RunSummary } from '../repositories/runRep
 import { errorMessage, logger } from '../utils/logger';
 import type { AutopilotEngine } from './engine/autopilotEngine';
 import { DemoTeam, manualPeople } from './engine/people';
+import type { RunNotifier } from './notifications/runNotifier';
 
 export type EngineFactory = (config: AutopilotConfig, deps: EngineDeps) => AutopilotEngine;
 
@@ -19,6 +20,8 @@ export interface RunServiceDeps {
   mirror: RunMirror;
   createEngine: EngineFactory;
   verifyMembers: MemberCheck;
+  /** Emails the run owner when they are needed and on delivery. Optional: off without an email provider. */
+  notifier?: RunNotifier;
 }
 
 export class RunServiceError extends Error {
@@ -36,6 +39,8 @@ interface LiveRun {
   engine: AutopilotEngine;
   owner: RunOwner;
   people: Objective['people'];
+  /** Names the run owner goes by in the plan; the simulated team never answers for them. */
+  ownerNames: ReadonlySet<string>;
   simulateTeam: boolean;
   latest: Run | null;
   listeners: Set<Listener>;
@@ -145,7 +150,7 @@ export class RunService {
       simulateTimeouts: false,
       onChange: (run) => this.onChange(id, run),
     });
-    this.live.set(id, { engine, owner, people, simulateTeam, latest: null, listeners: new Set(), pendingSave: null, saving: false });
+    this.live.set(id, { engine, owner, people, ownerNames, simulateTeam, latest: null, listeners: new Set(), pendingSave: null, saving: false });
     return engine;
   }
 
@@ -178,6 +183,7 @@ export class RunService {
     logger.info('run reopened', { runId: id, spaceId: caller.spaceId });
     const entry = this.live.get(id);
     if (!entry) throw new RunServiceError(500, 'Could not reopen the run.');
+    this.deps.notifier?.prime(engine.snapshot(), entry.ownerNames);
     return entry;
   }
 
@@ -203,6 +209,11 @@ export class RunService {
         await this.deps.mirror.sync(run, entry.owner, entry.people);
       } catch (error: unknown) {
         logger.error('run save or project sync failed', { runId: id, error: errorMessage(error) });
+      }
+      try {
+        await this.deps.notifier?.notify(run, entry.owner.userId, entry.ownerNames);
+      } catch (error: unknown) {
+        logger.error('run email failed', { runId: id, error: errorMessage(error) });
       }
       if (FINISHED.has(run.status) && !entry.pendingSave) this.live.delete(id);
     }

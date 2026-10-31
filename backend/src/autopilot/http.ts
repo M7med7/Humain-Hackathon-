@@ -6,7 +6,10 @@ import { loadConfig } from './config';
 import { AutopilotController } from './controllers/autopilot.controller';
 import { createEngine } from './index';
 import { SupabaseRunRepository } from './repositories/runRepository';
+import { supabaseEmailLookup } from './repositories/userDirectory';
 import { autopilotRoutes } from './routes/autopilot.routes';
+import { ResendEmailSender } from './services/notifications/emailSender';
+import { RunNotifier } from './services/notifications/runNotifier';
 import { RunService } from './services/runService';
 import { logger } from './utils/logger';
 
@@ -23,12 +26,14 @@ export function mountAutopilot(app: Express): void {
     if (process.env.NODE_ENV === 'test') return;
     throw error;
   }
+  const notifier = config.email && new RunNotifier(new ResendEmailSender(config.email.resendApiKey, config.email.from), supabaseEmailLookup(supabase), config.email.appUrl);
   const service = new RunService(config, {
     repository: new SupabaseRunRepository(supabase),
     mirror: new ZeroOneProjectMirror(supabase),
     createEngine,
     verifyMembers: assertUsersInSpace,
+    ...(notifier && { notifier }),
   });
   app.use('/api/autopilot', autopilotRoutes(new AutopilotController(service)));
-  logger.info('autopilot mounted', { fast: config.models.fast, standard: config.models.standard });
+  logger.info('autopilot mounted', { fast: config.models.fast, standard: config.models.standard, email: Boolean(notifier) });
 }

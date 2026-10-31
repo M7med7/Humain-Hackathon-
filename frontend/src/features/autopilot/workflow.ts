@@ -5,7 +5,7 @@ export type WorkflowNode =
   | { id: string; kind: 'objective'; x: number; y: number; title: string }
   | { id: string; kind: 'task'; x: number; y: number; task: RunTask; request: HumanRequest | null; draft: Deliverable | null }
   | { id: string; kind: 'decision'; x: number; y: number; request: HumanRequest }
-  | { id: string; kind: 'report'; x: number; y: number; done: boolean };
+  | { id: string; kind: 'report'; x: number; y: number; done: boolean; finished: number; total: number };
 
 export interface WorkflowEdge {
   id: string;
@@ -59,6 +59,9 @@ export function buildWorkflow(run: Run): { nodes: WorkflowNode[]; edges: Workflo
   const openRequest = (taskId: string): HumanRequest | null => run.requests.find((request) => request.taskId === taskId && request.status === 'open') ?? null;
   const latestDraft = (taskId: string): Deliverable | null => [...run.deliverables].reverse().find((deliverable) => deliverable.taskId === taskId) ?? null;
   const decisions = run.requests.filter((request) => request.taskId === null && request.status === 'open');
+  // Removed steps no longer count towards the report.
+  const counted = run.tasks.filter((task) => task.status !== 'cancelled');
+  const finished = counted.filter((task) => task.status === 'done' || task.status === 'failed').length;
 
   const nodes: WorkflowNode[] = [{ id: OBJECTIVE_ID, kind: 'objective', x: 0, y: 0, title: run.title || run.objective }];
   for (const [column, tasks] of columns) {
@@ -69,7 +72,7 @@ export function buildWorkflow(run: Run): { nodes: WorkflowNode[]; edges: Workflo
   const endColumn = [...decisions.map((request) => ({ id: `decision:${request.id}`, request })), { id: REPORT_ID, request: null }];
   endColumn.forEach((item, row) => {
     const y = rowY(row, endColumn.length);
-    nodes.push(item.request ? { id: item.id, kind: 'decision', x: lastColumn * COLUMN_WIDTH, y, request: item.request } : { id: REPORT_ID, kind: 'report', x: lastColumn * COLUMN_WIDTH, y, done: run.status === 'completed' });
+    nodes.push(item.request ? { id: item.id, kind: 'decision', x: lastColumn * COLUMN_WIDTH, y, request: item.request } : { id: REPORT_ID, kind: 'report', x: lastColumn * COLUMN_WIDTH, y, done: run.status === 'completed', finished, total: counted.length });
   });
 
   const byId = new Map(run.tasks.map((task) => [task.id, task]));

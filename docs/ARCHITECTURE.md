@@ -34,7 +34,9 @@ Runs are live in memory while they work, and every change is saved as a snapshot
 - `POST /api/autopilot/runs/:id/changes` takes an instruction, optionally about one step. One planner call returns a checked revision: steps to update (and redo), steps to remove, and new steps (routed like the original plan). Steps an agent is working on cannot be changed.
 - `DELETE /api/autopilot/runs/:id/tasks/:taskId` removes a step without a model call. It stays visible as removed, and later steps stop waiting for it.
 
-A finished run reopens for the change and writes its report again when every step is done. A run that a server restart cut off is loaded from its snapshot when someone next answers or changes it: interrupted agent work starts again and open requests go back to people.
+A finished run reopens for the change and writes its report again when every step is done.
+
+**Email notifications** (optional, via Resend): the person who started a run is emailed once for each request waiting on them, and on each delivery. The notifier runs after the snapshot is saved, so a failed email is logged and never affects the run. Titles and reports are HTML-escaped because they come from people and models. A run that a server restart cut off is loaded from its snapshot when someone next answers or changes it: interrupted agent work starts again and open requests go back to people.
 
 ## Security
 

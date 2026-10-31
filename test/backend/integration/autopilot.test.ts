@@ -11,6 +11,8 @@ import { MemoryRunRepository } from '../../../backend/src/autopilot/repositories
 import { autopilotRoutes } from '../../../backend/src/autopilot/routes/autopilot.routes';
 import { AutopilotEngine, type EngineServices } from '../../../backend/src/autopilot/services/engine/autopilotEngine';
 import { LlmSession } from '../../../backend/src/autopilot/services/llm/llmSession';
+import type { Email } from '../../../backend/src/autopilot/services/notifications/emailSender';
+import { RunNotifier } from '../../../backend/src/autopilot/services/notifications/runNotifier';
 import type { Revision } from '../../../backend/src/autopilot/services/planner.service';
 import { RunService } from '../../../backend/src/autopilot/services/runService';
 
@@ -58,10 +60,10 @@ function stubServices(): EngineServices {
   } as unknown as EngineServices;
 }
 
-function buildApp(services: () => EngineServices = stubServices, repository = new MemoryRunRepository()): express.Express {
+function buildApp(services: () => EngineServices = stubServices, repository = new MemoryRunRepository(), notifier?: RunNotifier): express.Express {
   const factory = (cfg: AutopilotConfig, deps: EngineDeps): AutopilotEngine =>
     new AutopilotEngine(services(), { optimizations: cfg.optimizations, maxConcurrentWorkers: 1, people: deps.people, simulateTimeouts: false, ...(deps.onChange && { onChange: deps.onChange }) });
-  const service = new RunService(config, { repository, mirror: noMirror, createEngine: factory, verifyMembers: async () => undefined });
+  const service = new RunService(config, { repository, mirror: noMirror, createEngine: factory, verifyMembers: async () => undefined, ...(notifier && { notifier }) });
   const app = express();
   app.use(express.json());
   // Stands in for requireAuth + requireSpace, which are tested separately.
@@ -308,6 +310,26 @@ describe('Autopilot API', () => {
     const finished = await waitFor(after, created.body.id, (run) => run.status === 'completed');
     expect(finished.tasks.map((task) => task.status)).toEqual(['done', 'done', 'done']);
     expect(finished.people?.[0]?.name).toBe('Sara');
+  });
+
+  it('emails the run owner on delivery, and a failed email never stops the run', async () => {
+    const sent: Email[] = [];
+    const emailing = new RunNotifier({ send: async (email) => void sent.push(email) }, async () => 'owner@example.com', 'https://app.example.com');
+    const app = buildApp(stubServices, new MemoryRunRepository(), emailing);
+    const created = await request(app).post('/api/autopilot/runs').send(validBody);
+    const waiting = await waitFor(app, created.body.id, (run) => run.status === 'waiting_on_people');
+    const open = waiting.requests.find((item) => item.status === 'open');
+    await request(app).post(`/api/autopilot/runs/${created.body.id}/requests/${open?.id}/answer`).send({ response: 'Approve' });
+    await waitFor(app, created.body.id, (run) => run.status === 'completed');
+    for (let attempt = 0; attempt < 20 && sent.length === 0; attempt += 1) await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(sent.map((email) => email.subject)).toEqual(['Delivered: Spring launch']);
+
+    const failing = new RunNotifier({ send: async () => Promise.reject(new Error('provider down')) }, async () => 'owner@example.com', 'https://app.example.com');
+    const fragile = buildApp(stubServices, new MemoryRunRepository(), failing);
+    const second = await request(fragile).post('/api/autopilot/runs').send(validBody);
+    const pending = await waitFor(fragile, second.body.id, (run) => run.status === 'waiting_on_people');
+    await request(fragile).post(`/api/autopilot/runs/${second.body.id}/requests/${pending.requests.find((item) => item.status === 'open')?.id}/answer`).send({ response: 'Approve' });
+    expect((await waitFor(fragile, second.body.id, (run) => run.status === 'completed')).status).toBe('completed');
   });
 
   it('never shows a run to another space', async () => {

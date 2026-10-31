@@ -1,125 +1,24 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { Background, Controls, Handle, Position, ReactFlow, ReactFlowProvider, useReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react';
+import { Background, Controls, ReactFlow, ReactFlowProvider, useReactFlow, type Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Bot, Eye, FileText, Flag, Pause, Play, Scale, Sparkles, User, Users, X } from 'lucide-react';
+import { Eye, Pause, Play, Sparkles, X } from 'lucide-react';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { runAtEvent } from '../replay';
 import { taskStatusColor } from '../workflowStyle';
-import { buildWorkflow, COLUMN_WIDTH, OBJECTIVE_ID, REPORT_ID, type WorkflowNode } from '../workflow';
+import { buildWorkflow, OBJECTIVE_ID, REPORT_ID, type WorkflowNode } from '../workflow';
 import type { Deliverable, Run } from '../types';
 import { RequestCard } from './NeedsYou';
 import { WorkflowChat } from './WorkflowChat';
+import { DecisionNodeView, ObjectiveNodeView, ReportNodeView, TaskNodeView, type FlowNode } from './WorkflowNodes';
 
-type NodeData = { item: WorkflowNode };
-type FlowNode = Node<NodeData>;
+const nodeTypes = { objective: ObjectiveNodeView, task: TaskNodeView, decision: DecisionNodeView, report: ReportNodeView };
 
 /** Opens the conversation about the whole workflow instead of one step. */
 const WORKFLOW_PANEL = 'workflow';
 const REPLAY_STEP_MS = 350;
-const NODE_STAGGER_MS = 110;
 
-/** Boxes appear column by column, so a new plan visibly builds from the objective outwards. */
-const appear = (item: WorkflowNode): CSSProperties => ({ animationDelay: `${Math.round((item.x / COLUMN_WIDTH) * NODE_STAGGER_MS)}ms` });
-
-const EXECUTOR_ICON = { ai: Bot, hybrid: Users, human: User } as const;
-
-const hidden = { opacity: 0, width: 6, height: 6, border: 'none' };
-
-function Handles() {
-  return (
-    <>
-      <Handle type="target" position={Position.Left} style={hidden} isConnectable={false} />
-      <Handle type="source" position={Position.Right} style={hidden} isConnectable={false} />
-    </>
-  );
-}
-
-function TaskNodeView({ data, selected }: NodeProps<FlowNode>) {
-  const { t } = useTranslation('autopilot');
-  if (data.item.kind !== 'task') return null;
-  const { task, request } = data.item;
-  const Icon = EXECUTOR_ICON[task.routing.executor];
-  const color = taskStatusColor(task.status);
-  const live = task.status === 'working' || task.status === 'review';
-  const muted = task.status === 'cancelled' || task.status === 'failed';
-  return (
-    <div
-      className={`ap-node-in w-[240px] rounded-2xl bg-(--ap-surface) p-3 shadow-sm transition-shadow ${muted ? 'opacity-50' : ''}`}
-      style={{ ...appear(data.item), border: `${selected ? 2 : 1.5}px ${task.origin === 'scope_change' ? 'dashed' : 'solid'} ${color}`, boxShadow: live ? `0 0 0 4px color-mix(in srgb, ${color} 25%, transparent)` : undefined }}
-    >
-      <Handles />
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-[11px] text-(--ap-muted)">
-          <Icon className="w-3.5 h-3.5" aria-hidden />
-          {t(`executor.${task.routing.executor}`)}
-        </span>
-        {task.origin === 'scope_change' && <span className="rounded-full px-1.5 py-0.5 text-[10px] font-medium text-white" style={{ background: 'var(--ap-hybrid)' }}>{t('workflow.added')}</span>}
-      </div>
-      <p className={`mt-1.5 text-[13px] font-semibold leading-snug line-clamp-2 ${muted ? 'line-through' : ''}`} dir="auto">
-        {task.title}
-      </p>
-      <div className="mt-2 flex items-center justify-between gap-2 text-[11px]">
-        <span className="flex items-center gap-1.5" style={{ color }}>
-          <span className={`inline-block h-1.5 w-1.5 rounded-full ${live ? 'ap-live' : ''}`} style={{ background: color }} aria-hidden />
-          {t(`taskStatus.${task.status}`)}
-          {task.attempts > 1 && live ? ` · ${t('workflow.attempt', { attempt: task.attempts })}` : ''}
-        </span>
-        {request && <span className="rounded-full px-1.5 py-0.5 text-[10px] font-semibold text-(--ap-accent-ink)" style={{ background: 'var(--ap-accent)' }}>{t('workflow.needsPerson')}</span>}
-      </div>
-    </div>
-  );
-}
-
-function ObjectiveNodeView({ data }: NodeProps<FlowNode>) {
-  const { t } = useTranslation('autopilot');
-  if (data.item.kind !== 'objective') return null;
-  return (
-    <div className="ap-node-in w-[220px] rounded-2xl p-3 text-(--ap-accent-ink)" style={{ background: 'var(--ap-accent)' }}>
-      <Handles />
-      <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide opacity-90">
-        <Flag className="w-3.5 h-3.5" aria-hidden /> {t('workflow.objective')}
-      </p>
-      <p className="mt-1 text-[13px] font-semibold leading-snug line-clamp-3" dir="auto">
-        {data.item.title}
-      </p>
-    </div>
-  );
-}
-
-function DecisionNodeView({ data, selected }: NodeProps<FlowNode>) {
-  const { t } = useTranslation('autopilot');
-  if (data.item.kind !== 'decision') return null;
-  return (
-    <div className="ap-node-in w-[230px] rounded-2xl bg-(--ap-surface) p-3" style={{ ...appear(data.item), border: `${selected ? 2 : 1.5}px solid var(--ap-accent)` }}>
-      <Handles />
-      <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-(--ap-accent)">
-        <Scale className="w-3.5 h-3.5" aria-hidden /> {t('workflow.decision')}
-      </p>
-      <p className="mt-1 text-[13px] font-semibold leading-snug line-clamp-2" dir="auto">
-        {data.item.request.title}
-      </p>
-    </div>
-  );
-}
-
-function ReportNodeView({ data }: NodeProps<FlowNode>) {
-  const { t } = useTranslation('autopilot');
-  if (data.item.kind !== 'report') return null;
-  const color = data.item.done ? 'var(--ap-good)' : 'var(--ap-border)';
-  return (
-    <div className="ap-node-in w-[200px] rounded-2xl bg-(--ap-surface) p-3" style={{ ...appear(data.item), border: `1.5px solid ${color}` }}>
-      <Handles />
-      <p className="flex items-center gap-1.5 text-[13px] font-semibold">
-        <FileText className="w-4 h-4" aria-hidden style={{ color }} /> {t('workflow.report')}
-      </p>
-      <p className="mt-1 text-[11px] text-(--ap-muted)">{data.item.done ? t('workflow.reportDone') : t('workflow.reportPending')}</p>
-    </div>
-  );
-}
-
-const nodeTypes = { objective: ObjectiveNodeView, task: TaskNodeView, decision: DecisionNodeView, report: ReportNodeView };
 
 /** Refits the view when steps are added, so a scope change visibly grows the workflow. */
 function FitOnGrowth({ count }: { count: number }) {
@@ -167,13 +66,18 @@ export function WorkflowCanvas({ run, onAnswer, onView, onChange, onRemove, read
   const { nodes: items, edges: links } = useMemo(() => buildWorkflow(shown), [shown]);
 
   const nodes: FlowNode[] = items.map((item) => ({ id: item.id, type: item.kind, position: { x: item.x, y: item.y }, data: { item }, selected: item.id === selectedId, draggable: false, connectable: false }));
+  // Curved links: moving dashes where work is flowing, solid once the source is done, dashed while waiting.
   const edges: Edge[] = links.map((link) => ({
     id: link.id,
     source: link.source,
     target: link.target,
-    type: 'smoothstep',
     animated: link.active,
-    style: { stroke: link.active ? 'var(--ap-accent)' : link.done ? 'var(--ap-good)' : 'var(--ap-border)', strokeWidth: link.active ? 2.5 : 1.5 },
+    style: {
+      stroke: link.active ? 'var(--ap-accent)' : link.done ? 'var(--ap-good)' : 'var(--ap-muted)',
+      strokeWidth: link.active ? 2.5 : 1.75,
+      strokeDasharray: link.active || link.done ? undefined : '5 6',
+      opacity: link.active || link.done ? 1 : 0.6,
+    },
   }));
   const selected = items.find((item) => item.id === selectedId) ?? null;
   const changeable = !readOnly && run.status !== 'planning' && run.status !== 'stopped';
@@ -212,7 +116,7 @@ export function WorkflowCanvas({ run, onAnswer, onView, onChange, onRemove, read
           )}
         </div>
       </div>
-      <div className="ap-card relative h-[520px] overflow-hidden" dir="ltr">
+      <div className="ap-card ap-flow relative h-[520px] overflow-hidden" dir="ltr">
         <ReactFlowProvider key={replaying ? 'replay' : 'live'}>
           <ReactFlow
             nodes={nodes}
@@ -230,7 +134,7 @@ export function WorkflowCanvas({ run, onAnswer, onView, onChange, onRemove, read
             onPaneClick={() => setSelectedId(null)}
             style={{ background: 'transparent' }}
           >
-            <Background gap={20} size={1} />
+            <Background gap={20} size={1} bgColor="transparent" />
             <Controls showInteractive={false} position="bottom-left" />
             <FitOnGrowth count={items.length} />
           </ReactFlow>

@@ -26,6 +26,14 @@ export interface OptimizationFlags {
   tieredReview: boolean;
 }
 
+/** Email notifications through Resend. Absent when no key is configured, and then nothing is sent. */
+export interface EmailConfig {
+  resendApiKey: string;
+  from: string;
+  /** Base URL of the web app, for links in emails. */
+  appUrl: string;
+}
+
 export interface AutopilotConfig {
   geminiApiKey: string;
   models: ModelTiers;
@@ -36,6 +44,7 @@ export interface AutopilotConfig {
   maxConcurrentWorkers: number;
   llmTimeoutMs: number;
   llmMaxRetries: number;
+  email?: EmailConfig;
 }
 
 const flag = z
@@ -60,6 +69,11 @@ const envSchema = z.object({
   AUTOPILOT_MAX_CONCURRENT_WORKERS: z.coerce.number().int().min(1).max(8).default(3),
   AUTOPILOT_LLM_TIMEOUT_MS: z.coerce.number().int().min(5_000).default(60_000),
   AUTOPILOT_LLM_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(3),
+  RESEND_API_KEY: z.string().startsWith('re_', 'RESEND_API_KEY must start with re_').optional(),
+  // Without a verified domain, Resend only sends from its test address to the account's own email.
+  AUTOPILOT_EMAIL_FROM: z.string().min(3).default('ZeroOne Autopilot <onboarding@resend.dev>'),
+  APP_URL: z.url().optional(),
+  ALLOWED_ORIGIN: z.string().optional(),
 });
 
 /** Fallback order per model: standard work tries another standard model before the cheap one. */
@@ -92,5 +106,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AutopilotConfi
     maxConcurrentWorkers: e.AUTOPILOT_MAX_CONCURRENT_WORKERS,
     llmTimeoutMs: e.AUTOPILOT_LLM_TIMEOUT_MS,
     llmMaxRetries: e.AUTOPILOT_LLM_MAX_RETRIES,
+    ...(e.RESEND_API_KEY && {
+      email: { resendApiKey: e.RESEND_API_KEY, from: e.AUTOPILOT_EMAIL_FROM, appUrl: e.APP_URL ?? e.ALLOWED_ORIGIN?.split(',')[0]?.trim() ?? 'http://localhost:5173' },
+    }),
   };
 }

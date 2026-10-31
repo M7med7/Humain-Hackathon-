@@ -220,7 +220,8 @@
       "removed": "Step removed from the workflow.",
       "you": "You",
       "lead": "Lead agent"
-    }
+    },
+    "reportProgress": "{{finished}} of {{total}} done"
   },
   "guide": {
     "title": "Start here",
