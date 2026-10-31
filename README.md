@@ -57,7 +57,7 @@ Held-out test data was written and committed before any agent code existed ([`ev
 
 ## What we tested and what we learned
 
-**Tested:** routing on 40 held-out tasks (a third in Arabic, with look-alike pairs such as "design the printed banner" vs "collect the printed banners"); 5 held-out business processes run end to end twice each, with problems injected mid-run (client scope changes, corrupted agent output, a teammate who never answers); ablations that switch each optimization off; and 249 automated tests. Every change was made on the dev split; the held-out split was run only with the final configuration.
+**Tested:** routing on 40 held-out tasks (a third in Arabic, with look-alike pairs such as "design the printed banner" vs "collect the printed banners"); 5 held-out business processes run end to end twice each, with problems injected mid-run (client scope changes, corrupted agent output, a teammate who never answers); ablations that switch each optimization off; and 251 automated tests. Every change was made on the dev split; the held-out split was run only with the final configuration.
 
 **Learned** (full log with evidence in [`eval/ITERATIONS.md`](eval/ITERATIONS.md)):
 
@@ -128,7 +128,7 @@ Never commit `.env` files or expose the service-role key to the browser. [`scrip
 ## Test it
 
 ```bash
-cd backend && npm test     # 171 tests: engine, routing, reviewer, lead, workflow changes, notifications, auth, API
+cd backend && npm test     # 173 tests: engine, routing, reviewer, lead, workflow changes, notifications, auth, API
 cd frontend && npm test    # 78 tests: Autopilot views, workflow graph and replay, plan diff, page loading, utilities
 ```
 
