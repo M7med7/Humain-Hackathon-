@@ -72,7 +72,7 @@ export function buildRevisionPrompt(
     `- remove: ids of at most ${limits.remove} steps to drop.`,
     `- add: at most ${limits.add} new steps, numbered from t${nextId}. They may depend on existing ids or on each other.`,
     '- Leave every step the request does not mention unchanged. Steps marked [working] or [review] cannot be changed or removed.',
-    '- reply: one or two sentences to the person saying what you changed, or why nothing needed to change. Write it in the language of the change_request.',
+    '- reply: one or two sentences to the person saying what you changed, or why nothing needed to change. Name steps by their titles, never by their ids. Write it in the language of the change_request.',
     `People available for human steps: ${names}.`,
     focus ? `The request is about step ${focus.id}.\n${asData('selected_step', `${focus.title}\n${focus.description}\nDone when: ${focus.acceptanceCriteria.join('; ')}`)}` : 'The request is about the workflow as a whole.',
     asData('workflow', workflow),
