@@ -4,20 +4,22 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { SpaceGate } from "./components/SpaceGate";
 // Already bundled with SpaceGate, which shows it to people without a space.
 import { CreateSpacePage } from "./pages/CreateSpacePage";
+import { RouteError } from "./components/RouteError";
 
 // Component-level lazy loading lets ProtectedRoute check the session before
 // React imports the authenticated layout or page. Route-level lazy functions
 // would run for every matched route before the guard can render.
 export const router = createBrowserRouter([
-  { path: "/login", lazy: async () => ({ Component: (await import("./pages/LoginPage")).LoginPage }) },
-  { path: "/signup", lazy: async () => ({ Component: (await import("./pages/SignupPage")).SignupPage }) },
-  { path: "/forgot-password", lazy: async () => ({ Component: (await import("./pages/ForgotPasswordPage")).ForgotPasswordPage }) },
-  { path: "/reset-password", lazy: async () => ({ Component: (await import("./pages/ResetPasswordPage")).ResetPasswordPage }) },
-  { path: "/set-password", lazy: async () => ({ Component: (await import("./pages/SetPasswordPage")).SetPasswordPage }) },
-  { path: "/calendar/callback", lazy: async () => ({ Component: (await import("./pages/CalendarCallback")).CalendarCallback }) },
-  { path: "/client/:token", lazy: async () => ({ Component: (await import("./pages/ClientProjectView")).ClientProjectView }) },
+  { ErrorBoundary: RouteError, path: "/login", lazy: async () => ({ Component: (await import("./pages/LoginPage")).LoginPage }) },
+  { ErrorBoundary: RouteError, path: "/signup", lazy: async () => ({ Component: (await import("./pages/SignupPage")).SignupPage }) },
+  { ErrorBoundary: RouteError, path: "/forgot-password", lazy: async () => ({ Component: (await import("./pages/ForgotPasswordPage")).ForgotPasswordPage }) },
+  { ErrorBoundary: RouteError, path: "/reset-password", lazy: async () => ({ Component: (await import("./pages/ResetPasswordPage")).ResetPasswordPage }) },
+  { ErrorBoundary: RouteError, path: "/set-password", lazy: async () => ({ Component: (await import("./pages/SetPasswordPage")).SetPasswordPage }) },
+  { ErrorBoundary: RouteError, path: "/calendar/callback", lazy: async () => ({ Component: (await import("./pages/CalendarCallback")).CalendarCallback }) },
+  { ErrorBoundary: RouteError, path: "/client/:token", lazy: async () => ({ Component: (await import("./pages/ClientProjectView")).ClientProjectView }) },
   {
     path: "/",
+    ErrorBoundary: RouteError,
     Component: ProtectedRoute,
     children: [
       {

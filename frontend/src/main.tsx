@@ -16,7 +16,14 @@ if (configuredApiUrl) {
 const STALE_RELOAD_KEY = "zeroone:stale-file-reload";
 const STALE_RELOAD_WINDOW_MS = 60_000;
 
+let reloading = false;
+
 window.addEventListener("vite:preloadError", (event) => {
+  // Several files can fail at once; once a reload has started, swallow the rest.
+  if (reloading) {
+    event.preventDefault();
+    return;
+  }
   try {
     const lastReload = Number(sessionStorage.getItem(STALE_RELOAD_KEY)) || 0;
     if (Date.now() - lastReload < STALE_RELOAD_WINDOW_MS) return;
@@ -25,6 +32,7 @@ window.addEventListener("vite:preloadError", (event) => {
     // Without storage a reload could repeat forever, so leave the error to the error page.
     return;
   }
+  reloading = true;
   event.preventDefault();
   window.location.reload();
 });
