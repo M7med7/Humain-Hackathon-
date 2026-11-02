@@ -5,6 +5,7 @@ jest.mock('../../../backend/src/lib/supabase', () => ({
 }));
 
 import { clearAuthCache, requireAuth } from '../../../backend/src/lib/auth';
+import { resetGuestAiLimits } from '../../../backend/src/lib/guestAi';
 import { supabase } from '../../../backend/src/lib/supabase';
 
 const mockGetUser = supabase.auth.getUser as jest.Mock;
@@ -40,6 +41,7 @@ async function run(req: Request) {
 
 beforeEach(() => {
   clearAuthCache();
+  resetGuestAiLimits();
   mockGetUser.mockReset();
   mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
 });
@@ -75,6 +77,52 @@ describe('requireAuth', () => {
       expect(write.res.statusCode).toBe(403);
       expect(write.res.body).toMatchObject({ code: 'view_only' });
       expect(write.next).not.toHaveBeenCalled();
+    }
+  });
+
+  it('lets a judge ask the AI and generate a report, and nothing else', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'judge-1', is_anonymous: true } }, error: null });
+    const chat = await run(makeReq({ method: 'POST', path: '/ai/chat', body: { message: 'What is blocked?' } }));
+    expect(chat.next).toHaveBeenCalled();
+    const report = await run(makeReq({ method: 'POST', path: '/reports/projects/p1/generate' }));
+    expect(report.next).toHaveBeenCalled();
+
+    for (const path of ['/ai/generate', '/ai/save', '/reports/projects/p1/send-slack', '/tasks/t1/comments']) {
+      const write = await run(makeReq({ method: 'POST', path }));
+      expect(write.res.statusCode).toBe(403);
+      expect(write.next).not.toHaveBeenCalled();
+    }
+  });
+
+  it('caps how much judges can spend on the AI', async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'judge-1', is_anonymous: true } }, error: null });
+    const long = await run(makeReq({ method: 'POST', path: '/ai/chat', body: { message: 'x'.repeat(2_001) } }));
+    expect(long.res.statusCode).toBe(413);
+    const smuggled = await run(makeReq({ method: 'POST', path: '/ai/chat', body: { message: ['x'.repeat(5_000)] } }));
+    expect(smuggled.res.statusCode).toBe(413);
+
+    for (let i = 0; i < 20; i += 1) {
+      expect((await run(makeReq({ method: 'POST', path: '/ai/chat', body: { message: 'hi' } }))).next).toHaveBeenCalled();
+    }
+    const over = await run(makeReq({ method: 'POST', path: '/ai/chat', body: { message: 'hi' } }));
+    expect(over.res.statusCode).toBe(429);
+    expect(over.next).not.toHaveBeenCalled();
+  });
+
+  it('shares one AI budget across all judges', async () => {
+    for (let i = 0; i < 150; i += 1) {
+      clearAuthCache();
+      mockGetUser.mockResolvedValue({ data: { user: { id: `judge-${i}`, is_anonymous: true } }, error: null });
+      expect((await run(makeReq({ method: 'POST', path: '/ai/chat' }))).next).toHaveBeenCalled();
+    }
+    clearAuthCache();
+    mockGetUser.mockResolvedValue({ data: { user: { id: 'judge-new', is_anonymous: true } }, error: null });
+    expect((await run(makeReq({ method: 'POST', path: '/ai/chat' }))).res.statusCode).toBe(429);
+  });
+
+  it('does not limit signed-in users on the AI routes', async () => {
+    for (let i = 0; i < 25; i += 1) {
+      expect((await run(makeReq({ method: 'POST', path: '/ai/chat', body: { message: 'x'.repeat(5_000) } }))).next).toHaveBeenCalled();
     }
   });
 

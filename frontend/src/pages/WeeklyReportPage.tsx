@@ -17,6 +17,7 @@ import {
   type ReportAtRiskTask,
   type ReportWorkloadMember,
 } from "../lib/api";
+import { useAuth } from "../contexts/AuthContext";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -271,6 +272,7 @@ const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 export function WeeklyReportPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const { isJudge } = useAuth();
 
   const [report, setReport] = useState<WeeklyReport | null>(null);
   const [sections, setSections] = useState<ReportSections | null>(null);
@@ -488,14 +490,14 @@ export function WeeklyReportPage() {
           >
             <Send className="h-3.5 w-3.5" /> Email
           </button>
-          <button
+          {!isJudge && <button
             onClick={handleSendSlack}
             disabled={slackSending || slackSent}
             className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${slackSent ? "border-green-500/40 bg-green-900/20 text-green-400" : "border-purple-500/40 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white"}`}
           >
             {slackSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : slackSent ? <Check className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
             {slackSent ? "Sent!" : "Send to Slack"}
-          </button>
+          </button>}
           <button
             onClick={() => setShowSchedule((v) => !v)}
             className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${schedule.enabled ? "border-purple-500/40 bg-purple-600/15 text-purple-300" : "border-white/10 app-surface-soft text-gray-500 hover:text-white hover:app-surface-soft"}`}

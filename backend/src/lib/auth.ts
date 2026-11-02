@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { supabase } from './supabase';
+import { guestAiRefusal, isGuestAiRoute } from './guestAi';
 
 type RouteRule = { method: string; pattern: RegExp };
 
@@ -94,7 +95,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     const caller = await resolveCaller(token);
     if (!caller) return res.status(401).json({ error: 'Your session has expired. Please sign in again.' });
     const { userId, isGuest } = caller;
-    if (isGuest && !READ_METHODS.has(req.method)) return res.status(403).json({ error: VIEW_ONLY_MESSAGE, code: 'view_only' });
+    if (isGuest && !READ_METHODS.has(req.method)) {
+      if (!isGuestAiRoute(req)) return res.status(403).json({ error: VIEW_ONLY_MESSAGE, code: 'view_only' });
+      const refusal = guestAiRefusal(req, userId);
+      if (refusal) return res.status(refusal.status).json({ error: refusal.message });
+    }
 
     const selfOnly = matches(SELF_ONLY_ROUTES, req);
     if (selfOnly) {

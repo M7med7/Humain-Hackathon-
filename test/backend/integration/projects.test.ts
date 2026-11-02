@@ -114,3 +114,47 @@ describe('POST /api/projects', () => {
     expect(mockFrom.mock.calls.map(([table]) => table)).toEqual(['projects', 'team_assignments']);
   });
 });
+
+describe('GET /api/projects/:id', () => {
+  const PROJECT_ID = '33333333-3333-4333-8333-333333333333';
+  const originalJudgeSpace = process.env.JUDGE_SPACE_ID;
+  const getUser = supabase.auth.getUser as jest.Mock;
+  const getSpaceRole = jest.requireMock('../../../backend/src/lib/spaces').getSpaceRole as jest.Mock;
+
+  // Only the projects row matters to the permission check; every other table is empty.
+  const projectTables = (createdBy: string) =>
+    mockFrom.mockImplementation((table: string) =>
+      table === 'projects'
+        ? chain({ data: { id: PROJECT_ID, name: 'Demo', created_by: createdBy, space_id: SPACE_ID }, error: null })
+        : chain({ data: null, error: null }),
+    );
+
+  afterEach(() => {
+    if (originalJudgeSpace === undefined) delete process.env.JUDGE_SPACE_ID;
+    else process.env.JUDGE_SPACE_ID = originalJudgeSpace;
+    getSpaceRole.mockResolvedValue('Admin');
+  });
+
+  it('lets a judge view a project in the judge space without any edit rights', async () => {
+    process.env.JUDGE_SPACE_ID = SPACE_ID;
+    getUser.mockResolvedValueOnce({ data: { user: { id: 'judge-1', is_anonymous: true } }, error: null });
+    projectTables('owner-1');
+
+    const res = await request(app).get(`/api/projects/${PROJECT_ID}`).set('Authorization', 'Bearer judge-token').set('X-Space-Id', SPACE_ID);
+
+    expect(res.status).toBe(200);
+    expect(res.body.project.id).toBe(PROJECT_ID);
+    const { role, can_view_project, ...rest } = res.body.permissions;
+    expect({ role, can_view_project }).toEqual({ role: 'Guest', can_view_project: true });
+    expect(Object.values(rest).every((allowed) => allowed === false)).toBe(true);
+  });
+
+  it('still refuses a signed-in user who is not in the space', async () => {
+    getSpaceRole.mockResolvedValue(null);
+    projectTables('owner-1');
+
+    const res = await request(app).get(`/api/projects/${PROJECT_ID}`).set('Authorization', 'Bearer outsider-token').set('X-Space-Id', SPACE_ID);
+
+    expect(res.status).toBe(403);
+  });
+});

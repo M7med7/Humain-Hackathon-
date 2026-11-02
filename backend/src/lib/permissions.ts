@@ -48,6 +48,9 @@ export function permissionsForRole(role: ProjectRole | null): ProjectPermissions
   };
 }
 
+/** Judges may open any project in the judge space (requireSpace checks the space) and change nothing. */
+export const JUDGE_PERMISSIONS: ProjectPermissions = { ...permissionsForRole(null), role: 'Guest', can_view_project: true };
+
 export async function getProjectRole(projectId: string, userId?: string | null): Promise<ProjectRole | null> {
   if (!userId) return null;
   const [{ data: project }, { data: assignment }] = await Promise.all([

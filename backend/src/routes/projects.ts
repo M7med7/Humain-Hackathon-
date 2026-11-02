@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { demoProjects, demoTasks } from '../lib/demoData';
 import { isConnectivityError, withTimeout } from '../lib/timeout';
 import { enrichTasksWithDependencies, fetchProjectDependencies } from '../lib/taskDependencies';
-import { getProjectPermissions, normalizeRole, requireProjectPermission } from '../lib/permissions';
+import { getProjectPermissions, JUDGE_PERMISSIONS, normalizeRole, requireProjectPermission } from '../lib/permissions';
 import { getSpaceRole } from '../lib/spaces';
 
 const router = Router();
@@ -203,7 +203,7 @@ router.get('/:id', async (req, res) => {
     const doneTasks = taskList.filter((t) => t.status === 'Done').length;
     const progress = taskList.length > 0 ? Math.round((doneTasks / taskList.length) * 100) : 0;
 
-    const permissions = await getProjectPermissions(id, userId);
+    const permissions = res.locals.isGuest ? JUDGE_PERMISSIONS : await getProjectPermissions(id, userId);
     if (userId && !permissions.can_view_project) {
       return res.status(403).json({ error: 'You do not have access to this project.' });
     }
